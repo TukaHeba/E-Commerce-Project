@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained();
+            $table->string('shipping_address');
+            $table->enum('status', ['pending', 'shipped', 'delivered', 'canceled'])->default('pending');
+            $table->decimal('total_price', 10 , 2);
             $table->timestamps();
             $table->softDeletes();
         });

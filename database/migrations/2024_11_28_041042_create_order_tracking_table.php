@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('order_tracking', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->string('old_status')->nullable();
+            $table->string('new_status')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

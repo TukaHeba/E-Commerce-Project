@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->foreignId('main_category_id')
+            ->nullable()  // Make it nullable to allow the top-level category without a parent
+            ->constrained('categories') // Self-referential foreign key to the 'categories' table
+            ->nullOnDelete();  // Set to null when the referenced category is deleted
             $table->timestamps();
             $table->softDeletes();
         });
