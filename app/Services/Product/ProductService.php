@@ -18,4 +18,17 @@ class ProductService{
             throw new Exception();
         }
     }
+    public function storeProduct($data){
+        try{
+            return Product::create($data);
+        }catch(ModelNotFoundException){
+            throw new ModelNotFoundException();
+        }catch(Exception){
+            throw new Exception();
+        }catch(AccessDeniedHttpException){
+            throw new AccessDeniedHttpException();
+        }catch(Exception){
+            throw new Exception();
+        }
+    }
 }
