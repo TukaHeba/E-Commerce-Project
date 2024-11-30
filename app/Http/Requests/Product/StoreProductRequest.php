@@ -13,19 +13,19 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Prepare the data for validation.
      * This method is called before validation starts to clean or normalize inputs.
-     * 
+     *
      * @return void
      */
     protected function prepareForValidation()
     {
         $this->merge([
-            //
+            'name' => $this->name ? strtolower($this->name):null ,
         ]);
     }
 
@@ -37,25 +37,33 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name'=>'required|string|min:4|max:100',
+            'description'=>'nullable|string',
+            'price'=>'required|numeric|min:0',
+            'product_quantity'=>'required|int|min:0',
+            'category_id'=>'required|exists:categories,id'
         ];
     }
 
      /**
      * Define human-readable attribute names for validation errors.
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
     {
         return [
-            //
+            'name'=>'Product Name',
+            'description'=>'Product description',
+            'price'=>'Product Price',
+            'product_quantity'=>'product quantity',
+            'category_id'=>'category_ID',
         ];
     }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -68,6 +76,7 @@ class StoreProductRequest extends FormRequest
             'in' => 'The selected :attribute is invalid.',
             'date' => 'The :attribute must be a valid date.',
             'exists' => 'The selected :attribute is invalid.',
+            'numerice'=>'The :attribute must be a deciaml or integer value',
         ];
     }
 

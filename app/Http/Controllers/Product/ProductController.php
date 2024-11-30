@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Product;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Models\Product\Product;
+use App\Service\Product\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class ProductController extends Controller
 {
-  
+
     protected ProductService $ProductService;
 
     public function __construct(ProductService $ProductService)
