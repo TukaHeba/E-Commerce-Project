@@ -5,13 +5,15 @@ namespace App\Http\Controllers\User;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Services\User\UserService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 
+
 class UserController extends Controller
 {
-  
+
     protected UserService $UserService;
 
     public function __construct(UserService $UserService)

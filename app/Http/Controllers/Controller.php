@@ -65,6 +65,8 @@ class Controller extends BaseController
                 'per_page' => $paginator->perPage(),
                 'current_page' => $paginator->currentPage(),
                 'total_pages' => $paginator->lastPage(),
+                'next_page_url' => $paginator->nextPageUrl(),
+                'prev_page_url' => $paginator->previousPageUrl(),
             ],
         ], $status);
     }
