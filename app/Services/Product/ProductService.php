@@ -31,4 +31,15 @@ class ProductService{
             throw new Exception();
         }
     }
+    public function updateProduct($product,$data){
+        try{
+            $product->update($data);
+            $product->save();
+            return $product ;
+        }catch(ModelNotFoundException){
+            throw new ModelNotFoundException();
+        }catch(Exception){
+            throw new Exception();
+        }
+    }
 }
