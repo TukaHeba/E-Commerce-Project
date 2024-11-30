@@ -13,7 +13,7 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,7 +25,7 @@ class UpdateProductRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-           //
+            'name'=>$this->name ? strtolower($this->name):null,
         ]);
     }
 
@@ -37,7 +37,11 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name'=>'nullable|string|min:4|max:100',
+            'description'=>'nullable|string',
+            'price'=>'nullable|numeric|min:0',
+            'product_quantity'=>'nullable|int|min:0',
+            'category_id'=>'nullable|exists:categories,id'
         ];
     }
 
@@ -49,7 +53,11 @@ class UpdateProductRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            //
+            'name'=>'Product Name',
+            'description'=>'Product description',
+            'price'=>'Product Price',
+            'product_quantity'=>'product quantity',
+            'category_id'=>'category_ID',
         ];
     }
 
@@ -68,6 +76,7 @@ class UpdateProductRequest extends FormRequest
             'in' => 'The selected :attribute is invalid.',
             'date' => 'The :attribute must be a valid date.',
             'exists' => 'The selected :attribute is invalid.',
+            'numeric'=>'The :attribute must be a deciaml or integer value',
         ];
     }
 
