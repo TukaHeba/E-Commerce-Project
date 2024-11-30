@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\Category\Category;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,12 +17,16 @@ class Product extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-      //
+      'name',
+      'description',
+      'price',
+      'product_quantity',
+      'category_id'
     ];
 
     /**
      * The attributes that are not mass assignable.
-     * 
+     *
      * @var array
      */
     protected $guarded = [];
@@ -31,8 +36,9 @@ class Product extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
-      //
-    ];
+    protected $casts = [];
+    public function category(){
+        return $this->belongsTo(Category::class,'category_id');
+    }
 
 }
