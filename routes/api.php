@@ -15,5 +15,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::apiResource('products',ProductController::class);
+// Product Routes
+Route::prefix('products')->group(function () {
+
+
+    Route::get('trashed', [ProductController::class, 'showDeleted']); // List trashed products
+    Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']); // Restore a trashed product
+    Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']); // Force delete a product
+
+});
+Route::apiResource('products', ProductController::class); // CRUD operations
 
