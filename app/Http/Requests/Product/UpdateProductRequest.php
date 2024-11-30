@@ -19,13 +19,13 @@ class UpdateProductRequest extends FormRequest
     /**
      * Prepare the data for validation.
      * This method is called before validation starts to clean or normalize inputs.
-     * 
+     *
      * @return void
      */
     protected function prepareForValidation()
     {
         $this->merge([
-            //
+           //
         ]);
     }
 
@@ -43,7 +43,7 @@ class UpdateProductRequest extends FormRequest
 
      /**
      * Define human-readable attribute names for validation errors.
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
@@ -55,7 +55,7 @@ class UpdateProductRequest extends FormRequest
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
