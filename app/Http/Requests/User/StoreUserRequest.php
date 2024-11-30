@@ -2,9 +2,13 @@
 
 namespace App\Http\Requests\User;
 
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rules\Password;
+use Propaganistas\LaravelPhone\Rules\Phone;
+
+
 
 class StoreUserRequest extends FormRequest
 {
@@ -13,19 +17,20 @@ class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Prepare the data for validation.
      * This method is called before validation starts to clean or normalize inputs.
-     * 
+     *
      * @return void
      */
     protected function prepareForValidation()
     {
         $this->merge([
-            //
+            'name' => $this->name ? ucwords(trim($this->name)) : null,
+            'email' => $this->email ? strtolower(trim($this->email)) : null,
         ]);
     }
 
@@ -37,25 +42,41 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'first_name' => 'required|string|max:50|regex:/^[a-zA-Z\s]+$/',
+            'last_name' => 'required|string|max:50|regex:/^[a-zA-Z\s]+$/',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => [ 'required', 'max:30', 'confirmed',
+                          Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised() ],
+            'phone'  => ['sometimes', new Phone],
+            'address'=>'required|string|max:255',
+            'is_male'=>'required|boolean',
+            'birthdate'=>'required|date',
         ];
     }
 
      /**
      * Define human-readable attribute names for validation errors.
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
     {
         return [
-            //
+            'first_name' => 'First Name',
+            'last_name' => 'Last Name',
+            'email' => 'Email Address',
+            'password' => 'Password',
+            'phone' => 'Phone Number',
+            'address'=>'Address',
+            'is_male'=>'Male or Female',
+            'birthdate'=>'Birthday',
+
         ];
     }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -63,11 +84,19 @@ class StoreUserRequest extends FormRequest
         return [
             'required' => 'The :attribute field is required.',
             'max' => 'The :attribute may not be greater than :max characters.',
-            'min' => 'The :attribute must be at least :min characters.',
             'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
             'date' => 'The :attribute must be a valid date.',
-            'exists' => 'The selected :attribute is invalid.',
+            'first_name.regix' => 'first name must be a valid name contains only letters.',
+            'last_name.regix' => 'last name must be a valid name contains only letters.',
+            'email'=>'email must be a valid email address.',
+            'boolean'=>'The Male or Female field must be 1 or 0 .',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.min' => 'The password must be at least 8 characters.',
+            'password.letters' => 'The password must contain at least one letter.',
+            'password.mixedCase' => 'The password must contain both uppercase and lowercase letters.',
+            'password.numbers' => 'The password must contain at least one number.',
+            'password.symbols' => 'The password must contain at least one special character.',
+            'password.uncompromised' => 'The password appears in a data leak, please choose a different one.'
         ];
     }
 
