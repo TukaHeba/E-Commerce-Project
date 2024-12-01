@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\User\Auth;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
@@ -13,21 +14,9 @@ class RegisterRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     * 
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -37,25 +26,21 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-        ];
-    }
-
-     /**
-     * Define human-readable attribute names for validation errors.
-     * 
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            //
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'max:30', 'confirmed',
+                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
+            'phone' => ['string', 'max:255', 'nullable'],
+            'address' => ['required', 'string', 'max:255'],
+            'is_male' => ['required', 'boolean'],
+            'birthdate' => ['required', 'date']
         ];
     }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -68,6 +53,8 @@ class RegisterRequest extends FormRequest
             'in' => 'The selected :attribute is invalid.',
             'date' => 'The :attribute must be a valid date.',
             'exists' => 'The selected :attribute is invalid.',
+            'string' => 'The :attribute must be a string type.',
+            'boolean' => 'The :attribute must be a boolean type.',
         ];
     }
 

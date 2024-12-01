@@ -1,7 +1,7 @@
 <?php
 
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\User\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Product\ProductController;
@@ -17,9 +17,17 @@ use App\Http\Controllers\Product\ProductController;
 |
 */
 
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login',[AuthController::class,'login']);
+
+Route::middleware('auth:api')->group(function (){
+    Route::post('/logout',[AuthController::class,'logout']);
+    Route::post('/refresh-token',[AuthController::class,'refresh']);
+});
+
 
 Route::get('users/showDeleted', [UserController::class, 'showDeleted']);
-Route::apiResource('users',UserController::class);
+Route::apiResource('users', UserController::class);
 Route::post('users/{user}/restoreDeleted', [UserController::class, 'restoreDeleted']);
 Route::delete('users/{user}/forceDeleted', [UserController::class, 'forceDeleted']);
 
