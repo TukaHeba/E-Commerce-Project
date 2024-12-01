@@ -1,5 +1,5 @@
 <?php
-namespace App\Service\Product;
+namespace App\Services\Product;
 
 use Exception;
 use Illuminate\Http\Request;
@@ -161,8 +161,8 @@ class ProductService{
             return $products ;
         }catch(AccessDeniedHttpException){
             throw new AccessDeniedHttpException();
-        }catch(Exception $e){
-            throw new Exception($e->getMessage());
+        }catch(Exception){
+            throw new Exception();
         }
     }
     public function storeProduct($data){
@@ -189,5 +189,4 @@ class ProductService{
             throw new Exception();
         }
     }
-
 }

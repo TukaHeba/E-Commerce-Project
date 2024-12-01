@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Product\Product;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Service\Product\ProductService;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use App\Services\Product\ProductService;
 
 class ProductController extends Controller
 {
