@@ -27,7 +27,7 @@ class ProductController extends Controller
     public function index(Request $request): JsonResponse
     {
         $products = $this->ProductService->getProducts($request);
-        return self::paginated($products, 'Products retrieved successfully', 200);
+        return self::success($products, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -98,7 +98,8 @@ class ProductController extends Controller
         $product = Product::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'Product force deleted successfully');
     }
-     /**
+
+    /**
      * Display a listing of the Products With spicification Filter
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -110,19 +111,21 @@ class ProductController extends Controller
         if ($products->isEmpty()) {
             return response()->json(['message' => 'No Products matched!'], 404);
         }
-        return self::paginated($products, 'Products retrieved successfully', 200);
+        return self::success($products, 'Products retrieved successfully', 200);
     }
+
     /**
      *  Display a listing of the Products filtered By Category
      * @param mixed $categoryID
      * @return mixed
      */
-    public function getProductsByCategory($categoryID){
+    public function getProductsByCategory($categoryID)
+    {
         $products = $this->ProductService->getProductsByCategory($categoryID);
         if ($products->isEmpty()) {
             return response()->json(['message' => 'No Products matched!'], 404);
         }
-        return self::paginated($products, 'Products retrieved successfully', 200);
+        return self::success($products, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -139,6 +142,6 @@ class ProductController extends Controller
         }
 
         // Return paginated products with a success message.
-         return self::paginated($products, 'Products retrieved successfully', 200);
+        return self::success($products, 'Products retrieved successfully', 200);
     }
 }

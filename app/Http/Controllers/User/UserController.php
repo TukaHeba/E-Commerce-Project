@@ -28,7 +28,7 @@ class UserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $users = $this->UserService->getUsers($request);
-        return self::paginated($users, 'Users retrieved successfully', 200);
+        return self::success($users, 'Users retrieved successfully', 200);
     }
 
     /**
