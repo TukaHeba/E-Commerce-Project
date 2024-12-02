@@ -81,6 +81,17 @@ class User extends  Authenticatable implements JWTSubject
         return [];
     }
 
+
+    /**
+     * Get the Oauth for the user
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function providers()
+    {
+        return $this->hasMany(Provider::class);
+    }
+
+
     /**
      * Get the orders for the user.
      *

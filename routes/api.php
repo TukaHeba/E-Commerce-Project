@@ -20,9 +20,18 @@ use App\Http\Controllers\Product\ProductController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',[AuthController::class,'login']);
 
-Route::middleware('auth:api')->group(function (){
-    Route::post('/logout',[AuthController::class,'logout']);
-    Route::post('/refresh-token',[AuthController::class,'refresh']);
+Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh-token', [AuthController::class, 'refresh']);
+});
+//Oauth
+Route::get('/auth/{provider}', [AuthController::class,'redirectToProvider']);
+Route::get('/auth/{provider}/callback', [AuthController::class,'handleProviderCallback']);
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh-token', [AuthController::class, 'refresh']);
 });
 
 
@@ -35,12 +44,14 @@ Route::delete('users/{user}/forceDeleted', [UserController::class, 'forceDeleted
 // Product Routes
 Route::prefix('products')->group(function () {
 
-
     Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']);                       //list latest products added
     Route::get('filter', [ProductController::class, 'getProductsWithFilter']);                            //list product with filter (price & name & category_id & latest)
     Route::get('trashed', [ProductController::class, 'showDeleted']);                                     // List trashed products
     Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']);                            // Restore a trashed product
     Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']);                       // Force delete a product
+    Route::get('trashed', [ProductController::class, 'showDeleted']); // List trashed products
+    Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']); // Restore a trashed product
+    Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']); // Force delete a product
 
 });
 Route::apiResource('products', ProductController::class); // CRUD operations

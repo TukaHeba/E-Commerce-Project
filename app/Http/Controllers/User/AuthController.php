@@ -7,6 +7,7 @@ use App\Http\Requests\User\Auth\LoginRequest;
 use App\Http\Requests\User\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Services\User\AuthService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -81,5 +82,33 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+
+    /**
+     *  Redirect the user to the Provider authentication page.
+     *
+     * @param $provider
+     * @return mixed
+     * @throws \Exception
+     */
+    public function redirectToProvider($provider)
+    {
+        return $this->authService->redirectToProvider($provider);
+    }
+
+    /**
+     *  Obtain the user information from Provider.
+     *
+     * @param $provider
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function handleProviderCallback($provider)
+    {
+        $data = $this->authService->handleProviderCallback($provider);
+        $data['user'] = new UserResource($data['user']);
+        return self::success($data);
+    }
+
 
 }
