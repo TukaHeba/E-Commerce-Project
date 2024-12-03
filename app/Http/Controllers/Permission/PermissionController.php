@@ -6,35 +6,39 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Permission\StorePermissionRequest;
 use App\Http\Requests\Permission\UpdatePermissionRequest;
 use App\Http\Resources\PermissionResource;
-use Illuminate\Http\Request;
+use App\Services\Permission\PermissionService;
 use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
+    protected $permissionService;
+    public function __construct(PermissionService $permissionService)
+    {
+        $this->permissionService = $permissionService;
+    }
+
     /**
      * Get list of permissions
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
-        $permissions = Cache::remember("permissions", 600, function () {
-            return Permission::all();
-        });
-
-        return self::success(PermissionResource::collection($permissions));
+        $response = $this->permissionService->getAll();
+        return self::success(PermissionResource::collection($response['permissions']));
     }
 
     /**
      * Create new permission in storage
      * @param \App\Http\Requests\Permission\StorePermissionRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(StorePermissionRequest $request)
     {
-        $permission = Permission::create($request->validated());
-
-        return self::success($permission, 'Permission created successfully', 201);
+        $response = $this->permissionService->createNew($request->validated());
+        return $response['status']
+            ? self::success($response['permission'], 'Permission created successfully', 201)
+            : self::error(null, $response['msg'], $response['code']);
     }
 
     /**
@@ -59,22 +63,10 @@ class PermissionController extends Controller
      */
     public function update(UpdatePermissionRequest $request, $id)
     {
-        $permission = Permission::find($id);
-        if (!$permission) {
-            return self::error('', 'Permission not found', 404);
-        }
-
-        $filteredData = array_filter($request->validated(), function ($value) {
-            return !is_null($value) && trim($value) !== '';
-        });
-
-        if (count($filteredData) < 1) {
-            return self::error($filteredData, 'Not Found Any Data to Update', 404);
-        }
-
-        $permission->update($filteredData);
-
-        return self::success(new PermissionResource($permission), 'Permission updated successfully');
+        $response = $this->permissionService->change($request->validated(), $id);
+        return $response['status']
+            ? self::success(new PermissionResource($response['permission']), 'Permission Updated Successfully', 200)
+            : self::error(new PermissionResource($response['permission']), $response['msg'], $response['code']);
     }
 
     /**
