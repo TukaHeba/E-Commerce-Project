@@ -1,10 +1,13 @@
 <?php
 
 
+use App\Http\Controllers\Permission\PermissionController;
+use App\Http\Controllers\Role\RoleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Product\ProductController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +22,7 @@ use App\Http\Controllers\Product\ProductController;
 
 
 Route::get('users/showDeleted', [UserController::class, 'showDeleted']);
-Route::apiResource('users',UserController::class);
+Route::apiResource('users', UserController::class);
 Route::post('users/{user}/restoreDeleted', [UserController::class, 'restoreDeleted']);
 Route::delete('users/{user}/forceDeleted', [UserController::class, 'forceDeleted']);
 
@@ -39,3 +42,8 @@ Route::apiResource('products', ProductController::class); // CRUD operations
 
 
 Route::get('category/{categoryID}/products', [ProductController::class, 'getProductsByCategory']);
+
+
+Route::apiResource('roles', RoleController::class); // CRUD Roles
+
+Route::apiResource('permissions', PermissionController::class); // CRUD Permissions
