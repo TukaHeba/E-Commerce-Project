@@ -3,6 +3,7 @@
 namespace App\Models\Product;
 
 use App\Models\Category\Category;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,7 +59,7 @@ class Product extends Model
      * @param int $limit - The number of products to retrieve (default is 25).
      * @return \Illuminate\Database\Eloquent\Builder - Returns the query filtered by category.
      */
-    public function scopeByCategory($query, $category_id, $limit = 25)
+    public function scopeByCategory($query, $category_id, $limit = 30)
     {
         return $query->where('category_id', $category_id)->take($limit);
     }
@@ -70,7 +71,7 @@ class Product extends Model
      * @param int $limit - The number of latest products to retrieve (default is 25).
      * @return \Illuminate\Database\Eloquent\Builder - Returns the query ordered by creation date, limited to the specified number.
      */
-    public function scopeLatestProducts($query, $limit = 25)
+    public function scopeLatestProducts($query, $limit = 30)
     {
         return $query->orderBy('created_at', 'desc')->take($limit);
     }
@@ -86,14 +87,42 @@ class Product extends Model
      * @param int $limit - The number of products to retrieve (default is 25).
      * @return \Illuminate\Database\Eloquent\Builder - Returns the filtered query based on the specified criteria.
      */
-    public function scopeFilterProducts($query, $price = null, $name = null, $category_id = null, $latest = false, $limit = 25)
+    public function scopeFilterProducts($query, $price = null, $name = null, $category_id = null, $latest = false, $user_id = null, $limit = 100)
     {
         return $query
-            ->when($name, fn($q) => $q->where('name', 'LIKE', '%' . $name . '%'))
-            ->when($category_id, fn($q) => $q->where('category_id', $category_id))
-            ->when($price && in_array($price, ['asc', 'desc']), fn($q) => $q->orderBy('price', $price))
-            ->when($latest, fn($q) => $q->orderBy('created_at', 'desc'))
+            ->when($name, function ($q) use ($name) {
+                $q->where('products.name', 'LIKE', '%' . $name . '%');
+            })
+            ->when($user_id, function ($q) use ($user_id) {
+                $q->whereIn('products.category_id', function ($subQuery) use ($user_id) {
+                    $subQuery->select('products.category_id')
+                            ->from('favorites')
+                            ->join('products', 'favorites.product_id', '=', 'products.id')
+                            ->where('favorites.user_id', $user_id);
+                });
+            })
+            ->when($price && in_array($price, ['asc', 'desc']), function ($q) use ($price) {
+                $q->orderBy('products.price', $price);
+            })
+            ->when($latest, function ($q) {
+                $q->orderBy('products.created_at', 'desc');
+            })
+            ->when($category_id, function ($q) use ($category_id) {
+                $q->where('products.category_id', $category_id);
+            })
             ->where('product_quantity', '>', 0)
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->select(
+                'products.id',
+                'products.name',
+                'products.description',
+                'products.price',
+                'categories.name as category_name',
+                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
+            )
+            ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'categories.name')
+            ->orderByDesc('total_sold')
             ->take($limit);
     }
 
@@ -108,4 +137,15 @@ class Product extends Model
         return $query->where('product_quantity', '>', 0);
     }
 
+    public function scopeBestSelling($query)
+    {
+        return $query
+            ->join('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->select('products.id', 'products.name', 'products.description', 'products.price','categories.name as category_name', DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold'))
+            ->groupBy('products.id', 'products.name', 'products.description', 'products.price','categories.name')
+            ->having('total_sold', '>', 0)
+            ->orderByDesc('total_sold')
+            ->take(30);
+    }
 }

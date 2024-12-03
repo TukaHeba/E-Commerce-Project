@@ -26,16 +26,12 @@ Route::delete('users/{user}/forceDeleted', [UserController::class, 'forceDeleted
 
 // Product Routes
 Route::prefix('products')->group(function () {
-
-
-    Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']);                       //list latest products added
-    Route::get('filter', [ProductController::class, 'getProductsWithFilter']);                            //list product with filter (price & name & category_id & latest)
+    Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']);                       // list latest products added
+    Route::get('hotSelling', [ProductController::class, 'getBestSellingProducts']);                       // list best selling products
+    Route::get('category/{categoryID}', [ProductController::class, 'getProductsByCategory']);             // list products by category
     Route::get('trashed', [ProductController::class, 'showDeleted']);                                     // List trashed products
     Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']);                            // Restore a trashed product
     Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']);                       // Force delete a product
 
 });
 Route::apiResource('products', ProductController::class); // CRUD operations
-
-
-Route::get('category/{categoryID}/products', [ProductController::class, 'getProductsByCategory']);

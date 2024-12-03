@@ -55,12 +55,12 @@ class Controller extends BaseController
      * @param string $resourceClass The resource class used to transform the paginated items.
      * @param string $message Optional message to be included in the response.
      * @param int $status HTTP status code.
-     * 
-     * @return \Illuminate\Http\JsonResponse 
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public static function paginated(LengthAwarePaginator $paginator, $resourceClass, $message = '', $status)
+    public static function paginated(LengthAwarePaginator $paginator, $resourceClass = null, $message = '', $status)
     {
-        $transformedItems = $resourceClass::collection($paginator->items());
+        $transformedItems = is_null($resourceClass) ? $paginator->items() : $resourceClass::collection($paginator->items());
 
         return response()->json([
             'status' => 'success',
@@ -77,4 +77,5 @@ class Controller extends BaseController
             ],
         ], $status);
     }
+
 }
