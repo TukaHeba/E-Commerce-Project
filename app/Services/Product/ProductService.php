@@ -65,7 +65,7 @@ class ProductService{
             $cache_key = $this->generateCacheKey('products_by_category', ['category' => $category->name]);
             $this->addCasheKey($cache_key);
             return Cache::remember($cache_key, now()->addHour(), function () use ($category_id) {
-                return Product::byCategory($category_id)->latestProducts()->bestSelling()->available()->paginate(10);
+                return Product::byCategory($category_id)->bestSelling()->available()->paginate(10);
             });
 
         } catch (ModelNotFoundException $e) {
@@ -130,11 +130,11 @@ class ProductService{
     public function getBestSellingProducts()
     {
         try{
-            $cache_key = 'best_selling_products';
+            $cache_key = 'best_selling_products44';
             $this->addCasheKey($cache_key);
 
             return Cache::remember($cache_key, now()->addHour(), function ()  {
-                return Product::bestSelling()->latestProducts()->available()->paginate(10);
+                return Product::bestSelling()->available()->paginate(10);
             });
             } catch (Exception $e) {
                 Log::error('Error retrieving products: ' . $e->getMessage());
