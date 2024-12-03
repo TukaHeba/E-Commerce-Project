@@ -80,6 +80,9 @@ class RoleService
         }
 
         $role->update($filteredData);
-        return ['status' => true];
+        return [
+            'status' => true,
+            'role' => $role
+        ];
     }
 }
