@@ -29,6 +29,7 @@ Route::prefix('products')->group(function () {
     Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']);                       // list latest products added
     Route::get('hotSelling', [ProductController::class, 'getBestSellingProducts']);                       // list best selling products
     Route::get('category/{categoryID}', [ProductController::class, 'getProductsByCategory']);             // list products by category
+    Route::get('you-may-like', [ProductController::class, 'getProductsUserMayLike']);                    // List products usr may like
     Route::get('trashed', [ProductController::class, 'showDeleted']);                                     // List trashed products
     Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']);                            // Restore a trashed product
     Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']);                       // Force delete a product

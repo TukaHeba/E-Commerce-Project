@@ -130,7 +130,7 @@ class ProductService{
     public function getBestSellingProducts()
     {
         try{
-            $cache_key = 'best_selling_products44';
+            $cache_key = 'best_selling_products';
             $this->addCasheKey($cache_key);
 
             return Cache::remember($cache_key, now()->addHour(), function ()  {
@@ -141,6 +141,24 @@ class ProductService{
                 throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
             }
     }
+
+    public function getProductsUserMayLike(){
+        try{
+            $user_id = auth()->check() ?  auth()->id()
+                                       :  throw new HttpResponseException(response()->json(['message' => 'User not authenticated'], 401));
+            // $user_id = 1;   // to test resuelt without auth // للحذف
+            $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
+            $this->addCasheKey($cache_key);
+
+            return Cache::remember($cache_key, now()->addHour(), function () use($user_id)  {
+                return Product::mayLikeProducts($user_id)->available()->paginate(10);
+            });
+            } catch (Exception $e) {
+                Log::error('Error retrieving products: ' . $e->getMessage());
+                throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
+            }
+    }
+
     public function storeProduct($data){
         try{
             return Product::create($data);
@@ -166,3 +184,6 @@ class ProductService{
         }
     }
 }
+/**
+ *
+ */

@@ -148,4 +148,40 @@ class Product extends Model
             ->orderByDesc('total_sold')
             ->take(30);
     }
+    /**
+     * Scope to get products may user like it
+     * By join products.id with favourites.products_id tables
+     * then take the products.category_id and join with categories.id tables
+     * to get all products that belong to products category from favourites table
+     * جلب منتجات فئات المنتجات التي اعجب بها المستخدم / للحذف /
+     * @param mixed $query
+     * @param mixed $user_id
+     * @return mixed
+     */
+    public function scopeMayLikeProducts($query,$user_id){
+        return $query
+        ->when($user_id, function ($q) use ($user_id) {               // get categories of products that user like it .
+            $q->whereIn('products.category_id', function ($subQuery) use ($user_id) {
+                $subQuery->select('products.category_id')
+                         ->from('favorites')
+                         ->join('products', 'favorites.product_id', '=', 'products.id')     // I used join becouse it faster than with relation .
+                         ->where('favorites.user_id', $user_id);
+            })
+            ->whereNotExists(function ($subQuery) use ($user_id) {     // to avoid show products allready user liked it .
+                $subQuery->select(DB::raw(1))
+                         ->from('favorites')
+                         ->whereRaw('favorites.product_id = products.id')
+                         ->where('favorites.user_id', $user_id);
+            });
+        })
+        ->select(
+            'products.id',
+            'products.name',
+            'products.description',
+            'products.price',
+            'categories.name as category_name'
+        )
+        ->join('categories', 'products.category_id', '=', 'categories.id')     // get products belonf to these categories
+        ->distinct();                                                          // to avoid repeate products if user like many products belongs to same category.
+    }
 }
