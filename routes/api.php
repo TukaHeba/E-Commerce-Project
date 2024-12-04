@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Product\ProductController;
 
+use App\Http\Controllers\User\PasswordResetController;
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,6 +31,9 @@ Route::middleware('auth:api')->group(function () {
 Route::get('/auth/{provider}', [AuthController::class,'redirectToProvider']);
 Route::get('/auth/{provider}/callback', [AuthController::class,'handleProviderCallback']);
 
+//reset password
+Route::post('/password/forgot', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
