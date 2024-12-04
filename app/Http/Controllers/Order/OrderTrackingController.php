@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\OrderTracking;
+namespace App\Http\Controllers\Order;
 
 use App\Http\Requests\OrderTracking\StoreOrderTrackingRequest;
 use App\Http\Requests\OrderTracking\UpdateOrderTrackingRequest;
