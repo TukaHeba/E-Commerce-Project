@@ -18,7 +18,7 @@ class ProductSeeder extends Seeder
             'description'=>'decription for product_1',
             'price'=>299.99,
             'product_quantity'=>22,
-            'category_id'=>1,
+            'sub_category_id'=>1,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -27,7 +27,7 @@ class ProductSeeder extends Seeder
             'description'=>'decription for product_2',
             'price'=>415.20,
             'product_quantity'=>44,
-            'category_id'=>2,
+            'sub_category_id'=>2,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -36,7 +36,7 @@ class ProductSeeder extends Seeder
             'description'=>'decription for product_3',
             'price'=>299.99,
             'product_quantity'=>31,
-            'category_id'=>3,
+            'sub_category_id'=>3,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -45,7 +45,7 @@ class ProductSeeder extends Seeder
             'description'=>'decription for product_4',
             'price'=>399.99,
             'product_quantity'=>25,
-            'category_id'=>4,
+            'sub_category_id'=>4,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -54,7 +54,7 @@ class ProductSeeder extends Seeder
             'description'=>'decription for product_5',
             'price'=>412.15,
             'product_quantity'=>15,
-            'category_id'=>5,
+            'sub_category_id'=>5,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
