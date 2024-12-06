@@ -147,7 +147,7 @@ class ProductService{
         try{
             $user_id = auth()->check() ?  auth()->id()
                                        :  throw new HttpResponseException(response()->json(['message' => 'User not authenticated'], 401));
-            // $user_id = 1;   // to test resuelt without auth // للحذف
+            // $user_id = 10;   // to test resuelt without auth // للحذف
             $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
             $this->addCasheKey($cache_key);
 
