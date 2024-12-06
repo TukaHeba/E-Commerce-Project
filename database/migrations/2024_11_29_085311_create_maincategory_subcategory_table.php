@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('main_category_id')->constrained('main_categories')->cascadeOnDelete();
             $table->foreignId('sub_category_id')->constrained('sub_categories')->cascadeOnDelete();
+            $table->unique(['main_category_id', 'sub_category_id'], 'unique_main_sub_category');
             $table->timestamps();
             $table->softDeletes();
         });
