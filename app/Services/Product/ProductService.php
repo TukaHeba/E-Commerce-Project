@@ -8,6 +8,7 @@ use App\Models\Category\Category;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\Product\UpdateProductRequest;
+use App\Models\Category\SubCategory;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -54,18 +55,18 @@ class ProductService{
     /**
      * Retrieve products by category with caching and pagination.
      *
-     * @param int $category_id - The ID of the category to filter products by.
+     * @param int $sub_category_id - The ID of the category to filter products by.
      * @return \Illuminate\Pagination\LengthAwarePaginator - Returns a paginated list of products within the specified category.
      * @throws \Illuminate\Http\Exceptions\HttpResponseException - Throws an exception if the category is not found or if there is a server error.
      */
-    public function getProductsByCategory($category_id)
+    public function getProductsByCategory($sub_category_id)
     {
         try {
-            $category = Category::findOrFail($category_id);
-            $cache_key = $this->generateCacheKey('products_by_category', ['category' => $category->name]);
+            $category = SubCategory::findOrFail($sub_category_id);
+            $cache_key = $this->generateCacheKey('products_by_category', ['category' => $category->sub_category_name]);
             $this->addCasheKey($cache_key);
-            return Cache::remember($cache_key, now()->addHour(), function () use ($category_id) {
-                return Product::byCategory($category_id)->bestSelling()->available()->paginate(10);
+            return Cache::remember($cache_key, now()->addHour(), function () use ($sub_category_id) {
+                return Product::byCategory($sub_category_id)->bestSelling()->available()->paginate(10);
             });
 
         } catch (ModelNotFoundException $e) {
@@ -146,7 +147,7 @@ class ProductService{
         try{
             $user_id = auth()->check() ?  auth()->id()
                                        :  throw new HttpResponseException(response()->json(['message' => 'User not authenticated'], 401));
-            // $user_id = 1;   // to test resuelt without auth // للحذف
+            // $user_id = 10;   // to test resuelt without auth // للحذف
             $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
             $this->addCasheKey($cache_key);
 
