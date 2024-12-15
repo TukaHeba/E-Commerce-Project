@@ -41,20 +41,20 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+
         return [
-            'first_name' => 'sometimes|string|max:50|regex:/^[a-zA-Z\s]+$/',
-            'last_name' => 'sometimes|string|max:50|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'sometimes|string|email|max:255|unique:users,email',
-            'password' => [ 'sometimes', 'max:30', 'confirmed',
-                          Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised() ],
-            'phone'  => ['sometimes', new Phone],
-            'address'=>'sometimes|string|max:255',
-            'is_male'=>'sometimes|boolean',
-            'birthdate'=>'sometimes|date',
+            'first_name' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'last_name' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email,' . $this->user->id],
+            'password' => ['nullable', 'max:30', 'confirmed', Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
+            'phone' => ['nullable', new Phone],
+            'address' => ['nullable', 'string', 'max:255'],
+            'is_male' => ['nullable', 'boolean'],
+            'birthdate' => ['nullable', 'date', 'before:today'],
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      *
      * @return array<string, string>
@@ -67,9 +67,9 @@ class UpdateUserRequest extends FormRequest
             'email' => 'Email Address',
             'password' => 'Password',
             'phone' => 'Phone Number',
-            'address'=>'Address',
-            'is_male'=>'Male or Female',
-            'birthdate'=>'Birthday',
+            'address' => 'Address',
+            'is_male' => 'Male or Female',
+            'birthdate' => 'Birthday',
         ];
     }
 
@@ -86,7 +86,7 @@ class UpdateUserRequest extends FormRequest
             'date' => 'The :attribute must be a valid date.',
             'first_name.regix' => 'first name must be a valid name contains only letters.',
             'last_name.regix' => 'last name must be a valid name contains only letters.',
-            'email'=>'email must be a valid email address.',
+            'email' => 'email must be a valid email address.',
             'password.confirmed' => 'The password confirmation does not match.',
             'password.min' => 'The password must be at least 8 characters.',
             'password.letters' => 'The password must contain at least one letter.',
