@@ -43,14 +43,14 @@ class UpdateUserRequest extends FormRequest
     {
 
         return [
-            'first_name' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-Z\s\'-]+$/'],
-            'last_name' => ['sometimes', 'string', 'max:50', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'first_name' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'last_name' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z\s\'-]+$/'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email,' . $this->user->id],
-            'password' => ['sometimes', 'max:30', 'confirmed', Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
-            'phone' => ['sometimes', new Phone],
-            'address' => ['sometimes', 'string', 'max:255'],
-            'is_male' => ['sometimes', 'boolean'],
-            'birthdate' => ['sometimes', 'date', 'before:today'],
+            'password' => ['nullable', 'max:30', 'confirmed', Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
+            'phone' => ['nullable', new Phone],
+            'address' => ['nullable', 'string', 'max:255'],
+            'is_male' => ['nullable', 'boolean'],
+            'birthdate' => ['nullable', 'date', 'before:today'],
         ];
     }
 
