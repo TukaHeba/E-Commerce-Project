@@ -13,66 +13,32 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    /**
-     * @var AuthService
-     */
-    protected $authService;
+    protected AuthService $authService;
 
-    /**
-     * AuthController constructor.
-     *
-     * @param AuthService $authService
-     */
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
     }
 
-
-    /**
-     * Register a user
-     *
-     * @param RegisterRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $data = $this->authService->register($request->validationData());
-        $data['user'] = new UserResource($data['user']);
-        return self::success($data, 'registered successfully!', 201);
+        $data = $this->authService->register($request->validated());
+        return self::success($data, 'Registered successfully!', 201);
     }
 
-    /**
-     * Login a user.
-     *
-     * @param LoginRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
-        $credentials = $request->validated();
-        $response = $this->authService->login($credentials);
-        $response['user'] = new UserResource($response['user']);
-        return self::success($response, 'logged in successfully', 200);
+        $response = $this->authService->login($request->validated());
+        return self::success($response, 'Logged in successfully', 200);
     }
 
-    /**
-     * logout a user.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         Auth::logout();
         return self::success(null, 'Logged out successfully');
     }
 
-    /**
-     * refresh token
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh()
+    public function refresh(): JsonResponse
     {
         return self::success([
             'user' => new UserResource(Auth::user()),
@@ -83,32 +49,14 @@ class AuthController extends Controller
         ]);
     }
 
-
-    /**
-     *  Redirect the user to the Provider authentication page.
-     *
-     * @param $provider
-     * @return mixed
-     * @throws \Exception
-     */
-    public function redirectToProvider($provider)
+    public function redirectToProvider(string $provider)
     {
         return $this->authService->redirectToProvider($provider);
     }
 
-    /**
-     *  Obtain the user information from Provider.
-     *
-     * @param $provider
-     * @return JsonResponse
-     * @throws \Exception
-     */
-    public function handleProviderCallback($provider)
+    public function handleProviderCallback(string $provider): JsonResponse
     {
         $data = $this->authService->handleProviderCallback($provider);
-        $data['user'] = new UserResource($data['user']);
         return self::success($data);
     }
-
-
 }
