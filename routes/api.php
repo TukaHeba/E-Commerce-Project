@@ -41,6 +41,9 @@ Route::prefix('products')->group(function () {
 Route::apiResource('products', ProductController::class); // CRUD operations
 
 
+Route::get('category/{categoryID}/products', [ProductController::class, 'getProductsByCategory']);
+
+
 Route::apiResource('roles', RoleController::class); // CRUD Roles
 
 Route::apiResource('permissions', PermissionController::class); // CRUD Permissions
