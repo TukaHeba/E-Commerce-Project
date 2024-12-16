@@ -44,15 +44,10 @@ class ProductService{
      */
     public function clearProductCache()
     {
-        // Get the cache keys list
         $cacheKeys = Cache::get('product_cache_keys', []);
-
-        // Loop through and forget each cached product entry
         foreach ($cacheKeys as $cacheKey) {
             Cache::forget($cacheKey);
         }
-
-        // Optionally clear the cache key list itself
         Cache::forget('task_cache_keys');
     }
 
@@ -66,29 +61,18 @@ class ProductService{
     public function getProductsByCategory($category_id)
     {
         try {
-            // Find the category by its ID or throw a 404 error if not found.
             $category = Category::findOrFail($category_id);
-
-            // Generate a unique cache key based on the category name.
             $cache_key = $this->generateCacheKey('products_by_category', ['category' => $category->name]);
-
-            // Add the cache key to product_cache_keys
             $this->addCasheKey($cache_key);
-
-            // Retrieve products from the cache or fetch from the database if not cached.
-            // The cache duration is set to 1 hour.
             return Cache::remember($cache_key, now()->addHour(), function () use ($category_id) {
-                // Fetch products by category, filter for availability, and paginate the results (10 items per page).
-                return Product::byCategory($category_id)->available()->paginate(10);
+                return Product::byCategory($category_id)->bestSelling()->available()->paginate(10);
             });
 
         } catch (ModelNotFoundException $e) {
-            // Log the error and return a 404 response if the category is not found.
             Log::error('Category not found: ' . $e->getMessage());
             throw new HttpResponseException(response()->json(['message' => 'Category not found!'], 404));
 
         } catch (Exception $e) {
-            // Log any other errors and return a 500 response for server errors.
             Log::error('Error retrieving products: ' . $e->getMessage());
             throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
         }
@@ -101,21 +85,12 @@ class ProductService{
      */
     public function getLatestProducts()
     {
-        // Define a unique cache key for the latest products.
         $cache_key = 'latest_products';
-
-        // Add the cache key to product_cache_keys
         $this->addCasheKey($cache_key);
-
-        // Retrieve products from the cache or fetch from the database if not cached.
-        // The cache duration is set to 1 hour.
         return Cache::remember($cache_key, now()->addHour(), function () {
-            // Fetch the latest products, ensuring only available products are retrieved.
-            // Results are paginated, returning 10 items per page.
-            return Product::latestProducts()->available()->paginate(10);
+            return Product::latestProducts()->available()->with('category')->paginate(10);
         });
     }
-
 
     /**
      * Retrieve filtered products with caching and pagination based on query parameters.
@@ -133,38 +108,57 @@ class ProductService{
             $name = $request->query('name');               // Product name or partial name for search.
             $category_id = $request->query('category_id'); // Category ID to filter by.
             $latest = (bool)$request->query('latest');     // Boolean flag to sort by the latest products.
+            $user_id = auth()->check() ? auth()->id() : null;   // User id if user logged in get the favourite category products from favourites table
 
-            // Generate a unique cache key based on the filter parameters.
-            $cache_key = $this->generateCacheKey('products_filter', compact('price', 'name', 'category_id', 'latest'));
-
-            // Add the cache key to product_cache_keys
+            $cache_key = $this->generateCacheKey('products_filter', compact('price', 'name', 'category_id', 'latest','user_id'));
             $this->addCasheKey($cache_key);
 
-            // Retrieve products from the cache or fetch from the database if not cached.
-            // The cache duration is set to 1 hour.
-            return Cache::remember($cache_key, now()->addHour(), function () use ($price, $name, $category_id, $latest) {
-                // Apply filters to the products query and paginate the results.
-                return Product::filterProducts($price, $name, $category_id, $latest)->paginate(10);
+            return Cache::remember($cache_key, now()->addHour(), function () use ($price, $name, $category_id, $latest,$user_id) {
+                return Product::filterProducts($price, $name, $category_id, $latest,$user_id)->paginate(10);
             });
         } catch (Exception $e) {
-            // Log any other errors that occur during product retrieval.
             Log::error('Error retrieving products: ' . $e->getMessage());
-
-            // Return a 500 response indicating a server error.
             throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
         }
     }
-
-    public function getProducts(Request $request){
+    /**
+     * Retrieve hot selling products with caching and pagination .
+     * @param mixed $request
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     * @return mixed
+     */
+    public function getBestSellingProducts()
+    {
         try{
-            $products = Product::with('category')->paginate(5);
-            return $products ;
-        }catch(AccessDeniedHttpException){
-            throw new AccessDeniedHttpException();
-        }catch(Exception){
-            throw new Exception();
-        }
+            $cache_key = 'best_selling_products';
+            $this->addCasheKey($cache_key);
+
+            return Cache::remember($cache_key, now()->addHour(), function ()  {
+                return Product::bestSelling()->available()->paginate(10);
+            });
+            } catch (Exception $e) {
+                Log::error('Error retrieving products: ' . $e->getMessage());
+                throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
+            }
     }
+
+    public function getProductsUserMayLike(){
+        try{
+            $user_id = auth()->check() ?  auth()->id()
+                                       :  throw new HttpResponseException(response()->json(['message' => 'User not authenticated'], 401));
+            // $user_id = 1;   // to test resuelt without auth // للحذف
+            $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
+            $this->addCasheKey($cache_key);
+
+            return Cache::remember($cache_key, now()->addHour(), function () use($user_id)  {
+                return Product::mayLikeProducts($user_id)->available()->paginate(10);
+            });
+            } catch (Exception $e) {
+                Log::error('Error retrieving products: ' . $e->getMessage());
+                throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
+            }
+    }
+
     public function storeProduct($data){
         try{
             return Product::create($data);
@@ -190,3 +184,6 @@ class ProductService{
         }
     }
 }
+/**
+ *
+ */
