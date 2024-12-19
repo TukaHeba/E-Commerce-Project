@@ -17,19 +17,6 @@ class UpdateRoleRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     *
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -37,8 +24,8 @@ class UpdateRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'nullable|string|unique:roles,name',
-            'guard_name' => 'nullable|string|min:2',
+            'name' => 'nullable|string|min:3|max:100|unique:roles,name',
+            'guard_name' => 'nullable|string|min:3|max:50',
         ];
     }
 
@@ -50,8 +37,8 @@ class UpdateRoleRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => 'Role name',
-            'guard_name' => 'Guard name'
+            'name' => 'Role Name',
+            'guard_name' => 'Guard Name'
         ];
     }
 
@@ -67,9 +54,7 @@ class UpdateRoleRequest extends FormRequest
             'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
             'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
-            'exists' => 'The selected :attribute is invalid.',
+            'string' => 'The :attribute must be a valid string.',
         ];
     }
 

@@ -2,87 +2,126 @@
 
 namespace App\Services\Permission;
 
-use Exception;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PermissionService
 {
     /**
-     * Get list of permissions
-     * @return array
+     * Retrieve all permissions with pagination.
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator Paginated permissions.
+     * 
+     * @throws QueryException If retrieval fails.
+     * @throws AuthorizationException If the user is not authorized to access permissions.
+     * @throws AuthenticationException If the user is unauthenticated.
      */
-    public function getAll()
+    public function getPermissions()
     {
-        $permissions = Cache::remember("permissions", 600, function () {
-            return Permission::all();
-        });
-
-
-        return [
-            'status' => true,
-            'permissions' => $permissions
-        ];
+        try {
+            return Permission::paginate(10);
+        } catch (QueryException $e) {
+            Log::error('Failed to retrieve permissions: ' . $e->getMessage());
+            throw $e;
+        } catch (AuthorizationException $e) {
+            Log::error('Failed to retrieve permissions: ' . $e->getMessage());
+            throw $e;
+        } catch (AuthenticationException $e) {
+            Log::error('Failed to retrieve permissions: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
-     * Store permission in storage
-     * @param array $data
-     * @return array
+     * Create a new permission with the provided data.
+     *
+     * @param array $data The validated data to create a permission.
+     * @return Permission|null The created permission object on success, or null on failure.
+     * 
+     * @throws QueryException If permission creation fails.
+     * @throws AuthorizationException If the user is not authorized to create a permission.
+     * @throws AuthenticationException If the user is unauthenticated.
      */
-    public function createNew(array $data)
+    public function storePermission(array $data)
     {
         try {
             $permission = Permission::create($data);
-            return [
-                'status' => true,
-                'permission' => $permission
-            ];
-        } catch (Exception $e) {
-            return [
-                'status' => false,
-                'msg' => $e->getMessage(),
-                'code' => 500
-            ];
+            return $permission;
+        } catch (QueryException $e) {
+            Log::error('Permission creation failed: ' . $e->getMessage());
+            throw $e;
+        } catch (AuthorizationException $e) {
+            Log::error('Permission creation failed: ' . $e->getMessage());
+            throw $e;
+        } catch (AuthenticationException $e) {
+            Log::error('Permission creation failed: ' . $e->getMessage());
+            throw $e;
         }
-
     }
 
     /**
-     * Update permission info
-     * @param array $data
-     * @param string $id
-     * @return array
+     * Display the specified permission along with its associated permissions.
+     *
+     * @param \Spatie\Permission\Models\Permission $permission The permission instance to display.
+     * @return \Spatie\Permission\Models\Permission The permission instance with loaded permissions.
+     * 
+     * @throws ModelNotFoundException If the permission is not found.
+     * @throws AuthorizationException If the user is not authorized to access the permission.
+     * @throws AuthenticationException If the user is unauthenticated.
+     * @throws QueryException If a database query error occurs.
      */
-    public function change(array $data, string $id)
+    public function showPermission(Permission $permission)
     {
-        $permission = Permission::find($id);
-        if (!$permission) {
-            return [
-                'status' => false,
-                'permission' => $permission,
-                'msg' => 'Permission not found',
-                'code' => 404
-            ];
+        try {
+            return $permission->load('roles');
+        } catch (ModelNotFoundException $e) {
+            Log::error('Failed to retrieve permission: ' . $e->getMessage());
+            throw $e;
+        } catch (AuthorizationException $e) {
+            Log::error('Failed to retrieve permission: ' . $e->getMessage());
+            throw $e;
+        } catch (AuthenticationException $e) {
+            Log::error('Failed to retrieve permission: ' . $e->getMessage());
+            throw $e;
+        } catch (QueryException $e) {
+            Log::error('Failed to retrieve permission: ' . $e->getMessage());
+            throw $e;
         }
+    }
 
-        $filteredData = array_filter($data, function ($value) {
-            return !is_null($value) && trim($value) !== '';
-        });
-
-        if (count($filteredData) < 1) {
-            return [
-                'status' => false,
-                'permission' => $permission,
-                'msg' => 'Not Found Any Data to Update',
-                'code' => 400
-            ];
+    /**
+     * Update an existing permission with the provided data.
+     *
+     * @param Permission $permission The Permission to update.
+     * @param array $data The validated data to update the permission.
+     * @return Permission|null The updated permission object on success, or null on failure.
+     * 
+     * @throws ModelNotFoundException If the permission is not found.
+     * @throws QueryException If the update fails.
+     * @throws AuthorizationException If the user is not authorized to update the permission.
+     * @throws AuthenticationException If the user is unauthenticated.
+     */
+    public function updatePermission(Permission $permission, array $data)
+    {
+        try {
+            $permission->update(array_filter($data));
+            return $permission;
+        } catch (ModelNotFoundException $e) {
+            Log::error('Permission update failed: ' . $e->getMessage());
+            throw $e;
+        } catch (QueryException $e) {
+            Log::error('Permission update failed: ' . $e->getMessage());
+            throw $e;
+        } catch (AuthorizationException $e) {
+            Log::error('Failed to retrieve permissions: ' . $e->getMessage());
+            throw $e;
+        } catch (AuthenticationException $e) {
+            Log::error('Failed to retrieve permissions: ' . $e->getMessage());
+            throw $e;
         }
-
-        $permission->update($filteredData);
-        return [
-            'status' => true,
-            'permission' => $permission
-        ];
     }
 }

@@ -2,86 +2,79 @@
 
 namespace App\Http\Controllers\Role;
 
+use Illuminate\Http\JsonResponse;
+use App\Services\Role\RoleService;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RoleResource;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
-use App\Http\Resources\RoleResource;
-use App\Services\Role\RoleService;
-use Illuminate\Support\Facades\Cache;
-use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
-    protected $roleService;
-    public function __construct(RoleService $roleService)
+    protected RoleService $RoleService;
+    public function __construct(RoleService $RoleService)
     {
-        $this->roleService = $roleService;
+        $this->RoleService = $RoleService;
     }
 
     /**
-     * Get list of roles
+     * Display a listing of the resource.
+     * 
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        $response = $this->roleService->getAll();
-        return self::success(RoleResource::collection($response['roles']));
+        $roles = $this->RoleService->getRoles();
+        return self::paginated($roles, RoleResource::class, 'Roles retrieved successfully', 200);
     }
 
     /**
-     * Create new role in storage
+     * Store a newly created resource in storage.
+     * 
      * @param \App\Http\Requests\Role\StoreRoleRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StoreRoleRequest $request)
+    public function store(StoreRoleRequest $request): JsonResponse
     {
-        $response = $this->roleService->createNew($request->validated());
-        return $response['status']
-            ? self::success($response['role'], 'Role created successfully', 201)
-            : self::error(null, $response['msg'], $response['code']);
+        $role = $this->RoleService->storeRole($request->validated());
+        return self::success(new RoleResource($role), 'Role created successfully', 201);
     }
 
     /**
-     * Get role info
+     * Display the specified resource.
+     * 
      * @param \Spatie\Permission\Models\Role $role
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Role $role): JsonResponse
     {
-        $role = Role::find($id);
-        if (!$role) {
-            return self::error('', 'Role Not Found', 404);
-        }
-        return self::success(new RoleResource($role));
+        $roleData = $this->RoleService->showRole($role);
+        return self::success(new RoleResource($roleData), 'Role retrieved successfully', 200);
     }
 
     /**
-     * Update role info
+     * Update the specified resource in storage.
+     * 
      * @param \App\Http\Requests\Role\UpdateRoleRequest $request
-     * @param mixed $id
+     * @param \Spatie\Permission\Models\Role $role
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateRoleRequest $request, $id)
+    public function update(UpdateRoleRequest $request, Role $role): JsonResponse
     {
-        $response = $this->roleService->change($request->validated(), $id);
-        return $response['status']
-            ? self::success(new RoleResource($response['role']), 'Role Updated Successfully', 200)
-            : self::error(new RoleResource($response['role']), $response['msg'], $response['code']);
+        $updatedRole = $this->RoleService->updateRole($role, $request->validated());
+        return self::success(new RoleResource($updatedRole), 'Role updated successfully', 200);
     }
 
     /**
-     * Delete role from storage
-     * @param mixed $id
+     * Remove the specified resource from storage.
+     * 
+     * @param \Spatie\Permission\Models\Role $role
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function destroy(Role $role): JsonResponse
     {
-        $role = Role::without('users')->find($id); // تجاهل العلاقة أثناء الجلب
-        if (!$role) {
-            return self::error('', 'Role not found', 404);
-        }
         $role->delete();
-
-        return self::success('', 'Role deleted successfully', 200);
+        return self::success(null, 'Role deleted successfully', 200);
     }
 }
