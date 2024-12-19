@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use App\Http\Resources\ProductResource;
 use App\Services\Product\ProductService;
 
 class ProductController extends Controller
@@ -18,16 +19,6 @@ class ProductController extends Controller
     public function __construct(ProductService $ProductService)
     {
         $this->ProductService = $ProductService;
-    }
-
-    /**
-     * Display a listing of the resource.
-     * @throws \Exception
-     */
-    public function index(Request $request): JsonResponse
-    {
-        $products = $this->ProductService->getProducts($request);
-        return self::success($products, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -98,34 +89,31 @@ class ProductController extends Controller
         $product = Product::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'Product force deleted successfully');
     }
-
-    /**
-     * Display a listing of the Products With spicification Filter
+/**
+     * Display a listing of the Products With spicification Filter  //index//
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getProductsWithFilter(Request $request)
+    public function index(Request $request)
     {
         $products = $this->ProductService->getProductsWithFilter($request);
 
         if ($products->isEmpty()) {
-            return response()->json(['message' => 'No Products matched!'], 404);
-        }
-        return self::success($products, 'Products retrieved successfully', 200);
+            return self::error(null, 'No Products matched!',404);
+            }
+        return self::paginated($products,null,'Products retrieved successfully', 200 );
     }
-
     /**
      *  Display a listing of the Products filtered By Category
      * @param mixed $categoryID
      * @return mixed
      */
-    public function getProductsByCategory($categoryID)
-    {
+    public function getProductsByCategory($categoryID){
         $products = $this->ProductService->getProductsByCategory($categoryID);
         if ($products->isEmpty()) {
-            return response()->json(['message' => 'No Products matched!'], 404);
-        }
-        return self::success($products, 'Products retrieved successfully', 200);
+            return self::error(null, 'No Products matched!',404);
+                }
+        return self::paginated($products, ProductResource::class,'Products retrieved successfully', 200);
     }
 
     /**
@@ -135,13 +123,31 @@ class ProductController extends Controller
     public function getLatestProducts()
     {
         $products = $this->ProductService->getLatestProducts();
-
-        // Check if the paginated collection is empty.
         if ($products->isEmpty()) {
-            return response()->json(['message' => 'No products found!'], 404);
+            return self::error(null, 'No Products matched!',404);
+          }
+        return self::paginated($products, ProductResource::class,'Products retrieved successfully', 200);
+    }
+    /**
+     * Retrieve hot selling products with caching and pagination .
+     * @return JsonResponse
+     */
+    public function getBestSellingProducts(){
+        $products = $this->ProductService->getBestSellingProducts();
+        if ($products->isEmpty()) {
+            return self::error(null, 'No Products matched!',404);
         }
-
-        // Return paginated products with a success message.
-        return self::success($products, 'Products retrieved successfully', 200);
+        return self::paginated($products, null,'Products retrieved successfully', 200);
+    }
+    /**
+     * Retrieve products the user may like
+     * @return JsonResponse
+     */
+    public function getProductsUserMayLike(){
+        $products = $this->ProductService->getProductsUserMayLike();
+        if ($products->isEmpty()) {
+            return self::error(null, 'No Products matched!',404);
+        }
+        return self::paginated($products, null,'Products retrieved successfully', 200);
     }
 }

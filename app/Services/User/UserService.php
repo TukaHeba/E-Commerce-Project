@@ -2,9 +2,12 @@
 
 namespace App\Services\User;
 
+use Exception;
 use App\Models\User\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class UserService
 {
@@ -19,10 +22,10 @@ class UserService
     {
         try {
             return User::paginate(10);
-        } catch (\Exception $e) {
-            Log::error('Failed to retrieve users: ' . $e->getMessage());
-            throw new \Exception('An error occurred on the server.');
-        }
+        } catch (Exception $e) {
+             Log::error('Failed to retrieve users: ' . $e->getMessage());
+            throw $e;
+        } 
     }
 
     /**
@@ -37,9 +40,9 @@ class UserService
         try {
             $user = User::create($data);
             return $user;
-        } catch (\Exception $e) {
+        }catch (QueryException $e) {
             Log::error('User creation failed: ' . $e->getMessage());
-            throw new \Exception('An error occurred on the server.');
+            throw $e;
         }
     }
 
@@ -54,11 +57,14 @@ class UserService
     public function updateUser(User $user, array $data): ?User
     {
         try {
-            $user->update($data);
+            $user->update(array_filter($data));
             return $user;
-        } catch (\Exception $e) {
+        }catch (ModelNotFoundException $e) {
             Log::error('User update failed: ' . $e->getMessage());
-            throw new \Exception('An error occurred on the server.');
+            throw $e;
+        } catch (QueryException $e) {
+            Log::error('User update failed: ' . $e->getMessage());
+            throw $e;
         }
     }
 

@@ -46,21 +46,15 @@ Route::apiResource('users', UserController::class);
 Route::post('users/{user}/restoreDeleted', [UserController::class, 'restoreDeleted']);
 Route::delete('users/{user}/forceDeleted', [UserController::class, 'forceDeleted']);
 
-
 // Product Routes
 Route::prefix('products')->group(function () {
-
-    Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']);                       //list latest products added
-    Route::get('filter', [ProductController::class, 'getProductsWithFilter']);                            //list product with filter (price & name & category_id & latest)
-    Route::get('trashed', [ProductController::class, 'showDeleted']);                                     // List trashed products
-    Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']);                            // Restore a trashed product
-    Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']);                       // Force delete a product
+    Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']); // List latest products added
+    Route::get('filter', [ProductController::class, 'getProductsWithFilter']); // List products with filters (price, name, category_id, latest)
+    Route::get('hotSelling', [ProductController::class, 'getBestSellingProducts']); // List best-selling products
+    Route::get('category/{categoryID}', [ProductController::class, 'getProductsByCategory']); // List products by category
+    Route::get('you-may-like', [ProductController::class, 'getProductsUserMayLike']); // List products user may like
     Route::get('trashed', [ProductController::class, 'showDeleted']); // List trashed products
     Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']); // Restore a trashed product
     Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']); // Force delete a product
-
 });
 Route::apiResource('products', ProductController::class); // CRUD operations
-
-
-Route::get('category/{categoryID}/products', [ProductController::class, 'getProductsByCategory']);
