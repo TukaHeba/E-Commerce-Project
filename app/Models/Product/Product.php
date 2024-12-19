@@ -3,6 +3,7 @@
 namespace App\Models\Product;
 
 use App\Models\Category\Category;
+use App\Models\Category\SubCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,7 +23,7 @@ class Product extends Model
       'description',
       'price',
       'product_quantity',
-      'category_id'
+      'sub_category_id'
     ];
 
     protected $hidden = ['product_quantity'];
@@ -48,7 +49,7 @@ class Product extends Model
      */
     public function category()
     {
-      return $this->belongsTo(Category::class, 'category_id');
+      return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
 
     /**
@@ -59,9 +60,9 @@ class Product extends Model
      * @param int $limit - The number of products to retrieve (default is 25).
      * @return \Illuminate\Database\Eloquent\Builder - Returns the query filtered by category.
      */
-    public function scopeByCategory($query, $category_id, $limit = 30)
+    public function scopeByCategory($query, $sub_category_id, $limit = 30)
     {
-        return $query->where('category_id', $category_id)->take($limit);
+        return $query->where('sub_category_id', $sub_category_id)->take($limit);
     }
 
     /**
@@ -87,15 +88,15 @@ class Product extends Model
      * @param int $limit - The number of products to retrieve (default is 25).
      * @return \Illuminate\Database\Eloquent\Builder - Returns the filtered query based on the specified criteria.
      */
-    public function scopeFilterProducts($query, $price = null, $name = null, $category_id = null, $latest = false, $user_id = null, $limit = 100)
+    public function scopeFilterProducts($query, $price = null, $name = null, $sub_category_id = null, $latest = false, $user_id = null, $limit = 100)
     {
         return $query
             ->when($name, function ($q) use ($name) {
                 $q->where('products.name', 'LIKE', '%' . $name . '%');
             })
             ->when($user_id, function ($q) use ($user_id) {
-                $q->whereIn('products.category_id', function ($subQuery) use ($user_id) {
-                    $subQuery->select('products.category_id')
+                $q->whereIn('products.sub_category_id', function ($subQuery) use ($user_id) {
+                    $subQuery->select('products.sub_category_id')
                             ->from('favorites')
                             ->join('products', 'favorites.product_id', '=', 'products.id')
                             ->where('favorites.user_id', $user_id);
@@ -107,21 +108,21 @@ class Product extends Model
             ->when($latest, function ($q) {
                 $q->orderBy('products.created_at', 'desc');
             })
-            ->when($category_id, function ($q) use ($category_id) {
-                $q->where('products.category_id', $category_id);
+            ->when($sub_category_id, function ($q) use ($sub_category_id) {
+                $q->where('products.sub_category_id', $sub_category_id);
             })
             ->where('product_quantity', '>', 0)
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')
             ->select(
                 'products.id',
                 'products.name',
                 'products.description',
                 'products.price',
-                'categories.name as category_name',
+                'sub_categories.sub_category_name as category_name',
                 DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
             )
-            ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'categories.name')
+            ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'sub_categories.sub_category_name')
             ->orderByDesc('total_sold')
             ->take($limit);
     }
@@ -140,11 +141,17 @@ class Product extends Model
     public function scopeBestSelling($query)
     {
         return $query
-            ->join('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
-            ->select('products.id', 'products.name', 'products.description', 'products.price','categories.name as category_name', DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold'))
-            ->groupBy('products.id', 'products.name', 'products.description', 'products.price','categories.name')
-            ->having('total_sold', '>', 0)
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')
+            ->select(
+                'products.id',
+                'products.name',
+                'products.description',
+                'products.price',
+                'sub_categories.sub_category_name as category_name',
+                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
+            )
+            ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'sub_categories.sub_category_name')
             ->orderByDesc('total_sold')
             ->take(30);
     }
@@ -161,8 +168,8 @@ class Product extends Model
     public function scopeMayLikeProducts($query,$user_id){
         return $query
         ->when($user_id, function ($q) use ($user_id) {               // get categories of products that user like it .
-            $q->whereIn('products.category_id', function ($subQuery) use ($user_id) {
-                $subQuery->select('products.category_id')
+            $q->whereIn('products.sub_category_id', function ($subQuery) use ($user_id) {
+                $subQuery->select('products.sub_category_id')
                          ->from('favorites')
                          ->join('products', 'favorites.product_id', '=', 'products.id')     // I used join becouse it faster than with relation .
                          ->where('favorites.user_id', $user_id);
@@ -179,9 +186,9 @@ class Product extends Model
             'products.name',
             'products.description',
             'products.price',
-            'categories.name as category_name'
+            'sub_categories.sub_category_name as category_name'
         )
-        ->join('categories', 'products.category_id', '=', 'categories.id')     // get products belonf to these categories
+        ->join('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')     // get products belonf to these categories
         ->distinct();                                                          // to avoid repeate products if user like many products belongs to same category.
     }
 }

@@ -146,7 +146,7 @@ class ProductController extends Controller
     public function getProductsUserMayLike(){
         $products = $this->ProductService->getProductsUserMayLike();
         if ($products->isEmpty()) {
-            return self::error(null, 'No Products matched!',404);
+            return self::error(null, 'Like Some Products,Please!',404);
         }
         return self::paginated($products, null,'Products retrieved successfully', 200);
     }
