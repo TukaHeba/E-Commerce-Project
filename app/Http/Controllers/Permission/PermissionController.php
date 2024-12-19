@@ -2,86 +2,79 @@
 
 namespace App\Http\Controllers\Permission;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Permission\StorePermissionRequest;
-use App\Http\Requests\Permission\UpdatePermissionRequest;
+use Spatie\Permission\Models\Permission;
 use App\Http\Resources\PermissionResource;
 use App\Services\Permission\PermissionService;
-use Illuminate\Support\Facades\Cache;
-use Spatie\Permission\Models\Permission;
+use App\Http\Requests\Permission\StorePermissionRequest;
+use App\Http\Requests\Permission\UpdatePermissionRequest;
 
 class PermissionController extends Controller
 {
-    protected $permissionService;
-    public function __construct(PermissionService $permissionService)
+    protected $PermissionService;
+    public function __construct(PermissionService $PermissionService)
     {
-        $this->permissionService = $permissionService;
+        $this->PermissionService = $PermissionService;
     }
 
     /**
-     * Get list of permissions
+     * Display a listing of the resource.
+     * 
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        $response = $this->permissionService->getAll();
-        return self::success(PermissionResource::collection($response['permissions']));
+        $permissions = $this->PermissionService->getPermissions();
+        return self::paginated($permissions, PermissionResource::class, 'Permissions retrieved successfully', 200);
     }
 
     /**
-     * Create new permission in storage
+     * Store a newly created resource in storage.
+     * 
      * @param \App\Http\Requests\Permission\StorePermissionRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StorePermissionRequest $request)
+    public function store(StorePermissionRequest $request): JsonResponse
     {
-        $response = $this->permissionService->createNew($request->validated());
-        return $response['status']
-            ? self::success($response['permission'], 'Permission created successfully', 201)
-            : self::error(null, $response['msg'], $response['code']);
+        $permission = $this->PermissionService->storePermission($request->validated());
+        return self::success(new PermissionResource($permission), 'Permission created successfully', 201);
     }
 
     /**
-     * Get permission info
+     * Display the specified resource.
+     * 
      * @param \Spatie\Permission\Models\Permission $permission
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Permission $permission): JsonResponse
     {
-        $permission = Permission::find($id);
-        if (!$permission) {
-            return self::error('', 'Permission Not Found', 404);
-        }
-        return self::success(new PermissionResource($permission));
+        $permissionData = $this->PermissionService->showPermission($permission);
+        return self::success(new PermissionResource($permissionData), 'Permission retrieved successfully', 200);
     }
 
     /**
-     * Update permission info
+     * Update the specified resource in storage.
+     * 
      * @param \App\Http\Requests\Permission\UpdatePermissionRequest $request
-     * @param mixed $id
+     * @param \Spatie\Permission\Models\Permission $permission
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdatePermissionRequest $request, $id)
+    public function update(UpdatePermissionRequest $request, Permission $permission): JsonResponse
     {
-        $response = $this->permissionService->change($request->validated(), $id);
-        return $response['status']
-            ? self::success(new PermissionResource($response['permission']), 'Permission Updated Successfully', 200)
-            : self::error(new PermissionResource($response['permission']), $response['msg'], $response['code']);
+        $updatedPermission = $this->PermissionService->updatePermission($permission, $request->validated());
+        return self::success(new PermissionResource($updatedPermission), 'Permission updated successfully', 200);
     }
 
     /**
-     * Delete permission from storage
-     * @param mixed $id
+     * Remove the specified resource from storage.
+     * 
+     * @param \Spatie\Permission\Models\Permission $permission
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function destroy(Permission $permission): JsonResponse
     {
-        $permission = Permission::find($id);
-        if (!$permission) {
-            return self::error('', 'Permission not found', 404);
-        }
         $permission->delete();
-
-        return self::success('', 'Permission deleted successfully', 200);
+        return self::success(null, 'Permission deleted successfully', 200);
     }
 }
