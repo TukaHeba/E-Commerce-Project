@@ -1,6 +1,9 @@
 <?php
 
 
+use App\Http\Controllers\Permission\PermissionController;
+use App\Http\Controllers\Role\RoleController;
+use Illuminate\Http\Request;
 use App\Http\Controllers\User\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserController;
@@ -58,3 +61,11 @@ Route::prefix('products')->group(function () {
     Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']); // Force delete a product
 });
 Route::apiResource('products', ProductController::class); // CRUD operations
+
+
+Route::get('category/{categoryID}/products', [ProductController::class, 'getProductsByCategory']);
+
+
+Route::apiResource('roles', RoleController::class); // CRUD Roles
+
+Route::apiResource('permissions', PermissionController::class); // CRUD Permissions
