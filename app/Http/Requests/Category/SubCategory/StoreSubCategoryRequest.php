@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Category;
+namespace App\Http\Requests\Category\SubCategory;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateCategoryRequest extends FormRequest
+class StoreSubCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,9 @@ class UpdateCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'sub_category_name' => 'required|string|unique:sub_categories,sub_category_name|min:4|max:50',
+            'main_category_name' => 'sometimes|nullable|array',
+            'main_category_name.*' => 'sometimes|nullable|exists:main_categories,id',
         ];
     }
 
@@ -49,7 +51,9 @@ class UpdateCategoryRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            //
+            'sub_category_name' => 'sub category name',
+            'main_category_name' => 'main category name',
+            'main_category_name.*' => 'main category name',
         ];
     }
 
@@ -62,12 +66,11 @@ class UpdateCategoryRequest extends FormRequest
     {
         return [
             'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
-            'min' => 'The :attribute must be at least :min characters.',
             'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
+            'min' => 'The :attribute must be at least :min characters.',
+            'max' => 'The :attribute may not be greater than :max characters.',
             'exists' => 'The selected :attribute is invalid.',
+            'array' => 'The :attribute should be an array',
         ];
     }
 
