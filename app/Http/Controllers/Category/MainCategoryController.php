@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Category;
 
-use App\Models\MainCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\Category\MainCategory;
+use App\Http\Resources\MainCategoryResource;
 use App\Services\Category\MainCategoryService;
-use App\Http\Requests\MainCategory\StoreMainCategoryRequest;
-use App\Http\Requests\MainCategory\UpdateMainCategoryRequest;
+use App\Http\Requests\Category\MainCategory\StoreMainCategoryRequest;
+use App\Http\Requests\Category\MainCategory\UpdateMainCategoryRequest;
 
 class MainCategoryController extends Controller
 {
@@ -26,8 +27,9 @@ class MainCategoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $mainCategorys = $this->MainCategoryService->getMainCategorys($request);
-        return self::paginated($mainCategorys, 'MainCategorys retrieved successfully', 200);
+        $mainCategories = $this->MainCategoryService->getMainCategorys($request);
+        //return self::paginated($mainCategorys, 'MainCategorys retrieved successfully', 200);
+        return self::success(MainCategoryResource::collection($mainCategories), 'MainCategory retrieved successfully', 200);
     }
 
     /**
@@ -37,33 +39,34 @@ class MainCategoryController extends Controller
     public function store(StoreMainCategoryRequest $request): JsonResponse
     {
         $mainCategory = $this->MainCategoryService->storeMainCategory($request->validated());
-        return self::success($mainCategory, 'MainCategory created successfully', 201);
+        return self::success(new MainCategoryResource($mainCategory), 'MainCategory created successfully', 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(MainCategory $mainCategory): JsonResponse
+    public function show($id): JsonResponse
     {
-        return self::success($mainCategory, 'MainCategory retrieved successfully');
+        $mainCategory = MainCategory::findOrFail($id);
+        return self::success(new MainCategoryResource($mainCategory), 'MainCategory retrieved successfully');
     }
 
     /**
      * Update the specified resource in storage.
      * @throws \Exception
      */
-    public function update(UpdateMainCategoryRequest $request, MainCategory $mainCategory): JsonResponse
+    public function update(UpdateMainCategoryRequest $request, MainCategory $maincategory): JsonResponse
     {
-        $updatedMainCategory = $this->MainCategoryService->updateMainCategory($mainCategory, $request->validated());
-        return self::success($updatedMainCategory, 'MainCategory updated successfully');
+        $maincategory = $this->MainCategoryService->updateMainCategory( $request->validated(),$maincategory);
+        return self::success(new MainCategoryResource($maincategory), 'MainCategory updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MainCategory $mainCategory): JsonResponse
+    public function destroy($id): JsonResponse
     {
-        $mainCategory->delete();
+        $this->MainCategoryService->destroyMainCategory($id);    
         return self::success(null, 'MainCategory deleted successfully');
     }
 
@@ -73,7 +76,7 @@ class MainCategoryController extends Controller
     public function showDeleted(): JsonResponse
     {
         $mainCategorys = MainCategory::onlyTrashed()->get();
-        return self::success($mainCategorys, 'MainCategorys retrieved successfully');
+        return self::success(MainCategoryResource::collection($mainCategorys), 'MainCategorys retrieved successfully');
     }
 
     /**
@@ -81,11 +84,10 @@ class MainCategoryController extends Controller
      * @param string $id
      * @return JsonResponse
      */
-    public function restoreDeleted(string $id): JsonResponse
+    public function restoreDeleted($id): JsonResponse
     {
-        $mainCategory = MainCategory::onlyTrashed()->findOrFail($id);
-        $mainCategory->restore();
-        return self::success($mainCategory, 'MainCategory restored successfully');
+        $this->MainCategoryService->restorMainCategory($id);    
+        return self::success(null, 'MainCategory restored successfully');
     }
 
     /**

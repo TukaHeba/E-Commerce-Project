@@ -13,14 +13,30 @@ class MainCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        MainCategory::create([
-            'main_category_name' => 'Men'
-        ]);
-        MainCategory::create([
-            'main_category_name' => 'Women'
-        ]);
-        MainCategory::create([
-            'main_category_name' => 'Children'
-        ]);
+        $categories = [
+            //main categories -----------------------------------
+            [
+                'main_category_name' => 'Men',
+            ],
+            [
+                'main_category_name' => 'Women',
+            ], 
+            [
+                'main_category_name' => 'Kids',
+            ],
+            [
+                'main_category_name' => 'Giftes',
+            ],
+            [
+                'main_category_name' => 'Accessories',
+            ],
+            [
+                'main_category_name' => 'Books',
+            ]
+        ];
+
+        foreach ($categories as $category) {
+            MainCategory::create($category);
+        }
     }
 }
