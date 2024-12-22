@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Services\Product;
 
 use App\Models\Product\Product;
@@ -11,31 +12,39 @@ class ProductService
 {
 
     /**
-     * Generate a cache key dynamically based on parameters.
+     * Generate a unique cache key using a base string and parameters.
      *
-     * @param string $base
-     * @param array $params
-     * @return string
+     * @param string $base   The base string for the cache key.
+     * @param array  $params An array of parameters to include in the key.
+     * @return string The generated cache key.
      */
     private function generateCacheKey(string $base, array $params): string
     {
         return $base . ':' . http_build_query($params);
     }
+
     /**
-     * Store cache keys to clear it later
-     * @param mixed $cache_key
+     * Add a cache key to the list of keys for tracking and clearing later.
+     *
+     * Ensures that the provided key is stored in a centralized list of cache keys. 
+     * If the key already exists in the list, it will not be added again.
+     *
+     * @param string $cache_key The cache key to add.
      * @return void
      */
-    public function addCasheKey($cache_key)
+    public function addCasheKey(string $cache_key)
     {
         $cache_keys = Cache::get('product_cache_keys', []);
+
         if (!in_array($cache_key, $cache_keys)) {
             $cache_keys[] = $cache_key;
-            Cache::put('task_cache_keys', $cache_keys);
+            Cache::put('product_cache_keys', $cache_keys);
         }
     }
+
     /**
-     * clear product cache manually
+     * Clear all product cache keys.
+     *
      * @return void
      */
     public function clearProductCache()
@@ -44,7 +53,7 @@ class ProductService
         foreach ($cacheKeys as $cacheKey) {
             Cache::forget($cacheKey);
         }
-        Cache::forget('task_cache_keys');
+        Cache::forget('product_cache_keys');
     }
 
     /**
@@ -99,6 +108,7 @@ class ProductService
             return Product::filterProducts($price, $name, $category_id, $latest, $user_id)->paginate(10);
         });
     }
+    
     /**
      * Retrieve hot selling products with caching and pagination .
      * @param mixed $request

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -8,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\{
     AccessDeniedHttpException,
     BadRequestHttpException,
@@ -15,7 +17,6 @@ use Symfony\Component\HttpKernel\Exception\{
     NotFoundHttpException,
     UnauthorizedHttpException,
     UnsupportedMediaTypeHttpException,
-    
 };
 
 class Handler extends ExceptionHandler
@@ -37,7 +38,14 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            // You can integrate monitoring tools like Sentry here if needed.
+            $message = null;
+            $code = null;
+            Log::error('exception occurred', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'exception' => $e
+            ]);
         });
     }
 
@@ -60,7 +68,7 @@ class Handler extends ExceptionHandler
         if ($e instanceof UnauthorizedHttpException || $e instanceof AccessDeniedHttpException) {
             return $this->formatErrorResponse('You are not allowed to perform this action.', 403);
         }
-        
+
         if ($e instanceof AuthorizationException) {
             return $this->formatErrorResponse('You do not have permission to access this resource.', 403);
         }
