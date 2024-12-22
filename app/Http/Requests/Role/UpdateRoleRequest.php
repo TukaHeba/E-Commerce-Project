@@ -25,7 +25,6 @@ class UpdateRoleRequest extends FormRequest
     {
         return [
             'name' => 'nullable|string|min:3|max:100|unique:roles,name',
-            'guard_name' => 'nullable|string|min:3|max:50',
         ];
     }
 

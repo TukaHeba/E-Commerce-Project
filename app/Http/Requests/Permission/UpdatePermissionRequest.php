@@ -25,7 +25,6 @@ class UpdatePermissionRequest extends FormRequest
     {
         return [
             'name' => 'nullable|string|min:3|max:150|unique:permissions,name',
-            'guard_name' => 'nullable|string|min:3|max:50',
         ];
     }
 
