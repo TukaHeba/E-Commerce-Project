@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Product;
 
 use Exception;
@@ -13,34 +14,42 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class ProductService{
-
+class ProductService
+{
     /**
-     * Generate a cache key dynamically based on parameters.
+     * Generate a unique cache key using a base string and parameters.
      *
-     * @param string $base
-     * @param array $params
-     * @return string
+     * @param string $base   The base string for the cache key.
+     * @param array  $params An array of parameters to include in the key.
+     * @return string The generated cache key.
      */
     private function generateCacheKey(string $base, array $params): string
     {
         return $base . ':' . http_build_query($params);
     }
+
     /**
-     * Store cache keys to clear it later
-     * @param mixed $cache_key
+     * Add a cache key to the list of keys for tracking and clearing later.
+     *
+     * Ensures that the provided key is stored in a centralized list of cache keys. 
+     * If the key already exists in the list, it will not be added again.
+     *
+     * @param string $cache_key The cache key to add.
      * @return void
      */
-    public function addCasheKey($cache_key)
+    public function addCasheKey(string $cache_key)
     {
         $cache_keys = Cache::get('product_cache_keys', []);
+
         if (!in_array($cache_key, $cache_keys)) {
             $cache_keys[] = $cache_key;
-            Cache::put('task_cache_keys', $cache_keys);
+            Cache::put('product_cache_keys', $cache_keys);
         }
     }
+
     /**
-     * clear product cache manually
+     * Clear all product cache keys.
+     *
      * @return void
      */
     public function clearProductCache()
@@ -49,7 +58,7 @@ class ProductService{
         foreach ($cacheKeys as $cacheKey) {
             Cache::forget($cacheKey);
         }
-        Cache::forget('task_cache_keys');
+        Cache::forget('product_cache_keys');
     }
 
     /**
@@ -68,11 +77,9 @@ class ProductService{
             return Cache::remember($cache_key, now()->addHour(), function () use ($sub_category_id) {
                 return Product::byCategory($sub_category_id)->bestSelling()->available()->paginate(10);
             });
-
         } catch (ModelNotFoundException $e) {
             Log::error('Category not found: ' . $e->getMessage());
             throw new HttpResponseException(response()->json(['message' => 'Category not found!'], 404));
-
         } catch (Exception $e) {
             Log::error('Error retrieving products: ' . $e->getMessage());
             throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
@@ -111,17 +118,18 @@ class ProductService{
             $latest = (bool)$request->query('latest');     // Boolean flag to sort by the latest products.
             $user_id = auth()->check() ? auth()->id() : null;   // User id if user logged in get the favourite category products from favourites table
 
-            $cache_key = $this->generateCacheKey('products_filter', compact('price', 'name', 'category_id', 'latest','user_id'));
+            $cache_key = $this->generateCacheKey('products_filter', compact('price', 'name', 'category_id', 'latest', 'user_id'));
             $this->addCasheKey($cache_key);
 
-            return Cache::remember($cache_key, now()->addHour(), function () use ($price, $name, $category_id, $latest,$user_id) {
-                return Product::filterProducts($price, $name, $category_id, $latest,$user_id)->paginate(10);
+            return Cache::remember($cache_key, now()->addHour(), function () use ($price, $name, $category_id, $latest, $user_id) {
+                return Product::filterProducts($price, $name, $category_id, $latest, $user_id)->paginate(10);
             });
         } catch (Exception $e) {
             Log::error('Error retrieving products: ' . $e->getMessage());
             throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
         }
     }
+    
     /**
      * Retrieve hot selling products with caching and pagination .
      * @param mixed $request
@@ -130,61 +138,61 @@ class ProductService{
      */
     public function getBestSellingProducts()
     {
-        try{
+        try {
             $cache_key = 'best_selling_products';
             $this->addCasheKey($cache_key);
 
-            return Cache::remember($cache_key, now()->addHour(), function ()  {
+            return Cache::remember($cache_key, now()->addHour(), function () {
                 return Product::bestSelling()->available()->paginate(10);
             });
-            } catch (Exception $e) {
-                Log::error('Error retrieving products: ' . $e->getMessage());
-                throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
-            }
+        } catch (Exception $e) {
+            Log::error('Error retrieving products: ' . $e->getMessage());
+            throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
+        }
     }
 
-    public function getProductsUserMayLike(){
-        try{
+    public function getProductsUserMayLike()
+    {
+        try {
             $user_id = auth()->check() ?  auth()->id()
-                                       :  throw new HttpResponseException(response()->json(['message' => 'User not authenticated'], 401));
+                :  throw new HttpResponseException(response()->json(['message' => 'User not authenticated'], 401));
             // $user_id = 10;   // to test resuelt without auth // للحذف
             $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
             $this->addCasheKey($cache_key);
 
-            return Cache::remember($cache_key, now()->addHour(), function () use($user_id)  {
+            return Cache::remember($cache_key, now()->addHour(), function () use ($user_id) {
                 return Product::mayLikeProducts($user_id)->available()->paginate(10);
             });
-            } catch (Exception $e) {
-                Log::error('Error retrieving products: ' . $e->getMessage());
-                throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
-            }
+        } catch (Exception $e) {
+            Log::error('Error retrieving products: ' . $e->getMessage());
+            throw new HttpResponseException(response()->json(['message' => 'Server error'], 500));
+        }
     }
 
-    public function storeProduct($data){
-        try{
+    public function storeProduct($data)
+    {
+        try {
             return Product::create($data);
-        }catch(ModelNotFoundException){
+        } catch (ModelNotFoundException) {
             throw new ModelNotFoundException();
-        }catch(Exception){
+        } catch (Exception) {
             throw new Exception();
-        }catch(AccessDeniedHttpException){
+        } catch (AccessDeniedHttpException) {
             throw new AccessDeniedHttpException();
-        }catch(Exception){
+        } catch (Exception) {
             throw new Exception();
         }
     }
-    public function updateProduct($product,$data){
-        try{
+    public function updateProduct($product, $data)
+    {
+        try {
             $product->update($data);
             $product->save();
-            return $product ;
-        }catch(ModelNotFoundException){
+            return $product;
+        } catch (ModelNotFoundException) {
             throw new ModelNotFoundException();
-        }catch(Exception){
+        } catch (Exception) {
             throw new Exception();
         }
     }
 }
-/**
- *
- */
