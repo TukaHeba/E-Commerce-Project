@@ -60,7 +60,7 @@ class PermissionService
         } catch (AuthenticationException $e) {
             Log::error('Permission creation failed: ' . $e->getMessage());
             throw $e;
-        }
+         }
     }
 
     /**
@@ -122,6 +122,6 @@ class PermissionService
         } catch (AuthenticationException $e) {
             Log::error('Failed to retrieve permissions: ' . $e->getMessage());
             throw $e;
-        }
+         }
     }
 }
