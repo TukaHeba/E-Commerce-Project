@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Category;
 
-use App\Models\SubCategory;
+use App\Models\Category\SubCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SubCategoryResource;
 use App\Services\Category\SubCategoryService;
-use App\Http\Requests\SubCategory\StoreSubCategoryRequest;
-use App\Http\Requests\SubCategory\UpdateSubCategoryRequest;
+use App\Http\Requests\Category\SubCategory\StoreSubCategoryRequest;
+use App\Http\Requests\Category\SubCategory\UpdateSubCategoryRequest;
 
 class SubCategoryController extends Controller
 {
@@ -26,8 +27,9 @@ class SubCategoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $subCategorys = $this->SubCategoryService->getSubCategorys($request);
-        return self::paginated($subCategorys, 'SubCategorys retrieved successfully', 200);
+        $subCategories = $this->SubCategoryService->getSubCategorys($request);
+        //return self::paginated($subCategorys, 'SubCategorys retrieved successfully', 200);
+        return self::success(SubCategoryResource::collection($subCategories), 'SubCategory retrieved successfully', 200);
     }
 
     /**
@@ -37,33 +39,34 @@ class SubCategoryController extends Controller
     public function store(StoreSubCategoryRequest $request): JsonResponse
     {
         $subCategory = $this->SubCategoryService->storeSubCategory($request->validated());
-        return self::success($subCategory, 'SubCategory created successfully', 201);
+        return self::success(new SubCategoryResource($subCategory), 'SubCategory created successfully', 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(SubCategory $subCategory): JsonResponse
+    public function show($id): JsonResponse
     {
-        return self::success($subCategory, 'SubCategory retrieved successfully');
+        $subCategory = SubCategory::findOrFail($id);
+        return self::success(new SubCategoryResource($subCategory), 'SubCategory retrieved successfully');
     }
 
     /**
      * Update the specified resource in storage.
      * @throws \Exception
      */
-    public function update(UpdateSubCategoryRequest $request, SubCategory $subCategory): JsonResponse
+    public function update(UpdateSubCategoryRequest $request, $id): JsonResponse
     {
-        $updatedSubCategory = $this->SubCategoryService->updateSubCategory($subCategory, $request->validated());
-        return self::success($updatedSubCategory, 'SubCategory updated successfully');
+        $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(),$id);
+        return self::success(new SubCategoryResource($updatedSubCategory), 'SubCategory updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SubCategory $subCategory): JsonResponse
+    public function destroy($id): JsonResponse
     {
-        $subCategory->delete();
+        $this->SubCategoryService->destroySubCategory($id);    
         return self::success(null, 'SubCategory deleted successfully');
     }
 
@@ -73,7 +76,7 @@ class SubCategoryController extends Controller
     public function showDeleted(): JsonResponse
     {
         $subCategorys = SubCategory::onlyTrashed()->get();
-        return self::success($subCategorys, 'SubCategorys retrieved successfully');
+        return self::success(SubCategoryResource::collection($subCategorys), 'SubCategorys retrieved successfully');
     }
 
     /**
@@ -81,11 +84,10 @@ class SubCategoryController extends Controller
      * @param string $id
      * @return JsonResponse
      */
-    public function restoreDeleted(string $id): JsonResponse
+    public function restoreDeleted($id): JsonResponse
     {
-        $subCategory = SubCategory::onlyTrashed()->findOrFail($id);
-        $subCategory->restore();
-        return self::success($subCategory, 'SubCategory restored successfully');
+        $this->SubCategoryService->restorSubCategory($id);    
+        return self::success(null, 'SubCategory restored successfully');
     }
 
     /**
@@ -93,7 +95,7 @@ class SubCategoryController extends Controller
      * @param string $id
      * @return JsonResponse
      */
-    public function forceDeleted(string $id): JsonResponse
+    public function forceDeleted($id): JsonResponse
     {
         $subCategory = SubCategory::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'SubCategory force deleted successfully');

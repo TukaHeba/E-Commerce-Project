@@ -46,8 +46,10 @@ class MainCategoryService{
             $maincategory->main_category_name = $data['main_category_name'] ?? $maincategory->main_category_name;
             $maincategory->save();
 
-            $maincategory->subCategories()->sync($data['sub_category_name'] ?? []);
-            $maincategory->save();
+            if($data['sub_category_name'] != null){
+                $maincategory->subCategories()->sync($data['sub_category_name']);
+                $maincategory->save();
+            }
 
             return $maincategory;
         } catch (\Throwable $th) { Log::error($th->getMessage()); return Controller::error(null ,'Something went wrong with update new main category');}
