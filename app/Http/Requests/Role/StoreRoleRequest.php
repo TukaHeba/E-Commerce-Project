@@ -25,7 +25,6 @@ class StoreRoleRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:3|max:100|unique:roles,name',
-            'guard_name' => 'required|string|min:3|max:50',
         ];
     }
 
