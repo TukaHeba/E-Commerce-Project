@@ -38,14 +38,7 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            $message = null;
-            $code = null;
-            Log::error('exception occurred', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'exception' => $e
-            ]);
+            //
         });
     }
 
@@ -54,6 +47,12 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
+        Log::error('Exception occurred', [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'exception' => $e
+        ]);
 
         // Not Found Exception (Model or Route)
         if ($e instanceof ModelNotFoundException || $e instanceof NotFoundHttpException) {
