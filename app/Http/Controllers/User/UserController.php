@@ -9,7 +9,7 @@ use App\Services\User\UserService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
@@ -28,7 +28,7 @@ class UserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $users = $this->UserService->getUsers($request);
-        return self::paginated($users, 'Users retrieved successfully', 200);
+        return self::paginated($users, UserResource::class, 'Users retrieved successfully', 200);
     }
 
     /**
@@ -38,7 +38,7 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): JsonResponse
     {
         $user = $this->UserService->storeUser($request->validated());
-        return self::success($user, 'User created successfully', 201);
+        return self::success(new UserResource($user), 'User created successfully', 201);
     }
 
     /**
@@ -46,7 +46,7 @@ class UserController extends Controller
      */
     public function show(User $user): JsonResponse
     {
-        return self::success($user, 'User retrieved successfully');
+        return self::success(new UserResource($user), 'User retrieved successfully');
     }
 
     /**
@@ -56,7 +56,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
         $updatedUser = $this->UserService->updateUser($user, $request->validated());
-        return self::success($updatedUser, 'User updated successfully');
+        return self::success(new UserResource($updatedUser), 'User updated successfully');
     }
 
     /**
@@ -86,7 +86,7 @@ class UserController extends Controller
     {
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
-        return self::success($user, 'User restored successfully');
+        return self::success(new UserResource($user), 'User restored successfully');
     }
 
     /**

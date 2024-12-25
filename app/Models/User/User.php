@@ -6,10 +6,12 @@ use App\Models\Cart\Cart;
 use App\Models\Rate\Rate;
 use App\Models\Order\Order;
 use App\Models\Account\Account;
+use App\Models\Product\Product;
 use App\Models\Favorite\Favorite;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Model
 {
@@ -78,15 +80,6 @@ class User extends Model
         return $this->hasMany(Cart::class);
     }
     /**
-     * Get the favorite products for the user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function favorites()
-    {
-        return $this->hasMany(Favorite::class);
-    }
-    /**
      * Get the rates of products for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -103,6 +96,15 @@ class User extends Model
     public function accounts()
     {
         return $this->hasMany(Account::class);
+    }
+    /**
+     * Get the user favorite products.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favoriteProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class,'favorites')->withTimestamps();
     }
 
 }

@@ -2,9 +2,9 @@
 
 namespace App\Models\Favorite;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Favorite extends Model
 {
@@ -16,12 +16,13 @@ class Favorite extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-      //
+        'user_id',
+        'product_id'
     ];
 
     /**
      * The attributes that are not mass assignable.
-     * 
+     *
      * @var array
      */
     protected $guarded = [];
@@ -34,5 +35,7 @@ class Favorite extends Model
     protected $casts = [
       //
     ];
+
+
 
 }
