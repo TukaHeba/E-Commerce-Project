@@ -53,6 +53,6 @@ class ResetPasswordService
         $user->save();
 
         // حذف التوكن بعد الاستخدام
-        DB::table('password_resets')->where(['email'=> $data['email']])->delete();
+        DB::table('password_reset_tokens')->where(['email'=> $data['email']])->delete();
     }
 }

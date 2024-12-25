@@ -8,12 +8,12 @@ use App\Models\Favorite\Favorite;
 use App\Models\Order\Order;
 use App\Models\Rate\Rate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends  Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, SoftDeletes, HasRoles;
 
@@ -104,13 +104,14 @@ class User extends  Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the carts for the user.
+     * Get the cart for the user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
+
     public function carts()
     {
-        return $this->hasMany(Cart::class);
+        return $this->hasOne(Cart::class);
     }
 
     /**
