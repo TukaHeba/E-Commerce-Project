@@ -3,9 +3,10 @@
 
 namespace App\Services\Product;
 
+use Illuminate\Http\Request;
 use App\Models\Product\Product;
-use Illuminate\Support\Facades\Cache;
 use App\Models\Category\SubCategory;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ProductService
@@ -26,7 +27,7 @@ class ProductService
     /**
      * Add a cache key to the list of keys for tracking and clearing later.
      *
-     * Ensures that the provided key is stored in a centralized list of cache keys. 
+     * Ensures that the provided key is stored in a centralized list of cache keys.
      * If the key already exists in the list, it will not be added again.
      *
      * @param string $cache_key The cache key to add.
@@ -92,23 +93,18 @@ class ProductService
      * @param \Illuminate\Http\Request $request - The HTTP request containing filter parameters.
      * @return \Illuminate\Pagination\LengthAwarePaginator - Returns a paginated list of filtered products.
      */
-    public function getProductsWithFilter($request)
+    public function getProductsWithFilter(Request $request)
     {
-        // Extract query parameters for filtering.
-        $price = $request->query('price');             // Order by price ('asc' or 'desc').
-        $name = $request->query('name');               // Product name or partial name for search.
-        $category_id = $request->query('category_id'); // Category ID to filter by.
-        $latest = (bool)$request->query('latest');     // Boolean flag to sort by the latest products.
-        $user_id = auth()->check() ? auth()->id() : null;   // User id if user logged in get the favourite category products from favourites table
+        $request->merge(['user_id' => auth()->check() ? auth()->id() : null]);
 
-        $cache_key = $this->generateCacheKey('products_filter', compact('price', 'name', 'category_id', 'latest', 'user_id'));
+        $cache_key = $this->generateCacheKey('products_filter', $request->all());
         $this->addCasheKey($cache_key);
 
-        return Cache::remember($cache_key, now()->addHour(), function () use ($price, $name, $category_id, $latest, $user_id) {
-            return Product::filterProducts($price, $name, $category_id, $latest, $user_id)->paginate(10);
+        return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
+
+            return Product::filterProducts($request)->paginate(10);
         });
     }
-    
     /**
      * Retrieve hot selling products with caching and pagination .
      * @param mixed $request
