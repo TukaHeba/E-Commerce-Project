@@ -2,16 +2,17 @@
 
 namespace App\Models\User;
 
-use App\Models\Account\Account;
 use App\Models\Cart\Cart;
-use App\Models\Favorite\Favorite;
-use App\Models\Order\Order;
 use App\Models\Rate\Rate;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use App\Models\Order\Order;
+use App\Models\Account\Account;
+use App\Models\Favorite\Favorite;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -112,16 +113,6 @@ class User extends Authenticatable implements JWTSubject
     public function carts()
     {
         return $this->hasOne(Cart::class);
-    }
-
-    /**
-     * Get the favorite products for the user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function favorites()
-    {
-        return $this->hasMany(Favorite::class);
     }
 
     /**
