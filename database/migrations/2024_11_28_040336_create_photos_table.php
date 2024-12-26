@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
-            $table->string('url'); // To store the photo's path or URL
+            $table->string('photo_name');
+            $table->string('photo_path');
+            $table->string('mime_type');
             $table->morphs('photoable'); 
             $table->timestamps();
             $table->softDeletes();
