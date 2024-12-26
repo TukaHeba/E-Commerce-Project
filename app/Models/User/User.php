@@ -6,6 +6,7 @@ use App\Models\Cart\Cart;
 use App\Models\Rate\Rate;
 use App\Models\Order\Order;
 use App\Models\Account\Account;
+use App\Models\Product\Product;
 use App\Models\Favorite\Favorite;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;

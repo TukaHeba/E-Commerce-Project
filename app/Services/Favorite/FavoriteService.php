@@ -6,52 +6,32 @@ use App\Models\Product\Product;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 
+
 class FavoriteService
 {
-    /**
-     * Retrieve all favorites with pagination.
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator Paginated favorites.
-     */
-    public function getFavorites()
-    {
-        $users = User::with('favoriteProducts')->get();
-        return $users->paginate(10);
-    }
 
     /**
      * Add a new product to user favorite
      *
-     * @param array $data The validated data to add favorite product.
+     * @param Product $product The validated data to add favorite product.
      * @return null
      */
-    public function storeFavorite(array $data)
+    public function storeFavorite(Product $product)
     {
-        $user = User::findOrFail($data['user_id']);
-        $user->favoriteProducts()->attach($data['product_id']);
+        $user = User::findOrFail(auth()->user()->id);
+        $user->favoriteProducts()->attach($product->id);
     }
     /**
      * show user favorite products
      *
-     * @param User $user
      * @return  User with its favorite products
      */
 
-    public function showFavorites(User $user)
+    public function showFavorites()
     {
+        $user = User::findOrFail(auth()->user()->id);
         return  $user->load('favoriteProducts');
     }
-    /**
-     * show users who favor specific product
-     *
-     * @param Product $product
-     * @return Product with users who favorited it
-     */
-
-     public function usersFavoringProduct(Product $product)
-     {
-         return  $product->load('favoredBy');
-     }
       /**
      * remove product from user's favorite products
      *
@@ -59,9 +39,9 @@ class FavoriteService
      * @return null
      */
 
-    public function destroyFavorite($request)
+    public function destroyFavorite($product)
     {
-        $user = User::findOrFail($request->user_id);
-        $user->favoriteProducts()->detach($request->product_id);
+        $user = User::findOrFail(auth()->user()->id);
+        $user->favoriteProducts()->detach($product->id);
     }
 }
