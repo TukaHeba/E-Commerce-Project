@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('mime_type');
             $table->morphs('photoable'); 
             $table->timestamps();
-            $table->softDeletes();
             // Adding indexes to improve query performance for polymorphic relationships
             $table->index(['photoable_id', 'photoable_type']);
         });
