@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Favorite extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -16,12 +16,13 @@ class Favorite extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-      //
+      'user_id',
+      'product_id'
     ];
 
     /**
      * The attributes that are not mass assignable.
-     * 
+     *
      * @var array
      */
     protected $guarded = [];
