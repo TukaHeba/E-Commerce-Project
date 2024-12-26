@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, SoftDeletes, HasRoles;
+    use HasFactory, SoftDeletes, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
