@@ -2,13 +2,14 @@
 
 namespace App\Models\Product;
 
+use App\Models\Photo\Photo;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
+use Illuminate\Support\Facades\DB;
 use App\Models\Category\SubCategory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
@@ -204,5 +205,10 @@ class Product extends Model
     public function cartItems()
     {
         return $this->hasMany(CartItem::class);
+    }
+
+    public function photos()
+    {
+        return $this->morphMany(Photo::class, 'photoable');
     }
 }
