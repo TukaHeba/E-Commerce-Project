@@ -2,13 +2,15 @@
 
 namespace App\Models\Product;
 
+use App\Models\User\User;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
+use Illuminate\Support\Facades\DB;
 use App\Models\Category\SubCategory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
@@ -53,7 +55,7 @@ class Product extends Model
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
-/**
+    /**
      * Get the users favored this product.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
