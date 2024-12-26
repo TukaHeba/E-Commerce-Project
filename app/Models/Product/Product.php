@@ -93,35 +93,31 @@ class Product extends Model
      * Scope to filter products based on multiple criteria: price order, name, category, and availability.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string|null $price - Order by price ('asc' or 'desc').
-     * @param string|null $name - Search for products containing this name (partial match).
-     * @param int|null $category_id - Filter by category ID.
-     * @param bool $latest - Whether to order by the latest products first (default is false).
-     * @param int $limit - The number of products to retrieve (default is 25).
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Database\Eloquent\Builder - Returns the filtered query based on the specified criteria.
      */
-    public function scopeFilterProducts($query, $price = null, $name = null, $sub_category_id = null, $latest = false, $user_id = null, $limit = 100)
+    public function scopeFilterProducts($query, $request)
     {
         return $query
-            ->when($name, function ($q) use ($name) {
-                $q->where('products.name', 'LIKE', '%' . $name . '%');
+            ->when($request->name, function ($q) use ($request) {
+                $q->where('products.name', 'LIKE', '%' . $request->name . '%');
             })
-            ->when($user_id, function ($q) use ($user_id) {
-                $q->whereIn('products.sub_category_id', function ($subQuery) use ($user_id) {
+            ->when($request->user_id, function ($q) use ($request) {
+                $q->whereIn('products.sub_category_id', function ($subQuery) use ($request) {
                     $subQuery->select('products.sub_category_id')
-                        ->from('favorites')
-                        ->join('products', 'favorites.product_id', '=', 'products.id')
-                        ->where('favorites.user_id', $user_id);
+                            ->from('favorites')
+                            ->join('products', 'favorites.product_id', '=', 'products.id')
+                            ->where('favorites.user_id', $request->user_id);
                 });
             })
-            ->when($price && in_array($price, ['asc', 'desc']), function ($q) use ($price) {
-                $q->orderBy('products.price', $price);
+            ->when($request->price && in_array($request->price, ['asc', 'desc']), function ($q) use ($request) {
+                $q->orderBy('products.price', $request->price);
             })
-            ->when($latest, function ($q) {
+            ->when($request->latest, function ($q) {
                 $q->orderBy('products.created_at', 'desc');
             })
-            ->when($sub_category_id, function ($q) use ($sub_category_id) {
-                $q->where('products.sub_category_id', $sub_category_id);
+            ->when($request->category_id, function ($q) use ($request) {
+                $q->where('products.sub_category_id', $request->category_id);
             })
             ->where('product_quantity', '>', 0)
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
@@ -136,7 +132,7 @@ class Product extends Model
             )
             ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'sub_categories.sub_category_name')
             ->orderByDesc('total_sold')
-            ->take($limit);
+            ->take(100);
     }
 
     /**
