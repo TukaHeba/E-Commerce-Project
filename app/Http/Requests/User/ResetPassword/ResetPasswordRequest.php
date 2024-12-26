@@ -1,33 +1,22 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\User\ResetPassword;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rules\Password;
 
-class LoginRequest extends FormRequest
+class ResetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     * 
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -37,25 +26,17 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'email' => 'required|email|exists:users,email',
+            'token' => 'required|string|max:255',
+            'password' => ['required', 'max:30', 'confirmed',
+                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
         ];
     }
 
-     /**
-     * Define human-readable attribute names for validation errors.
-     * 
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            //
-        ];
-    }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -68,6 +49,7 @@ class LoginRequest extends FormRequest
             'in' => 'The selected :attribute is invalid.',
             'date' => 'The :attribute must be a valid date.',
             'exists' => 'The selected :attribute is invalid.',
+            'string' => 'The :attribute must be a string type.'
         ];
     }
 

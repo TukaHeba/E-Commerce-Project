@@ -42,19 +42,18 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => 'required|string|max:50|regex:/^[a-zA-Z\s]+$/',
-            'last_name' => 'required|string|max:50|regex:/^[a-zA-Z\s]+$/',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => [ 'required', 'max:30', 'confirmed',
-                          Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised() ],
+            'first_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s]+$/'],
+            'last_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s]+$/'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required','max:30','confirmed',Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
             'phone'  => ['sometimes', new Phone],
-            'address'=>'required|string|max:255',
-            'is_male'=>'required|boolean',
-            'birthdate'=>'required|date',
+            'address' => ['required', 'string', 'max:255'],
+            'is_male' => ['required', 'boolean'],
+            'birthdate' => ['required', 'date'],
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      *
      * @return array<string, string>
@@ -67,9 +66,9 @@ class StoreUserRequest extends FormRequest
             'email' => 'Email Address',
             'password' => 'Password',
             'phone' => 'Phone Number',
-            'address'=>'Address',
-            'is_male'=>'Male or Female',
-            'birthdate'=>'Birthday',
+            'address' => 'Address',
+            'is_male' => 'Male or Female',
+            'birthdate' => 'Birthday',
 
         ];
     }
@@ -88,8 +87,8 @@ class StoreUserRequest extends FormRequest
             'date' => 'The :attribute must be a valid date.',
             'first_name.regix' => 'first name must be a valid name contains only letters.',
             'last_name.regix' => 'last name must be a valid name contains only letters.',
-            'email'=>'email must be a valid email address.',
-            'boolean'=>'The Male or Female field must be 1 or 0 .',
+            'email' => 'email must be a valid email address.',
+            'boolean' => 'The Male or Female field must be 1 or 0 .',
             'password.confirmed' => 'The password confirmation does not match.',
             'password.min' => 'The password must be at least 8 characters.',
             'password.letters' => 'The password must contain at least one letter.',

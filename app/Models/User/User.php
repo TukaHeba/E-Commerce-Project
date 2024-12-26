@@ -2,20 +2,20 @@
 
 namespace App\Models\User;
 
-use App\Models\Cart\Cart;
-use App\Models\Rate\Rate;
-use App\Models\Order\Order;
 use App\Models\Account\Account;
-use App\Models\Product\Product;
+use App\Models\Cart\Cart;
 use App\Models\Favorite\Favorite;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Order\Order;
+use App\Models\Rate\Rate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Model
+class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -61,6 +61,38 @@ class User extends Model
         'birthdate' => 'date',
     ];
 
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+
+    /**
+     * Get the Oauth for the user
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function providers()
+    {
+        return $this->hasMany(Provider::class);
+    }
+
+
     /**
      * Get the orders for the user.
      *
@@ -70,15 +102,28 @@ class User extends Model
     {
         return $this->hasMany(Order::class);
     }
+
     /**
-     * Get the carts for the user.
+     * Get the cart for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+
+    public function carts()
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+    /**
+     * Get the favorite products for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function carts()
+    public function favorites()
     {
-        return $this->hasMany(Cart::class);
+        return $this->hasMany(Favorite::class);
     }
+
     /**
      * Get the rates of products for the user.
      *
@@ -88,7 +133,8 @@ class User extends Model
     {
         return $this->hasMany(Rate::class);
     }
-     /**
+
+    /**
      * Get the user accounts.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

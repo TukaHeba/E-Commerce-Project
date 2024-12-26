@@ -13,20 +13,7 @@ class StorePermissionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
-    }
-
-    /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     * 
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
+        return true;
     }
 
     /**
@@ -37,25 +24,26 @@ class StorePermissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|min:3|max:150|unique:permissions,name',
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
     {
         return [
-            //
+            'name' => 'Permission Name',
+            'guard_name' => 'Guard Name'
         ];
     }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -65,9 +53,7 @@ class StorePermissionRequest extends FormRequest
             'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
             'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
-            'exists' => 'The selected :attribute is invalid.',
+            'string' => 'The :attribute must be a valid string.',
         ];
     }
 
