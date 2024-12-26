@@ -8,7 +8,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class UserService
 {
-    //xxxx
 
     /**
      * Retrieve all users with pagination.
