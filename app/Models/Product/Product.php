@@ -2,12 +2,13 @@
 
 namespace App\Models\Product;
 
+use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
 use App\Models\Category\SubCategory;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 
 class Product extends Model
 {
@@ -19,11 +20,11 @@ class Product extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-      'name',
-      'description',
-      'price',
-      'product_quantity',
-      'sub_category_id'
+        'name',
+        'description',
+        'price',
+        'product_quantity',
+        'sub_category_id'
     ];
 
     protected $hidden = ['product_quantity'];
@@ -40,8 +41,9 @@ class Product extends Model
      * @var array<string, string>
      */
     protected $casts = [
-      //
+        //
     ];
+
     /**
      * relation with category .
      * each product belongs to one category
@@ -49,7 +51,7 @@ class Product extends Model
      */
     public function category()
     {
-      return $this->belongsTo(SubCategory::class, 'sub_category_id');
+        return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
 
     /**
@@ -97,9 +99,9 @@ class Product extends Model
             ->when($user_id, function ($q) use ($user_id) {
                 $q->whereIn('products.sub_category_id', function ($subQuery) use ($user_id) {
                     $subQuery->select('products.sub_category_id')
-                            ->from('favorites')
-                            ->join('products', 'favorites.product_id', '=', 'products.id')
-                            ->where('favorites.user_id', $user_id);
+                        ->from('favorites')
+                        ->join('products', 'favorites.product_id', '=', 'products.id')
+                        ->where('favorites.user_id', $user_id);
                 });
             })
             ->when($price && in_array($price, ['asc', 'desc']), function ($q) use ($price) {
@@ -155,6 +157,7 @@ class Product extends Model
             ->orderByDesc('total_sold')
             ->take(30);
     }
+
     /**
      * Scope to get products may user like it
      * By join products.id with favourites.products_id tables
@@ -165,30 +168,41 @@ class Product extends Model
      * @param mixed $user_id
      * @return mixed
      */
-    public function scopeMayLikeProducts($query,$user_id){
+    public function scopeMayLikeProducts($query, $user_id)
+    {
         return $query
-        ->when($user_id, function ($q) use ($user_id) {               // get categories of products that user like it .
-            $q->whereIn('products.sub_category_id', function ($subQuery) use ($user_id) {
-                $subQuery->select('products.sub_category_id')
-                         ->from('favorites')
-                         ->join('products', 'favorites.product_id', '=', 'products.id')     // I used join becouse it faster than with relation .
-                         ->where('favorites.user_id', $user_id);
+            ->when($user_id, function ($q) use ($user_id) {               // get categories of products that user like it .
+                $q->whereIn('products.sub_category_id', function ($subQuery) use ($user_id) {
+                    $subQuery->select('products.sub_category_id')
+                        ->from('favorites')
+                        ->join('products', 'favorites.product_id', '=', 'products.id')     // I used join becouse it faster than with relation .
+                        ->where('favorites.user_id', $user_id);
+                })
+                    ->whereNotExists(function ($subQuery) use ($user_id) {     // to avoid show products allready user liked it .
+                        $subQuery->select(DB::raw(1))
+                            ->from('favorites')
+                            ->whereRaw('favorites.product_id = products.id')
+                            ->where('favorites.user_id', $user_id);
+                    });
             })
-            ->whereNotExists(function ($subQuery) use ($user_id) {     // to avoid show products allready user liked it .
-                $subQuery->select(DB::raw(1))
-                         ->from('favorites')
-                         ->whereRaw('favorites.product_id = products.id')
-                         ->where('favorites.user_id', $user_id);
-            });
-        })
-        ->select(
-            'products.id',
-            'products.name',
-            'products.description',
-            'products.price',
-            'sub_categories.sub_category_name as category_name'
-        )
-        ->join('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')     // get products belonf to these categories
-        ->distinct();                                                          // to avoid repeate products if user like many products belongs to same category.
+            ->select(
+                'products.id',
+                'products.name',
+                'products.description',
+                'products.price',
+                'sub_categories.sub_category_name as category_name'
+            )
+            ->join('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')     // get products belonf to these categories
+            ->distinct();                                                          // to avoid repeate products if user like many products belongs to same category.
+    }
+
+
+    /**
+     * get cart items for the product
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
     }
 }
