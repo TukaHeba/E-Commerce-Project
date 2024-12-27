@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\Rate\Rate;
 use App\Models\User\User;
 use App\Models\Photo\Photo;
 use App\Models\CartItem\CartItem;
@@ -9,6 +10,7 @@ use App\Models\Category\Category;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use App\Models\Category\SubCategory;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -51,7 +53,7 @@ class Product extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function favoredBy(): BelongsToMany
+    public function favoredBy()
     {
         return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
     }
@@ -64,6 +66,27 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id');
+    }
+ /**
+     * Get the rates of products.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function ratings(){
+        return $this->hasMany(Rate::class);
+    }
+    /**
+     * Get the average rating for the product.
+     *
+     * @return float The average rating of the product.
+     */
+    public function averageRating(): float
+    {
+        $cacheKey = "product_avg_rating_{$this->id}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(30), function () {
+            return $this->ratings()->avg('rating') ?? 0;
+        });
     }
 
     /**
@@ -207,7 +230,7 @@ class Product extends Model
 
     /**
      * Get the cart items associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function cartItems()
@@ -217,7 +240,7 @@ class Product extends Model
 
     /**
      * Get the photos associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function photos()
@@ -227,7 +250,7 @@ class Product extends Model
 
     /**
      * Get the order items associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function orderItems()

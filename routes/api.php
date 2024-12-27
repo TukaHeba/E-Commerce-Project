@@ -1,21 +1,19 @@
 <?php
 
 
+use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\CartItem\CartItemController;
 use App\Http\Controllers\Category\MainCategoryController;
 use App\Http\Controllers\Category\SubCategoryController;
+use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\Permission\PermissionController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\PasswordResetController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Cart\CartController;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Favorite\FavoriteController;
-
-
 
 
 /*
@@ -51,7 +49,6 @@ Route::post('/password/forgot', [PasswordResetController::class, 'sendResetLink'
 Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
 
 
-
 Route::get('users/myFavoriteProducts', [FavoriteController::class, 'show']);
 Route::get('users/showDeleted', [UserController::class, 'showDeleted']);
 Route::apiResource('users', UserController::class);
@@ -84,27 +81,38 @@ Route::apiResource('permissions', PermissionController::class); // CRUD Permissi
 
 Route::apiResource('maincategory', MainCategoryController::class);
 
-Route::apiResource('maincategory',MainCategoryController::class);
+
 Route::get('showDeleted_MainCategory', [MainCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'forceDeleted']);
 
 //Sub Category--------------------------------------------------------------------------------------------------------------------
 Route::apiResource('subcategory', SubCategoryController::class);
-Route::apiResource('subcategory',SubCategoryController::class);
+
+
 Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);
 
+//Rate
+Route::apiResource('rate', RateController::class)->only(['index', 'show']);
+
+Route::middleware('auth:api')->prefix('rate')->group(function () {
+    Route::put('restore/{rate}', [RateController::class, 'restoreDeleted']);
+    Route::get('deleted-rates', [RateController::class, 'showDeleted']);
+    Route::delete('force-deleted-rate/{rate}', [RateController::class, 'forceDeleted']);
+    Route::put('{rate}', [RateController::class, 'update']);
+    Route::delete('{rate}', [RateController::class, 'destroy']);
+    Route::post('', [RateController::class, 'store']);
+});
+
+//favorites
+Route::post('products/{product}/addToFavorite', [FavoriteController::class, 'store']);
+Route::delete('products/{product}/removeFromFavorite', [FavoriteController::class, 'destroy']);
+Route::get('users/myFavoriteProducts', [FavoriteController::class, 'show']);
 
 // Checkout Routes
 Route::middleware(['auth:api'])->group(function () {
     Route::get('/cart/checkout', [CartController::class, 'checkout']);
     Route::post('/cart/place-order', [CartController::class, 'placeOrder']);
 });
-
-
-//favorites
-Route::post('products/{product}/addToFavorite', [FavoriteController::class, 'store']);
-
-Route::delete('products/{product}/removeFromFavorite', [FavoriteController::class, 'destroy']);

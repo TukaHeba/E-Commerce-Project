@@ -2,12 +2,14 @@
 
 namespace App\Services\Cart;
 
+use Exception;
 use App\Models\Cart\Cart;
 use App\Models\Order\Order;
+use App\Models\Product\Product;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
-use Exception;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\SendOrderConfirmationEmail;
 
 class CartService
 {
@@ -44,13 +46,15 @@ class CartService
      * 2- Fetch cart data using the cartCheckout method.
      * 3- Creates an order with the total price and shipping address.
      * 4- Saves the cart items as order items in the database.
-     * 5- Clears the user's cart after the order is placed.
-     * 6- Commits the transaction if all steps are successful, or rolls back in case of an error.
-     *
+     * 5- Fetch product and check its quantity, throwing exception if the quantity not enough
+     * 6- Decrease product quantity
+     * 7- Clears the user's cart after the order is placed.
+     * 8- Commits the transaction if all steps are successful, or rolls back in case of an error.
+     * 9- Dispatch the email notification job
+     * 
      * @param string $shipping_address The address where the order will be shipped.
      * @return \App\Models\Order\Order The created order with its details.
      */
-
     public function placeOrder($shipping_address)
     {
         // Step 1
@@ -76,15 +80,30 @@ class CartService
                     'quantity' => $cartItemData['quantity'],
                     'price' => $cartItemData['price'],
                 ]);
+
+                // Step 5
+                $product = Product::find($cartItemData['product_id']);
+                if ($product->product_quantity < $cartItemData['quantity']) {
+                    throw new Exception('Insufficient stock for product: ' . $product->name);
+                }
+
+                // Step 6
+                $product->product_quantity -= $cartItemData['quantity'];
+                $product->save();
             }
 
-            // Step 5
+            // Step 7
             $cart = Cart::where('user_id', Auth::id())->first();
             $cart->cartItems()->delete();
             $cart->delete();
 
-            // Step 6
+            // Step 8
             DB::commit();
+
+            // Step 9
+            $user = Auth::user();
+            SendOrderConfirmationEmail::dispatch($user, $order);
+
             return $order;
         } catch (Exception $e) {
             DB::rollBack();
