@@ -2,10 +2,13 @@
 
 namespace App\Models\Product;
 
+use App\Models\Rate\Rate;
+use App\Models\User\User;
 use App\Models\Photo\Photo;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
 use Illuminate\Support\Facades\DB;
+use App\Models\OrderItem\OrderItem;
 use App\Models\Category\SubCategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -44,6 +47,15 @@ class Product extends Model
     protected $casts = [
         //
     ];
+    /**
+     * Get the users favored this product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favoredBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+    }
 
     /**
      * relation with category .
@@ -54,7 +66,14 @@ class Product extends Model
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
-
+ /**
+     * Get the rates of products.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function rates(){
+        return $this->hasMany(Rate::class);
+    }
     /**
      * Scope to filter products by category.
      *
@@ -195,7 +214,8 @@ class Product extends Model
 
 
     /**
-     * get cart items for the product
+     * Get the cart items associated with the product.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function cartItems()
@@ -203,8 +223,23 @@ class Product extends Model
         return $this->hasMany(CartItem::class);
     }
 
+    /**
+     * Get the photos associated with the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function photos()
     {
         return $this->morphMany(Photo::class, 'photoable');
+    }
+
+    /**
+     * Get the order items associated with the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

@@ -21,7 +21,8 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'address' => $this->address,
             'is_male' => $this->is_male,
-            'birthdate' => $this->birthdate
+            'birthdate' => $this->birthdate,
+            'favorite_products' => ProductResource::collection($this->whenLoaded('favoriteProducts')),
         ];
     }
 }

@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Cart;
 use App\Models\Cart\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Services\Cart\CartService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cart\StoreCartRequest;
 use App\Http\Requests\Cart\UpdateCartRequest;
+use App\Http\Requests\Order\StoreOrderRequest;
+use Exception;
 
 class CartController extends Controller
 {
-  
+
     protected CartService $CartService;
 
     public function __construct(CartService $CartService)
@@ -96,5 +99,33 @@ class CartController extends Controller
     {
         $cart = Cart::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'Cart force deleted successfully');
+    }
+
+    /**
+     * Checkout the cart and get cart items data and total price.
+     *
+     * @return JsonResponse
+     */
+    public function checkout()
+    {
+        $cartData = $this->CartService->cartCheckout();
+        return self::success([
+            'cart_items' => $cartData['cart_items'],
+            'total_price' => $cartData['total_price'],
+        ]);
+    }
+
+    /**
+     * Place an order by creating the order and order items, then clearing the cart.
+     * 
+     * @param \App\Http\Requests\Order\StoreOrderRequest $request
+     * @return JsonResponse
+     */
+    public function placeOrder(StoreOrderRequest $request)
+    {
+        $validated = $request->validated();
+        $order = $this->CartService->placeOrder($validated['shipping_address']);
+
+        return self::success($order, 'Order placed successfully!', 201);
     }
 }

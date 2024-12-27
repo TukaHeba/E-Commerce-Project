@@ -13,13 +13,13 @@ class StoreRateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Prepare the data for validation.
      * This method is called before validation starts to clean or normalize inputs.
-     * 
+     *
      * @return void
      */
     protected function prepareForValidation()
@@ -37,13 +37,15 @@ class StoreRateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'product_id' => 'required|integer|exists:products,id|unique:rates,product_id,NULL,id,user_id,' . auth()->id(),
+            'rating'     => 'required|integer|min:1|max:5',
+            'review'     => 'nullable|string|max:255',
         ];
     }
 
      /**
      * Define human-readable attribute names for validation errors.
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
@@ -55,7 +57,7 @@ class StoreRateRequest extends FormRequest
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -64,9 +66,6 @@ class StoreRateRequest extends FormRequest
             'required' => 'The :attribute field is required.',
             'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
             'exists' => 'The selected :attribute is invalid.',
         ];
     }
