@@ -5,6 +5,8 @@ namespace App\Http\Controllers\CartItem;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CartItem\StoreCartItemRequest;
 use App\Http\Requests\CartItem\UpdateCartItemRequest;
+use App\Http\Resources\CartItemResource;
+use App\Http\Resources\CartResource;
 use App\Models\Cart\Cart;
 use App\Models\CartItem\CartItem;
 use App\Services\CartItem\CartItemService;
@@ -27,8 +29,8 @@ class CartItemController extends Controller
 
     public function index()
     {
-        $data = Cart::with('cartItems.product')->get();
-        return self::success($data);
+        $data = Cart::with(['cartItems.product'])->get();
+        return self::success(CartResource::collection($data));
 
     }
 
@@ -55,9 +57,8 @@ class CartItemController extends Controller
      */
     public function show(Cart $cartItem)
     {
-        return self::success($cartItem->load('cartItems.product'));
+        return self::success(new CartResource($cartItem->load(['user', 'cartItems.product'])));
     }
-
 
     /**
      *  Update the specified resource in storage.
@@ -69,7 +70,7 @@ class CartItemController extends Controller
     public function update(UpdateCartItemRequest $request, CartItem $cartItem)
     {
         $cartItem->update(['quantity' => $request->quantity]);
-        return self::success($cartItem, 'updated successfully!');
+        return self::success(new CartItemResource($cartItem), 'updated successfully!');
     }
 
     /**
@@ -90,8 +91,8 @@ class CartItemController extends Controller
      */
     public function userCart()
     {
-        $data = Cart::where('user_id', auth()->user()->id)->with('cartItems.product')->first();
-        return self::success($data);
+        $cart = Cart::where('user_id', auth()->user()->id)->with('cartItems.product')->first();
+        return self::success(new CartResource($cart));
     }
 
 }

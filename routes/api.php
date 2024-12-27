@@ -38,7 +38,7 @@ Route::middleware('auth:api')->group(function () {
 
     //Cart & Cart item-----------------------------------------------------------
     Route::apiResource('/cart-items', CartItemController::class);
-    Route::get('/cart-items/user-cart', [CartItemController::class, 'userCart']);
+    Route::get('/user-cart', [CartItemController::class, 'userCart']);
 
 });
 
