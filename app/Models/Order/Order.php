@@ -2,6 +2,7 @@
 
 namespace App\Models\Order;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use App\Models\OrderTracking\OrderTracking;
 use App\Models\User\User;
 use App\Models\OrderItem\OrderItem;
@@ -38,7 +39,7 @@ class Order extends Model
      * @var array<string, string>
      */
     protected $casts = [
-      //
+        //
     ];
     public function orderTrackings(){
         return $this->hasMany(OrderTracking::class);

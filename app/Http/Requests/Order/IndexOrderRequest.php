@@ -7,16 +7,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 
-class UpdateOrderRequest extends FormRequest
+class IndexOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     * @return bool
      */
     public function authorize(): bool
     {
-        $order = $this->route('order');
-        return Auth::check() && $order->user_id === Auth::id();
+        return Auth::check();
     }
 
     /**
@@ -35,19 +33,6 @@ class UpdateOrderRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     *
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -55,9 +40,12 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'shipping_address' => 'nullable|string|max:255',
             'status' => 'nullable|string|in:pending,shipped,delivered,canceled',
+            'total_price' => 'nullable|numeric|min:0',
         ];
     }
+
 
     /**
      * Define human-readable attribute names for validation errors.
@@ -67,9 +55,12 @@ class UpdateOrderRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'shipping_address' => 'Shipping Address',
             'status' => 'Order Status',
+            'total_price' => 'Total Price',
         ];
     }
+
 
     /**
      * Define custom error messages for validation failures.
