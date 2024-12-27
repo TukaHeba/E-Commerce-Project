@@ -2,11 +2,15 @@
 
 namespace App\Providers;
 
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use App\Models\User\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
+use App\Models\Product\Product;
+use App\Models\Category\SubCategory;
+use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -28,6 +32,23 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Define dynamic route model bindings
+        Route::bind('user', function ($value) {
+            return User::findOrFail($value);
+        });
+
+        Route::bind('product', function ($value) {
+            return Product::findOrFail($value);
+        });
+
+        Route::bind('mainCategory', function ($value) {
+            return MainCategory::findOrFail($value);
+        });
+
+        Route::bind('subCategory', function ($value) {
+            return SubCategory::findOrFail($value);
+        });
+        
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
