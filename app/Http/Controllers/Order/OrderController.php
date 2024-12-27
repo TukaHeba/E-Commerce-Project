@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 
 class OrderController extends Controller
 {
-  
+
     protected OrderService $OrderService;
 
     public function __construct(OrderService $OrderService)

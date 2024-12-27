@@ -77,9 +77,6 @@ Route::apiResource('roles', RoleController::class); // CRUD Roles
 
 Route::apiResource('permissions', PermissionController::class); // CRUD Permissions
 
-
-
-
 //Main Category--------------------------------------------------------------------------------------------------------------------
 Route::apiResource('maincategory', MainCategoryController::class);
 Route::get('showDeleted_MainCategory', [MainCategoryController::class, 'showDeleted']);

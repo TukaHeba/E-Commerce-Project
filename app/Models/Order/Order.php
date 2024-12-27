@@ -2,6 +2,7 @@
 
 namespace App\Models\Order;
 
+use App\Models\OrderTracking\OrderTracking;
 use App\Models\User\User;
 use App\Models\OrderItem\OrderItem;
 use Illuminate\Database\Eloquent\Model;
@@ -24,21 +25,24 @@ class Order extends Model
     'total_price',
   ];
 
-  /**
-   * The attributes that are not mass assignable.
-   * 
-   * @var array
-   */
-  protected $guarded = [];
+    /**
+     * The attributes that are not mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [];
 
-  /**
-   * The attributes that should be cast.
-   *
-   * @var array<string, string>
-   */
-  protected $casts = [
-    //
-  ];
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+      //
+    ];
+    public function orderTrackings(){
+        return $this->hasMany(OrderTracking::class);
+    }
 
   /**
    * Get the order items for the order.
