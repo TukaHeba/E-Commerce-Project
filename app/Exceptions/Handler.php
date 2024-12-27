@@ -2,22 +2,20 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
-use Illuminate\Database\QueryException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpKernel\Exception\{
-    AccessDeniedHttpException,
+use Symfony\Component\HttpKernel\Exception\{AccessDeniedHttpException,
     BadRequestHttpException,
     MethodNotAllowedHttpException,
     NotFoundHttpException,
     UnauthorizedHttpException,
-    UnsupportedMediaTypeHttpException,
-};
+    UnsupportedMediaTypeHttpException,};
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -59,6 +57,7 @@ class Handler extends ExceptionHandler
             return $this->formatErrorResponse('The requested model was not found.', 404);
         }
 
+
         // Method Not Allowed
         if ($e instanceof MethodNotAllowedHttpException) {
             return $this->formatErrorResponse('The HTTP method is not allowed for this route.', 405);
@@ -94,6 +93,11 @@ class Handler extends ExceptionHandler
         // Query Exception
         if ($e instanceof QueryException) {
             return $this->formatErrorResponse('A database query error occurred.', 500);
+        }
+
+        // Exception
+        if ($e instanceof \Exception) {
+            return $this->formatErrorResponse($e->getMessage(), 500);
         }
 
         // General Unexpected Errors
