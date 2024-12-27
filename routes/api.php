@@ -79,13 +79,13 @@ Route::apiResource('permissions', PermissionController::class); // CRUD Permissi
 
 
 //Main Category--------------------------------------------------------------------------------------------------------------------
-Route::apiResource('maincategory',MainCategoryController::class);
+Route::apiResource('maincategory', MainCategoryController::class);
 Route::get('showDeleted_MainCategory', [MainCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'forceDeleted']);
 
 //Sub Category--------------------------------------------------------------------------------------------------------------------
-Route::apiResource('subcategory',SubCategoryController::class);
+Route::apiResource('subcategory', SubCategoryController::class);
 Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);
@@ -100,4 +100,15 @@ Route::middleware('auth:api')->prefix('rate')->group(function () {
     Route::put('{rate}', [RateController::class, 'update']);
     Route::delete('{rate}', [RateController::class, 'destroy']);
     Route::post('', [RateController::class, 'store']);
+});
+
+//favorites
+Route::post('products/{product}/addToFavorite', [FavoriteController::class, 'store']);
+Route::delete('products/{product}/removeFromFavorite', [FavoriteController::class, 'destroy']);
+Route::get('users/myFavoriteProducts', [FavoriteController::class, 'show']);
+
+// Checkout Routes
+Route::middleware(['auth:api'])->group(function () {
+    Route::get('/cart/checkout', [CartController::class, 'checkout']);
+    Route::post('/cart/place-order', [CartController::class, 'placeOrder']);
 });
