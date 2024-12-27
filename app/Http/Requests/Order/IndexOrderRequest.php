@@ -5,6 +5,7 @@ namespace App\Http\Requests\Order;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 
 class IndexOrderRequest extends FormRequest
 {
@@ -13,7 +14,22 @@ class IndexOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Auth::check();
+    }
+
+    /**
+     * Handle authorization errors and throw an exception.
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     * @return never
+     */
+    public function failedAuthorization()
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'status' => 'error',
+                'message' => 'This action is unauthorized',
+            ], 422)
+        );
     }
 
     /**
@@ -27,7 +43,6 @@ class IndexOrderRequest extends FormRequest
             'shipping_address' => 'nullable|string|max:255',
             'status' => 'nullable|string|in:pending,shipped,delivered,canceled',
             'total_price' => 'nullable|numeric|min:0',
-            'show_deleted' => 'nullable|boolean'
         ];
     }
 
@@ -43,7 +58,6 @@ class IndexOrderRequest extends FormRequest
             'shipping_address' => 'Shipping Address',
             'status' => 'Order Status',
             'total_price' => 'Total Price',
-            'show_deleted' => 'Display Deleted Orders'
         ];
     }
 

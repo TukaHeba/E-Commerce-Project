@@ -45,7 +45,7 @@ class Order extends Model
      * @param mixed $filters
      * @return \Illuminate\Contracts\Database\Eloquent\Builder
      */
-    public function scopeFilter($query, $filters): Builder
+    public function scopeFilter(Builder $query, array $filters): Builder
     {
         if (isset($filters['shipping_address'])) {
             $query->where('shipping_address', $filters['shipping_address']);
@@ -57,10 +57,6 @@ class Order extends Model
 
         if (isset($filters['status'])) {
             $query->where('status', $filters['status']);
-        }
-
-        if (isset($filters['show_deleted'])) {
-            $query->onlyTrashed();
         }
         return $query;
     }

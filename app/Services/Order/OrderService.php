@@ -5,7 +5,6 @@ namespace App\Services\Order;
 use App\Models\Order\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -16,7 +15,7 @@ class OrderService
      */
     public function getOrders(array $data)
     {
-        $orders = Cache::remember('orders', 1200, function () use ($data) {
+        $orders = Cache::remember('orders_' . Auth::id(), 1200, function () use ($data) {
             return Order::filter($data)->where('user_id', Auth::id())->paginate(10);
         });
         return $orders;
@@ -36,32 +35,12 @@ class OrderService
      * Update order status
      * @param \App\Models\Order\Order $order
      * @param array $data
-     * @return array
+     * @return Order
      */
     public function updateOrder(Order $order, array $data)
     {
-        try {
-            if ($order->user_id !== Auth::id()) {
-                return [
-                    'status' => false,
-                    'msg' => 'You do not have permission to access this resource.',
-                    'code' => 403
-                ];
-            }
-            $order->update(array_filter($data));
-            return [
-                'status' => true,
-                'order' => $order
-            ];
-
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return [
-                'status' => false,
-                'msg' => 'A server error has occurred',
-                'code' => 500
-            ];
-        }
+        $order->update(array_filter($data));
+        return $order;
     }
 
     /**
@@ -71,24 +50,30 @@ class OrderService
      */
     public function destroyOrder(Order $order)
     {
-        try {
-            if ($order && $order->user_id !== Auth::id()) {
-                return [
-                    'status' => false,
-                    'msg' => 'You do not have permission to access this resource.',
-                    'code' => 403
-                ];
-            }
-            $order->delete();
-            return ['status' => true];
-
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
+        if ($order && $order->user_id !== Auth::id()) {
             return [
                 'status' => false,
-                'msg' => 'A server error has occurred',
-                'code' => 500
+                'msg' => 'You do not have permission to access this resource.',
+                'code' => 403
             ];
         }
+        $order->delete();
+        return ['status' => true];
+    }
+
+    /**
+     * List of deleted orders related to user
+     * @param array $data
+     * @return mixed
+     */
+    public function getDeletedOrders(array $data)
+    {
+        $deletedOrders = Cache::remember('deleted_orders_' . Auth::id(), 1200, function () use ($data) {
+            return Order::onlyTrashed()
+                ->filter($data)
+                ->where('user_id', Auth::id())
+                ->paginate(10);
+        });
+        return $deletedOrders;
     }
 }

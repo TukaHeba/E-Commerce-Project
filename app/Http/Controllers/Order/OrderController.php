@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Http\Requests\Order\DeletedOrderRequest;
 use App\Http\Requests\Order\IndexOrderRequest;
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
@@ -67,9 +68,7 @@ class OrderController extends Controller
     public function update(UpdateOrderRequest $request, Order $order): JsonResponse
     {
         $updatedOrder = $this->OrderService->updateOrder($order, $request->validated());
-        return $updatedOrder['status']
-            ? self::success($updatedOrder['order'], 'Order updated successfully')
-            : self::error(null, $updatedOrder['msg'], $updatedOrder['code']);
+        return self::success($updatedOrder, 'Order updated successfully');
     }
 
     /**
@@ -82,17 +81,18 @@ class OrderController extends Controller
         $destroiedOrder = $this->OrderService->destroyOrder($order);
         return $destroiedOrder['status']
             ? self::success(null, 'Order deleted successfully')
-            : self::error(null, $destroiedOrder['msg'], $destroiedOrder['code']);
+            : self::error(new OrderResource($order), $destroiedOrder['msg'], $destroiedOrder['code']);
     }
 
     /**
      * Display soft-deleted records.
+     * @param \App\Http\Requests\Order\DeletedOrderRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showDeleted(): JsonResponse
+    public function showDeleted(DeletedOrderRequest $request): JsonResponse
     {
-        $orders = Order::onlyTrashed()->where('user_id', Auth::id())->get();
-        return self::success(OrderResource::collection($orders), 'Orders retrieved successfully');
+        $deletedOrders = $this->OrderService->getDeletedOrders($request->validated());
+        return self::paginated($deletedOrders, OrderResource::class, 'Orders retrieved successfully', 200);
     }
 
     /**
