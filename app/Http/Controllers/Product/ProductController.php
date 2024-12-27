@@ -150,4 +150,17 @@ class ProductController extends Controller
         }
         return self::paginated($products, null,'Products retrieved successfully', 200);
     }
+    /**
+     * Retrieve top Rated Products
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function topRatedProducts(Request $request): JsonResponse
+    {
+        $limit = $request->get('limit', 10);
+        $products = $this->ProductService->getTopRatedProducts($limit);
+
+        return self::paginated($products,ProductResource::class, 'Top-rated products retrieved successfully', 200);
+    }
+
 }

@@ -1,20 +1,20 @@
 <?php
 
-
-use App\Http\Controllers\Cart\CartController;
-use App\Http\Controllers\CartItem\CartItemController;
-use App\Http\Controllers\Category\MainCategoryController;
-use App\Http\Controllers\Category\SubCategoryController;
-use App\Http\Controllers\Favorite\FavoriteController;
-use App\Http\Controllers\Permission\PermissionController;
-use App\Http\Controllers\Product\ProductController;
-use App\Http\Controllers\Rate\RateController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\User\AuthController;
-use App\Http\Controllers\User\PasswordResetController;
 use App\Http\Controllers\User\UserController;
-use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Photo\PhotoController;
+use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\User\PasswordResetController;
+use App\Http\Controllers\Category\SubCategoryController;
+use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\Rate\RateController;
+use App\Http\Controllers\Favorite\FavoriteController;
+use App\Http\Controllers\Category\MainCategoryController;
+use App\Http\Controllers\Permission\PermissionController;
+use App\Http\Controllers\CartItem\CartItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,10 +61,12 @@ Route::prefix('products')->group(function () {
     Route::get('filter', [ProductController::class, 'getProductsWithFilter']); // List products with filters (price, name, category_id, latest)
     Route::get('hotSelling', [ProductController::class, 'getBestSellingProducts']); // List best-selling products
     Route::get('category/{categoryID}', [ProductController::class, 'getProductsByCategory']); // List products by category
-    Route::get('you-may-like', [ProductController::class, 'getProductsUserMayLike']); // List products user may like
+    Route::middleware('auth:api')->get('you-may-like', [ProductController::class, 'getProductsUserMayLike']); // List products user may like
     Route::get('trashed', [ProductController::class, 'showDeleted']); // List trashed products
     Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']); // Restore a trashed product
     Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']); // Force delete a product
+    Route::get('top-rated', [ProductController::class, 'topRatedProducts']); // Top rated products
+
 });
 Route::apiResource('products', ProductController::class); // CRUD operations
 
@@ -75,7 +77,6 @@ Route::get('category/{categoryID}/products', [ProductController::class, 'getProd
 Route::apiResource('roles', RoleController::class); // CRUD Roles
 
 Route::apiResource('permissions', PermissionController::class); // CRUD Permissions
-
 
 //Main Category--------------------------------------------------------------------------------------------------------------------
 
@@ -93,6 +94,14 @@ Route::apiResource('subcategory', SubCategoryController::class);
 Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);
+
+//photo --------------------------------------------------------------------------
+Route::post('users/{user}/photos', [PhotoController::class, 'storePhoto']);
+Route::post('products/{product}/photos', [PhotoController::class, 'storePhoto']);
+Route::post('maincategory/{mainCategory}/photos', [PhotoController::class, 'storePhoto']);
+Route::post('subcategory/{subCategory}/photos', [PhotoController::class, 'storePhoto']);
+
+Route::delete('photos/{photo}', [PhotoController::class, 'destroy']);
 
 //Rate
 Route::apiResource('rate', RateController::class)->only(['index', 'show']);

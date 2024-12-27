@@ -88,7 +88,18 @@ class Product extends Model
             return $this->ratings()->avg('rating') ?? 0;
         });
     }
-
+    /**
+     * scope to get TopRated products
+     * @param mixed $query
+     * @param int $limit
+     * @return mixed
+     */
+    public function scopeTopRated($query, int $limit = 10)
+    {
+        return $query->withAvg('ratings', 'rating')
+                     ->orderByDesc('ratings_avg_rating')
+                     ->take($limit);
+    }
     /**
      * Scope to filter products by category.
      *
