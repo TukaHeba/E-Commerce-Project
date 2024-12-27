@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\Rate\Rate;
 use App\Models\User\User;
 use App\Models\Photo\Photo;
 use App\Models\CartItem\CartItem;
@@ -51,7 +52,7 @@ class Product extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function favoredBy(): BelongsToMany
+    public function favoredBy()
     {
         return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
     }
@@ -65,7 +66,14 @@ class Product extends Model
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
-
+ /**
+     * Get the rates of products.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function rates(){
+        return $this->hasMany(Rate::class);
+    }
     /**
      * Scope to filter products by category.
      *
@@ -207,7 +215,7 @@ class Product extends Model
 
     /**
      * Get the cart items associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function cartItems()
@@ -217,7 +225,7 @@ class Product extends Model
 
     /**
      * Get the photos associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function photos()
@@ -227,7 +235,7 @@ class Product extends Model
 
     /**
      * Get the order items associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function orderItems()
