@@ -60,10 +60,12 @@ Route::prefix('products')->group(function () {
     Route::get('filter', [ProductController::class, 'getProductsWithFilter']); // List products with filters (price, name, category_id, latest)
     Route::get('hotSelling', [ProductController::class, 'getBestSellingProducts']); // List best-selling products
     Route::get('category/{categoryID}', [ProductController::class, 'getProductsByCategory']); // List products by category
-    Route::get('you-may-like', [ProductController::class, 'getProductsUserMayLike']); // List products user may like
+    Route::middleware('auth:api')->get('you-may-like', [ProductController::class, 'getProductsUserMayLike']); // List products user may like
     Route::get('trashed', [ProductController::class, 'showDeleted']); // List trashed products
     Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']); // Restore a trashed product
     Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']); // Force delete a product
+    Route::get('top-rated', [ProductController::class, 'topRatedProducts']); // Top rated products
+
 });
 Route::apiResource('products', ProductController::class); // CRUD operations
 
