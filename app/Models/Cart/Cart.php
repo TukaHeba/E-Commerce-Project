@@ -13,12 +13,19 @@ class Cart extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id'
+    ];
+    /**
      * The attributes that are not mass assignable.
      *
      * @var array
      */
     protected $guarded = [
-        'user_id'
     ];
 
     /**

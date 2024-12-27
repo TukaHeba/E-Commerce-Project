@@ -24,6 +24,15 @@ class CartItem extends Model
     ];
 
     /**
+     *  The attributes that should be cast.
+     *
+     * @var string[]
+     */
+    protected $casts = [
+        'quantity' => 'integer'
+    ];
+
+    /**
      * get cart
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
