@@ -9,7 +9,7 @@ use App\Http\Controllers\User\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Product\ProductController;
-
+use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\User\PasswordResetController;
 
 
@@ -75,13 +75,23 @@ Route::apiResource('permissions', PermissionController::class); // CRUD Permissi
 
 
 //Main Category--------------------------------------------------------------------------------------------------------------------
-Route::apiResource('maincategory',MainCategoryController::class); 
+Route::apiResource('maincategory',MainCategoryController::class);
 Route::get('showDeleted_MainCategory', [MainCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'forceDeleted']);
 
 //Sub Category--------------------------------------------------------------------------------------------------------------------
-Route::apiResource('subcategory',SubCategoryController::class); 
+Route::apiResource('subcategory',SubCategoryController::class);
 Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);
+
+//Rate
+Route::apiResource('rate', RateController::class)->only(['index', 'show']);
+Route::middleware('auth:api')->prefix('rate')->group(function () {
+    Route::apiResource('', RateController::class)->except(['index', 'show']);
+
+    Route::put('rate/restore/{rate}', [RateController::class, 'restoreDeleted']);
+    Route::delete('rate/force-deleted-rate/{rate}', [RateController::class, 'forceDeleted']);
+    Route::get('rate/deleted-rates', [RateController::class, 'showDeleted']);
+});

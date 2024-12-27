@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\Rate\Rate;
 use App\Models\Photo\Photo;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
@@ -54,7 +55,14 @@ class Product extends Model
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
-
+ /**
+     * Get the rates of products.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function rates(){
+        return $this->hasMany(Rate::class);
+    }
     /**
      * Scope to filter products by category.
      *
