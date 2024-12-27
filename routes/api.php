@@ -2,19 +2,20 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Photo\PhotoController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\CartItem\CartItemController;
+use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\User\PasswordResetController;
 use App\Http\Controllers\Category\SubCategoryController;
-use App\Http\Controllers\Cart\CartController;
-use App\Http\Controllers\Rate\RateController;
-use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\Category\MainCategoryController;
 use App\Http\Controllers\Permission\PermissionController;
-use App\Http\Controllers\CartItem\CartItemController;
 
 /*
 |--------------------------------------------------------------------------
