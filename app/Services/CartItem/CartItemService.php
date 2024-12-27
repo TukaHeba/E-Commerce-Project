@@ -7,6 +7,13 @@ use App\Models\Cart\Cart;
 class CartItemService
 {
 
+    /**
+     * create cart when doesn't exists and add items in to cart
+     *
+     * @param array $data
+     * @return void
+     * @throws \Exception
+     */
     public function store(array $data){
         $cart = Cart::query()->firstOrCreate(['user_id'=>auth()->user()->id]);
 
@@ -14,6 +21,5 @@ class CartItemService
             throw new \Exception('The product is already in your cart.');
         }
         $cart->cartItems()->create($data);
-
     }
 }
