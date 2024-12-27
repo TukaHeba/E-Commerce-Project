@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\User\User;
 use App\Models\Photo\Photo;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
@@ -45,6 +46,15 @@ class Product extends Model
     protected $casts = [
         //
     ];
+    /**
+     * Get the users favored this product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favoredBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+    }
 
     /**
      * relation with category .
