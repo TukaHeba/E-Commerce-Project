@@ -8,16 +8,15 @@ use App\Models\Order\Order;
 use App\Models\Account\Account;
 use App\Models\Product\Product;
 use App\Models\Favorite\Favorite;
-use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, SoftDeletes, HasRoles, Notifiable;
+    use HasFactory, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
