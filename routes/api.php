@@ -1,16 +1,18 @@
 <?php
 
-use App\Http\Controllers\Cart\CartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\UserController;
+
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Favorite\FavoriteController;
 
 use App\Http\Controllers\User\PasswordResetController;
 use App\Http\Controllers\Category\SubCategoryController;
-
 use App\Http\Controllers\Category\MainCategoryController;
 use App\Http\Controllers\Permission\PermissionController;
 
@@ -87,3 +89,13 @@ Route::apiResource('subcategory',SubCategoryController::class);
 Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);
+
+//Rate
+Route::apiResource('rate', RateController::class)->only(['index', 'show']);
+Route::middleware('auth:api')->prefix('rate')->group(function () {
+    Route::apiResource('', RateController::class)->except(['index', 'show']);
+
+    Route::put('rate/restore/{rate}', [RateController::class, 'restoreDeleted']);
+    Route::delete('rate/force-deleted-rate/{rate}', [RateController::class, 'forceDeleted']);
+    Route::get('rate/deleted-rates', [RateController::class, 'showDeleted']);
+});

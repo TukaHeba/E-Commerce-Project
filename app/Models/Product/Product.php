@@ -2,6 +2,8 @@
 
 namespace App\Models\Product;
 
+use App\Models\Rate\Rate;
+use App\Models\User\User;
 use App\Models\Photo\Photo;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
@@ -50,7 +52,7 @@ class Product extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function favoredBy(): BelongsToMany
+    public function favoredBy()
     {
         return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
     }
