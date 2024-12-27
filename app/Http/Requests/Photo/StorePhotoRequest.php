@@ -37,7 +37,7 @@ class StorePhotoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:8192', // 8 MB
         ];
     }
 
@@ -62,12 +62,9 @@ class StorePhotoRequest extends FormRequest
     {
         return [
             'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
-            'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
-            'exists' => 'The selected :attribute is invalid.',
+            'max' => 'The :attribute may not be greater than :max KB.',
+            'image' => 'The :attribute must be an image.',
+            'mimes' => 'The :attribute must be one of the following types: jpeg, png, jpg, gif, webp.',
         ];
     }
 
