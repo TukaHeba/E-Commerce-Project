@@ -28,7 +28,7 @@ class OrderConfirmationNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -42,6 +42,20 @@ class OrderConfirmationNotification extends Notification
             ->line('Your order ID is: ' . $this->order->id)
             ->line('Your order total price is: $' . number_format($this->order->total_price, 2))
             ->line('Thank you for shopping with us!');
+    }
+
+    /**
+     * Get the database representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'order_id' => $this->order->id,
+            'total_price' => $this->order->total_price,
+            'message' => 'Your order has been confirmed. Order ID: ' . $this->order->id,
+        ];
     }
 
     /**
