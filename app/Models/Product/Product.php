@@ -7,6 +7,7 @@ use App\Models\Photo\Photo;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
 use Illuminate\Support\Facades\DB;
+use App\Models\OrderItem\OrderItem;
 use App\Models\Category\SubCategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -205,7 +206,8 @@ class Product extends Model
 
 
     /**
-     * get cart items for the product
+     * Get the cart items associated with the product.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function cartItems()
@@ -213,8 +215,23 @@ class Product extends Model
         return $this->hasMany(CartItem::class);
     }
 
+    /**
+     * Get the photos associated with the product.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function photos()
     {
         return $this->morphMany(Photo::class, 'photoable');
+    }
+
+    /**
+     * Get the order items associated with the product.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }
