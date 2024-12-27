@@ -110,7 +110,7 @@ class User extends Authenticatable implements JWTSubject
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
 
-    public function carts()
+    public function cart()
     {
         return $this->hasOne(Cart::class);
     }
