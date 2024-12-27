@@ -102,7 +102,7 @@ class ProductService
 
         return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
 
-            return Product::filterProducts($request)->paginate(10);
+            return Product::filterProducts($request)->withAvg('ratings', 'rating')->paginate(10);
         });
     }
     /**

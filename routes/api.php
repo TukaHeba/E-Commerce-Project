@@ -92,12 +92,14 @@ Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryControll
 
 //Rate
 Route::apiResource('rate', RateController::class)->only(['index', 'show']);
-Route::middleware('auth:api')->prefix('rate')->group(function () {
-    Route::apiResource('', RateController::class)->except(['index', 'show']);
 
-    Route::put('rate/restore/{rate}', [RateController::class, 'restoreDeleted']);
-    Route::delete('rate/force-deleted-rate/{rate}', [RateController::class, 'forceDeleted']);
-    Route::get('rate/deleted-rates', [RateController::class, 'showDeleted']);
+Route::middleware('auth:api')->prefix('rate')->group(function () {
+    Route::put('restore/{rate}', [RateController::class, 'restoreDeleted']);
+    Route::get('deleted-rates', [RateController::class, 'showDeleted']);
+    Route::delete('force-deleted-rate/{rate}', [RateController::class, 'forceDeleted']);
+    Route::put('{rate}', [RateController::class, 'update']);
+    Route::delete('{rate}', [RateController::class, 'destroy']);
+    Route::post('', [RateController::class, 'store']);
 });
 
 //favorites

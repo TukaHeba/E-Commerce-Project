@@ -10,6 +10,7 @@ use App\Models\Category\Category;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use App\Models\Category\SubCategory;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -71,9 +72,23 @@ class Product extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function rates(){
+    public function ratings(){
         return $this->hasMany(Rate::class);
     }
+    /**
+     * Get the average rating for the product.
+     *
+     * @return float The average rating of the product.
+     */
+    public function averageRating(): float
+    {
+        $cacheKey = "product_avg_rating_{$this->id}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(30), function () {
+            return $this->ratings()->avg('rating') ?? 0;
+        });
+    }
+
     /**
      * Scope to filter products by category.
      *
