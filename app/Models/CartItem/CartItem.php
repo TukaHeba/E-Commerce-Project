@@ -23,6 +23,7 @@ class CartItem extends Model
         'quantity'
     ];
 
+
     /**
      * The attributes that should be cast.
      *
@@ -34,7 +35,7 @@ class CartItem extends Model
 
     /**
      * Get the cart associated with the cart item.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function cart()
@@ -44,7 +45,7 @@ class CartItem extends Model
 
     /**
      * Get the product associated with the cart item.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function product()

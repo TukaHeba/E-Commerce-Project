@@ -1,33 +1,21 @@
 <?php
 
-namespace App\Http\Requests\Cart;
+namespace App\Http\Requests\CartItem;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreCartRequest extends FormRequest
+class UpdateCartItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     * 
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -37,25 +25,14 @@ class StoreCartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'quantity'=>['required','integer','min:1']
         ];
     }
 
-     /**
-     * Define human-readable attribute names for validation errors.
-     * 
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            //
-        ];
-    }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array

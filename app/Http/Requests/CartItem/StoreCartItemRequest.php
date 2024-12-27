@@ -1,33 +1,21 @@
 <?php
 
-namespace App\Http\Requests\Cart;
+namespace App\Http\Requests\CartItem;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdateCartRequest extends FormRequest
+class StoreCartItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     * 
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -37,25 +25,26 @@ class UpdateCartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'product_id'=>['required','integer','exists:products,id'],
+            'quantity'=>['required','integer','min:1']
         ];
     }
 
      /**
      * Define human-readable attribute names for validation errors.
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
     {
         return [
-            //
+            'product_id'=>'Product'
         ];
     }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -64,9 +53,7 @@ class UpdateCartRequest extends FormRequest
             'required' => 'The :attribute field is required.',
             'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
+            'integer' => 'The :attribute must be a integer',
             'exists' => 'The selected :attribute is invalid.',
         ];
     }
