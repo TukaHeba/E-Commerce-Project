@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Cart\Cart;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class CartSeeder extends Seeder
 {
@@ -12,6 +13,8 @@ class CartSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Cart::create([
+            'user_id' => 1,
+        ]);
     }
 }
