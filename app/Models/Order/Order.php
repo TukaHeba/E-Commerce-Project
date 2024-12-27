@@ -3,25 +3,28 @@
 namespace App\Models\Order;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\OrderTracking\OrderTracking;
+use App\Models\User\User;
+use App\Models\OrderItem\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
-    use HasFactory, SoftDeletes;
+  use HasFactory, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'user_id',
-        'shipping_address',
-        'status',
-        'total_price'
-    ];
+  /**
+   * The attributes that are mass assignable.
+   *
+   * @var array<int, string>
+   */
+  protected $fillable = [
+    'user_id',
+    'shipping_address',
+    'status',
+    'total_price',
+  ];
 
     /**
      * The attributes that are not mass assignable.
@@ -38,27 +41,27 @@ class Order extends Model
     protected $casts = [
         //
     ];
-
-    /**
-     * Filters related to order
-     * @param mixed $query
-     * @param mixed $filters
-     * @return \Illuminate\Contracts\Database\Eloquent\Builder
-     */
-    public function scopeFilter(Builder $query, array $filters): Builder
-    {
-        if (isset($filters['shipping_address'])) {
-            $query->where('shipping_address', $filters['shipping_address']);
-        }
-
-        if (isset($filters['total_price'])) {
-            $query->where('total_price', $filters['total_price']);
-        }
-
-        if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
-        return $query;
+    public function orderTrackings(){
+        return $this->hasMany(OrderTracking::class);
     }
 
+  /**
+   * Get the order items for the order.
+   *
+   * @return \Illuminate\Database\Eloquent\Relations\HasMany
+   */
+  public function orderItems()
+  {
+    return $this->hasMany(OrderItem::class);
+  }
+
+  /**
+   * Get the user that owns the order.
+   *
+   * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+   */
+  public function user()
+  {
+    return $this->belongsTo(User::class);
+  }
 }

@@ -102,7 +102,7 @@ class ProductService
 
         return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
 
-            return Product::filterProducts($request)->paginate(10);
+            return Product::filterProducts($request)->withAvg('ratings', 'rating')->paginate(10);
         });
     }
     /**
@@ -119,17 +119,33 @@ class ProductService
             return Product::bestSelling()->available()->paginate(10);
         });
     }
-
+    /**
+     * Retrieve Products User May Like
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     * @return mixed
+     */
     public function getProductsUserMayLike()
     {
-        $user_id = auth()->check() ?  auth()->id()
-            :  throw new HttpResponseException(response()->json(['message' => 'User not authenticated'], 401));
-        // $user_id = 10;   // to test resuelt without auth // للحذف
+        $user_id = auth()->id();
         $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
         $this->addCasheKey($cache_key);
 
         return Cache::remember($cache_key, now()->addHour(), function () use ($user_id) {
             return Product::mayLikeProducts($user_id)->available()->paginate(10);
+        });
+    }
+    /**
+     * Retrieve Top Rated Products
+     * @param int $limit
+     * @return mixed
+     */
+    public function getTopRatedProducts(int $limit = 10)
+    {
+        $cache_key = 'top_rating_products';
+        $this->addCasheKey($cache_key);
+
+        return Cache::remember($cache_key, now()->addHour(), function () use($limit) {
+            return Product::topRated($limit)->with('category')->available()->paginate(30);
         });
     }
 

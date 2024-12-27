@@ -2,16 +2,17 @@
 
 namespace App\Models\User;
 
-use App\Models\Account\Account;
 use App\Models\Cart\Cart;
-use App\Models\Favorite\Favorite;
-use App\Models\Order\Order;
 use App\Models\Rate\Rate;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use App\Models\Order\Order;
+use App\Models\Account\Account;
+use App\Models\Product\Product;
+use App\Models\Favorite\Favorite;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements JWTSubject
@@ -110,7 +111,7 @@ class User extends Authenticatable implements JWTSubject
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
 
-    public function carts()
+    public function cart()
     {
         return $this->hasOne(Cart::class);
     }
@@ -145,4 +146,19 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Account::class);
     }
 
+    /**
+     * Get the user favorite products.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favoriteProducts()
+    {
+        return $this->belongsToMany(Product::class,'favorites')->withTimestamps();
+    }
+
+    public $appends = ['full_name'];
+
+    public function getFullNameAttribute(){
+        return $this->first_name . ' ' . $this->last_name;
+    }
 }

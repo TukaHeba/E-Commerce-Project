@@ -4,6 +4,7 @@ namespace App\Services\Category;
 
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendNotification;
 use App\Models\Category\MainCategory;
 
 class MainCategoryService
@@ -33,6 +34,9 @@ class MainCategoryService
 
         $maincategory->subCategories()->attach($data['sub_category_name']);
         $maincategory->save();
+
+        $name = $maincategory->main_category_name;
+        SendNotification::dispatch($name);
 
         return $maincategory;
     }

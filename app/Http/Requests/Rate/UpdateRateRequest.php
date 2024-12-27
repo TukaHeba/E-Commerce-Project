@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests\Rate;
 
-use Illuminate\Contracts\Validation\Validator;
+use App\Models\Rate\Rate;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateRateRequest extends FormRequest
@@ -13,13 +14,13 @@ class UpdateRateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth()->check() && $this->route('rate')->user_id === auth()->id();
     }
 
     /**
      * Prepare the data for validation.
      * This method is called before validation starts to clean or normalize inputs.
-     * 
+     *
      * @return void
      */
     protected function prepareForValidation()
@@ -37,37 +38,34 @@ class UpdateRateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'rating' => 'sometimes|nullable|integer|min:1|max:5',
+            'review' => 'sometimes|nullable|string|max:255',
         ];
     }
 
      /**
      * Define human-readable attribute names for validation errors.
-     * 
+     *
      * @return array<string, string>
      */
     public function attributes(): array
     {
         return [
-            //
+           //
         ];
     }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
-            'required' => 'The :attribute field is required.',
             'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
-            'exists' => 'The selected :attribute is invalid.',
+            'integer' => 'The :attribute must be number'
         ];
     }
 

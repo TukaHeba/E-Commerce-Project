@@ -23,8 +23,19 @@ class CartItem extends Model
         'quantity'
     ];
 
+
     /**
-     * get cart
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'quantity' => 'integer',
+    ];
+
+    /**
+     * Get the cart associated with the cart item.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function cart()
@@ -33,12 +44,12 @@ class CartItem extends Model
     }
 
     /**
-     * get product
+     * Get the product associated with the cart item.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
-
 }
