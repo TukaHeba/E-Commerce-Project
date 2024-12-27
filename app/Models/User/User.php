@@ -156,4 +156,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Product::class,'favorites')->withTimestamps();
     }
 
+    public $appends = ['full_name'];
+
+    public function getFullNameAttribute(){
+        return $this->first_name . ' ' . $this->last_name;
+    }
 }
