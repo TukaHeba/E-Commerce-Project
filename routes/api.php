@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Category\MainCategoryController;
 use App\Http\Controllers\Category\SubCategoryController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Permission\PermissionController;
 use App\Http\Controllers\Role\RoleController;
 use Illuminate\Http\Request;
@@ -75,13 +76,13 @@ Route::apiResource('permissions', PermissionController::class); // CRUD Permissi
 
 
 //Main Category--------------------------------------------------------------------------------------------------------------------
-Route::apiResource('maincategory',MainCategoryController::class); 
+Route::apiResource('maincategory',MainCategoryController::class);
 Route::get('showDeleted_MainCategory', [MainCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'forceDeleted']);
 
 //Sub Category--------------------------------------------------------------------------------------------------------------------
-Route::apiResource('subcategory',SubCategoryController::class); 
+Route::apiResource('subcategory',SubCategoryController::class);
 Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDeleted']);
 Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);

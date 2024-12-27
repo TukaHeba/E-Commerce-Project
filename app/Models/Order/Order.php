@@ -2,6 +2,7 @@
 
 namespace App\Models\Order;
 
+use App\Models\OrderTracking\OrderTracking;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,7 +22,7 @@ class Order extends Model
 
     /**
      * The attributes that are not mass assignable.
-     * 
+     *
      * @var array
      */
     protected $guarded = [];
@@ -34,5 +35,8 @@ class Order extends Model
     protected $casts = [
       //
     ];
+    public function orderTrackings(){
+        return $this->hasMany(OrderTracking::class);
+    }
 
 }
