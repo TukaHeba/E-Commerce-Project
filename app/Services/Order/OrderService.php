@@ -16,7 +16,7 @@ class OrderService
     public function getOrders(array $data)
     {
         $orders = Cache::remember('orders_' . Auth::id(), 1200, function () use ($data) {
-            return Order::filter($data)->where('user_id', Auth::id())->paginate(10);
+            return Order::byFilters($data)->where('user_id', Auth::id())->paginate(10);
         });
         return $orders;
     }
@@ -70,7 +70,7 @@ class OrderService
     {
         $deletedOrders = Cache::remember('deleted_orders_' . Auth::id(), 1200, function () use ($data) {
             return Order::onlyTrashed()
-                ->filter($data)
+                ->byFilters($data)
                 ->where('user_id', Auth::id())
                 ->paginate(10);
         });

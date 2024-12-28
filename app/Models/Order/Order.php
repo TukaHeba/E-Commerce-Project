@@ -12,19 +12,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
-  use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-  /**
-   * The attributes that are mass assignable.
-   *
-   * @var array<int, string>
-   */
-  protected $fillable = [
-    'user_id',
-    'shipping_address',
-    'status',
-    'total_price',
-  ];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id',
+        'shipping_address',
+        'status',
+        'total_price',
+    ];
 
     /**
      * The attributes that are not mass assignable.
@@ -41,27 +41,50 @@ class Order extends Model
     protected $casts = [
         //
     ];
-    public function orderTrackings(){
+    public function orderTrackings()
+    {
         return $this->hasMany(OrderTracking::class);
     }
 
-  /**
-   * Get the order items for the order.
-   *
-   * @return \Illuminate\Database\Eloquent\Relations\HasMany
-   */
-  public function orderItems()
-  {
-    return $this->hasMany(OrderItem::class);
-  }
+    /**
+     * Get the order items for the order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 
-  /**
-   * Get the user that owns the order.
-   *
-   * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-   */
-  public function user()
-  {
-    return $this->belongsTo(User::class);
-  }
+    /**
+     * Get the user that owns the order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope to filter orders by shipping_address, status & total_price.
+     * @param mixed $query
+     * @param mixed $filters
+     * @return \Illuminate\Contracts\Database\Eloquent\Builder
+     */
+    public function scopeByFilters($query, $filters): Builder
+    {
+        if (!empty($filters['shipping_address'])) {
+            $query->where('shipping_address', $filters['shipping_address']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['total_price'])) {
+            $query->where('total_price', $filters['total_price']);
+        }
+        return $query;
+    }
 }
