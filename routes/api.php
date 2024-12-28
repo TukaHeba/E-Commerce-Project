@@ -60,7 +60,6 @@ Route::post('users/{user}/restoreDeleted', [UserController::class, 'restoreDelet
 Route::delete('users/{user}/forceDeleted', [UserController::class, 'forceDeleted']);
 
 // Product Routes
-Route::apiResource('products', ProductController::class); // CRUD operations
 Route::prefix('products')->group(function () {
     Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']); // List latest products added
     Route::get('filter', [ProductController::class, 'getProductsWithFilter']); // List products with filters (price, name, category_id, latest)
@@ -73,6 +72,7 @@ Route::prefix('products')->group(function () {
     Route::get('top-rated', [ProductController::class, 'topRatedProducts']); // Top rated products
 
 });
+Route::apiResource('products', ProductController::class); // CRUD operations
 
 Route::get('category/{categoryID}/products', [ProductController::class, 'getProductsByCategory']);
 
@@ -114,7 +114,6 @@ Route::post('subcategory/{subCategory}/photos', [PhotoController::class, 'storeP
 Route::delete('photos/{photo}', [PhotoController::class, 'destroy']);
 
 //Rate
-Route::apiResource('rate', RateController::class)->only(['index', 'show']);
 
 Route::middleware('auth:api')->prefix('rate')->group(function () {
     Route::put('restore/{rate}', [RateController::class, 'restoreDeleted']);
@@ -124,6 +123,7 @@ Route::middleware('auth:api')->prefix('rate')->group(function () {
     Route::delete('{rate}', [RateController::class, 'destroy']);
     Route::post('', [RateController::class, 'store']);
 });
+Route::apiResource('rate', RateController::class)->only(['index', 'show']);
 
 //favorites
 Route::post('products/{product}/addToFavorite', [FavoriteController::class, 'store']);
