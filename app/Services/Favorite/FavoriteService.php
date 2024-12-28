@@ -31,7 +31,7 @@ class FavoriteService
     public function showFavorites()
     {
         $user = User::findOrFail(auth()->user()->id);
-        return  $user->load('favoriteProducts');
+        return  $user->favoriteProducts()->get();
     }
       /**
      * remove product from user's favorite products
