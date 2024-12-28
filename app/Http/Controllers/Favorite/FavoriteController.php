@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Favorite;
 use App\Models\Product\Product;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductResource;
 use App\Http\Resources\UserResource;
 use App\Services\Favorite\FavoriteService;
 
@@ -34,7 +35,7 @@ class FavoriteController extends Controller
     public function show(): JsonResponse
     {
         $user_favorite_products = $this->FavoriteService->showFavorites();
-        return self::success(new UserResource($user_favorite_products), 'User Favorite Products retrieved successfully');
+        return self::success(ProductResource::collection($user_favorite_products), 'User Favorite Products retrieved successfully');
     }
 
     /**
