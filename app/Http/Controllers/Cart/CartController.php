@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Cart;
 
-use App\Models\Cart\Cart;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Services\Cart\CartService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cart\StoreCartRequest;
 use App\Http\Requests\Cart\UpdateCartRequest;
 use App\Http\Requests\Order\StoreOrderRequest;
-use Exception;
+use App\Http\Resources\CartResource;
+use App\Models\Cart\Cart;
+use App\Services\Cart\CartService;
+use Illuminate\Http\JsonResponse;
 
 class CartController extends Controller
 {
@@ -23,83 +22,39 @@ class CartController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     * @throws \Exception
+     * View all user carts for ((Admin))
+     *
+     * //     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): JsonResponse
+
+    public function index()
     {
-        $carts = $this->CartService->getCarts($request);
-        return self::paginated($carts, 'Carts retrieved successfully', 200);
+        $carts = Cart::paginate(10);
+        return self::paginated($carts, CartResource::class, 'Carts retrieved successfully', 200);
     }
 
     /**
-     * Store a newly created resource in storage.
-     * @throws \Exception
+     *   Display the specified cart for ((Admin))
+     *
+     * @param Cart $cartItem
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StoreCartRequest $request): JsonResponse
+    public function show(Cart $cart)
     {
-        $cart = $this->CartService->storeCart($request->validated());
-        return self::success($cart, 'Cart created successfully', 201);
+        return self::success(new CartResource($cart->load(['user', 'cartItems.product'])));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cart $cart): JsonResponse
-    {
-        return self::success($cart, 'Cart retrieved successfully');
-    }
 
     /**
-     * Update the specified resource in storage.
-     * @throws \Exception
+     *  View the cart of the auth user.
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateCartRequest $request, Cart $cart): JsonResponse
+    public function userCart()
     {
-        $updatedCart = $this->CartService->updateCart($cart, $request->validated());
-        return self::success($updatedCart, 'Cart updated successfully');
+        $cart = Cart::where('user_id', auth()->user()->id)->with('cartItems.product')->first();
+        return self::success(new CartResource($cart));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Cart $cart): JsonResponse
-    {
-        $cart->delete();
-        return self::success(null, 'Cart deleted successfully');
-    }
-
-    /**
-     * Display soft-deleted records.
-     */
-    public function showDeleted(): JsonResponse
-    {
-        $carts = Cart::onlyTrashed()->get();
-        return self::success($carts, 'Carts retrieved successfully');
-    }
-
-    /**
-     * Restore a soft-deleted record.
-     * @param string $id
-     * @return JsonResponse
-     */
-    public function restoreDeleted(string $id): JsonResponse
-    {
-        $cart = Cart::onlyTrashed()->findOrFail($id);
-        $cart->restore();
-        return self::success($cart, 'Cart restored successfully');
-    }
-
-    /**
-     * Permanently delete a soft-deleted record.
-     * @param string $id
-     * @return JsonResponse
-     */
-    public function forceDeleted(string $id): JsonResponse
-    {
-        $cart = Cart::onlyTrashed()->findOrFail($id)->forceDelete();
-        return self::success(null, 'Cart force deleted successfully');
-    }
 
     /**
      * Checkout the cart and get cart items data and total price.
@@ -117,7 +72,7 @@ class CartController extends Controller
 
     /**
      * Place an order by creating the order and order items, then clearing the cart.
-     * 
+     *
      * @param \App\Http\Requests\Order\StoreOrderRequest $request
      * @return JsonResponse
      */

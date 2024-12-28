@@ -3,6 +3,7 @@
 namespace App\Services\CartItem;
 
 use App\Models\Cart\Cart;
+use App\Models\CartItem\CartItem;
 
 class CartItemService
 {
@@ -14,12 +15,27 @@ class CartItemService
      * @return void
      * @throws \Exception
      */
-    public function store(array $data){
-        $cart = Cart::query()->firstOrCreate(['user_id'=>auth()->user()->id]);
-
-        if($cart->cartItems()->where('product_id',$data['product_id'])->first()){
+    public function store(array $data)
+    {
+        $cart = Cart::firstOrCreate(['user_id' => auth()->user()->id]);
+        if ($cart->cartItems()->where('product_id', $data['product_id'])->first()) {
             throw new \Exception('The product is already in your cart.');
         }
         $cart->cartItems()->create($data);
+    }
+
+
+    /**
+     * delete items from cart
+     * @param CartItem $cartItem
+     * @return void
+     */
+    public function deleteItem(CartItem $cartItem)
+    {
+        $cart = Cart::find($cartItem->cart_id);
+        $cartItem->forceDelete();
+        if ($cart->cartItems->count() === 0) {
+            $cart->delete();
+        }
     }
 }
