@@ -11,46 +11,38 @@ class OrderTrackingNotification extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    protected $name;
-    public function __construct($name)
+    protected $user_email;
+    protected $user_first_name;
+    protected $order_id;
+    protected $order_status;
+
+    public function __construct($user_email, $user_first_name, $order_id, $order_status)
     {
-        $this->name = $name;
+        $this->user_email = $user_email;
+        $this->user_first_name = $user_first_name;
+        $this->order_id = $order_id;
+        $this->order_status = $order_status;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
-        Log::info('OrderTrackingNotification is triggered with name: ' . $this->name);
+        $url = url('api/orders/'.$this->order_id);
+        Log::info('User order passed to Job: ' . $url);
+
         return (new MailMessage)
-                    ->greeting('Hello!')
-                    ->line('The status of one of your requests has been updated.'.$this->name)
-                    ->line('Thank you for using our application!');
+            ->greeting('Hello ' . $this->user_first_name . '!')
+            ->line('The status of your order has been updated to ' . $this->order_status . '.')
+            ->action('View Order', $url)
+            ->line('Thank you for using our application!');
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 }

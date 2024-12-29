@@ -35,9 +35,6 @@ class MainCategoryService
         $maincategory->subCategories()->attach($data['sub_category_name']);
         $maincategory->save();
 
-        $name = $maincategory->main_category_name;
-        SendNotification::dispatch($name);
-
         return $maincategory;
     }
 
