@@ -2,7 +2,10 @@
 
 namespace App\Services\Order;
 
+use App\Models\User\User;
 use App\Models\Order\Order;
+use App\Jobs\SendNotification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -40,8 +43,13 @@ class OrderService
     public function updateOrder(Order $order, array $data)
     {
         $order->update(array_filter($data));
+        
+        $user = User::where('id', $order->user_id)->first();
+        SendNotification::dispatch($user->email, $user->first_name, $order->id, $order->status);
+
         return $order;
     }
+
 
     /**
      * Soft delete order
