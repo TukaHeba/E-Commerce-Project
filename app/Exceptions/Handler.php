@@ -97,7 +97,7 @@ class Handler extends ExceptionHandler
 
         // Exception
         if ($e instanceof \Exception) {
-            return $this->formatErrorResponse($e->getMessage(), 500);
+            return $this->formatErrorResponse('Somthing went wrong.', 500);
         }
 
         // General Unexpected Errors
