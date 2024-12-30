@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
             SubCategorySeeder::class,
             ProductSeeder::class,
             FavoriteSeeder::class,
-            CartSeeder::class,
             CartItemSeeder::class,
             OrderSeeder::class,
             OrderTrackingSeeder::class,
