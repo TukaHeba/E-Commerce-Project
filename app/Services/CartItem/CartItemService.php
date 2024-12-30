@@ -17,7 +17,7 @@ class CartItemService
      */
     public function store(array $data)
     {
-        $cart = Cart::firstOrCreate(['user_id' => auth()->user()->id]);
+        $cart = Cart::where('user_id' , auth()->user()->id)->first();
         if ($cart->cartItems()->where('product_id', $data['product_id'])->first()) {
             throw new \Exception('The product is already in your cart.');
         }
@@ -34,8 +34,5 @@ class CartItemService
     {
         $cart = Cart::find($cartItem->cart_id);
         $cartItem->forceDelete();
-        if ($cart->cartItems->count() === 0) {
-            $cart->delete();
-        }
     }
 }
