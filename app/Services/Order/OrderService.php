@@ -33,7 +33,7 @@ class OrderService
     public function updateOrder(Order $order, array $data)
     {
         $order->update(array_filter($data));
-        
+
         $user = User::where('id', $order->user_id)->first();
         SendNotification::dispatch($user->email, $user->first_name, $order->id, $order->status);
 
@@ -72,5 +72,17 @@ class OrderService
                 ->paginate(10);
         });
         return $deletedOrders;
+    }
+
+    /**
+     * Fetch the tracking history associated with the specified order
+     * 
+     * @param \App\Models\Order\Order $order
+     * @return Order
+     */
+    public function getOrderTracking(Order $order)
+    {
+        $order->load('orderTrackings');
+        return $order;
     }
 }

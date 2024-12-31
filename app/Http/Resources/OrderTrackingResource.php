@@ -14,6 +14,10 @@ class OrderTrackingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'old_status' => $this->old_status ?? 'not assigned',
+            'new_status' => $this->new_status,
+            'changed_at' => $this->created_at->toDateTimeString(),
+        ];
     }
 }
