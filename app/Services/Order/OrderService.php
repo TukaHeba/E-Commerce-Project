@@ -25,16 +25,6 @@ class OrderService
     }
 
     /**
-     * Create new order
-     * @param array $data
-     * @return void
-     */
-    public function storeOrder(array $data)
-    {
-        //
-    }
-
-    /**
      * Update order status
      * @param \App\Models\Order\Order $order
      * @param array $data
@@ -49,7 +39,6 @@ class OrderService
 
         return $order;
     }
-
 
     /**
      * Soft delete order

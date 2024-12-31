@@ -39,11 +39,11 @@ class OrderController extends Controller
      * @param \App\Http\Requests\Order\StoreOrderRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StoreOrderRequest $request): JsonResponse
-    {
-        $order = $this->OrderService->storeOrder($request->validated());
-        return self::success($order, 'Order created successfully', 201);
-    }
+    // public function store(StoreOrderRequest $request): JsonResponse
+    // {
+    //     $order = $this->OrderService->storeOrder($request->validated());
+    //     return self::success($order, 'Order created successfully', 201);
+    // }
 
     /**
      * Display the specified order.
