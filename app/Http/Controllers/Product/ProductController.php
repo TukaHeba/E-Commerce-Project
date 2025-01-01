@@ -105,14 +105,14 @@ class ProductController extends Controller
     }
     /**
      *  Display a listing of the Products filtered By Category
-     * @param mixed $categoryID
-     * @return mixed
+     * @param \Illuminate\Http\Request $request
+     * @return JsonResponse
      */
-    public function getProductsByCategory($categoryID){
-        $products = $this->ProductService->getProductsByCategory($categoryID);
-        if ($products->isEmpty()) {
-            return self::error(null, 'No Products matched!',404);
-                }
+    public function getProductsByCategory(Request $request){
+        $products = $this->ProductService->getProductsByCategory($request);
+        if ($products->total() === 0) {
+            return self::error(null, 'No Products matched!', 404);
+        }
         return self::paginated($products, ProductResource::class,'Products retrieved successfully', 200);
     }
 
