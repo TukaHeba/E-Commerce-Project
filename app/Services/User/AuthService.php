@@ -14,6 +14,12 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthService
 {
+    /**
+     * User registration and shopping cart creation with register process
+     * @param array $data
+     * @return array
+     * @throws \Exception
+     */
     public function register(array $data): array
     {
         try {
@@ -38,6 +44,12 @@ class AuthService
         }
     }
 
+    /**
+     * login user
+     * @param array $credentials
+     * @return array
+     * @throws AuthenticationException
+     */
     public function login(array $credentials): array
     {
         $token = Auth::attempt($credentials);
@@ -57,12 +69,25 @@ class AuthService
         ];
     }
 
+    /**
+     * Contact the server using Socialite package
+     * @param string $provider
+     * @return mixed
+     * @throws \Exception
+     */
+
     public function redirectToProvider(string $provider)
     {
         $this->validateProvider($provider);
         return Socialite::driver($provider)->stateless()->redirect();
     }
 
+    /**
+     * callback function in socialite
+     * @param string $provider
+     * @return array
+     * @throws \Exception
+     */
     public function handleProviderCallback(string $provider): array
     {
         $this->validateProvider($provider);
@@ -104,6 +129,12 @@ class AuthService
         ];
     }
 
+    /**
+     * Check driver
+     * @param string $provider
+     * @return void
+     * @throws \Exception
+     */
     protected function validateProvider(string $provider): void
     {
         if (!in_array($provider, ['google', 'github'])) {
