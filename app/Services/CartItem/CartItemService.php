@@ -32,7 +32,6 @@ class CartItemService
      */
     public function deleteItem(CartItem $cartItem)
     {
-        $cart = Cart::find($cartItem->cart_id);
         $cartItem->forceDelete();
     }
 }

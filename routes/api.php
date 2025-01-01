@@ -97,12 +97,16 @@ Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDelete
 Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);
 
+// Order
 Route::middleware('auth')->controller(OrderController::class)->group(function () {
-    Route::get('orders/show-deleted', 'showDeleted');
+    Route::get('user-orders', 'indexUser');
+    Route::get('admin-orders', 'indexAdmin');
+    Route::get('user-orders/show-deleted', 'showDeletedUser');
+    Route::get('admin-orders/show-deleted', 'showDeletedAdmin');
     Route::post('orders/{id}/restore-deleted', 'restoreDeleted');
     Route::delete('orders/{id}/force-deleted', 'forceDeleted');
 });
-Route::apiResource('orders', OrderController::class)->middleware('auth');   // CRUD Order
+Route::apiResource('orders', OrderController::class)->except(['index', 'store'])->middleware('auth');
 
 
 //photo --------------------------------------------------------------------------
