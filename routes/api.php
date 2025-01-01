@@ -64,17 +64,16 @@ Route::prefix('products')->group(function () {
     Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']); // List latest products added
     Route::get('filter', [ProductController::class, 'getProductsWithFilter']); // List products with filters (price, name, category_id, latest)
     Route::get('hotSelling', [ProductController::class, 'getBestSellingProducts']); // List best-selling products
-    Route::get('category/{categoryID}', [ProductController::class, 'getProductsByCategory']); // List products by category
+    Route::get('category', [ProductController::class, 'getProductsByCategory']); // List products by category
     Route::middleware('auth:api')->get('you-may-like', [ProductController::class, 'getProductsUserMayLike']); // List products user may like
     Route::get('trashed', [ProductController::class, 'showDeleted']); // List trashed products
     Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']); // Restore a trashed product
     Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']); // Force delete a product
     Route::get('top-rated', [ProductController::class, 'topRatedProducts']); // Top rated products
-
 });
 Route::apiResource('products', ProductController::class); // CRUD operations
 
-Route::get('category/{categoryID}/products', [ProductController::class, 'getProductsByCategory']);
+// Route::get('products/category', [ProductController::class, 'getProductsByCategory']);
 
 Route::apiResource('roles', RoleController::class); // CRUD Roles
 
@@ -97,13 +96,17 @@ Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDelete
 Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
 Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);
 
+// Order
 Route::middleware('auth')->controller(OrderController::class)->group(function () {
-    Route::get('orders/show-deleted', 'showDeleted');
+    Route::get('user-orders', 'indexUser');
+    Route::get('admin-orders', 'indexAdmin');
+    Route::get('user-orders/show-deleted', 'showDeletedUser');
+    Route::get('admin-orders/show-deleted', 'showDeletedAdmin');
     Route::post('orders/{id}/restore-deleted', 'restoreDeleted');
     Route::delete('orders/{id}/force-deleted', 'forceDeleted');
     Route::get('orders/{order}/tracking', 'orderTracking');
 });
-Route::apiResource('orders', OrderController::class)->middleware('auth');   // CRUD Order
+Route::apiResource('orders', OrderController::class)->except(['index', 'store'])->middleware('auth');
 
 
 //photo --------------------------------------------------------------------------

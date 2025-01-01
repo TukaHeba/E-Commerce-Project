@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Requests\Order\DeletedOrderRequest;
-use App\Http\Requests\Order\IndexOrderRequest;
-use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order\Order;
 use App\Services\Order\OrderService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -24,38 +22,40 @@ class OrderController extends Controller
     }
 
     /**
-     * Display a listing of the orders.
-     * @param \App\Http\Requests\Order\IndexOrderRequest $request
+     * Display a listing of the orders related to user.
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(IndexOrderRequest $request): JsonResponse
+    public function indexUser(Request $request): JsonResponse
     {
-        $orders = $this->OrderService->getOrders($request->validated());
+        $this->authorize('viewOrdersUser', Order::class);
+        $orders = $this->OrderService->getOrdersUser($request);
         return self::paginated($orders, OrderResource::class, 'Orders retrieved successfully', 200);
     }
 
     /**
-     * Store a newly created resource in storage.
-     * @param \App\Http\Requests\Order\StoreOrderRequest $request
+     * Display a listing of the orders related to admin.
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    // public function store(StoreOrderRequest $request): JsonResponse
-    // {
-    //     $order = $this->OrderService->storeOrder($request->validated());
-    //     return self::success($order, 'Order created successfully', 201);
-    // }
+    public function indexAdmin(Request $request): JsonResponse
+    {
+        $this->authorize('viewOrdersAdmin', Order::class);
+        $orders = $this->OrderService->getOrdersAdmin($request);
+        return self::paginated($orders, OrderResource::class, 'Orders retrieved successfully', 200);
+    }
 
     /**
      * Display the specified order.
      * @param \App\Models\Order\Order $order
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Order $order): JsonResponse
     {
-        if ($order && $order->user_id !== Auth::id()) {
+        if ($order->user_id !== Auth::id()) {
             return self::error(null, 'You do not have permission to access this resource.', 403);
         }
+        $order->load('orderItems');
         return self::success(new OrderResource($order), 'Order retrieved successfully');
     }
 
@@ -85,13 +85,26 @@ class OrderController extends Controller
     }
 
     /**
-     * Display soft-deleted records.
-     * @param \App\Http\Requests\Order\DeletedOrderRequest $request
+     * Display soft-deleted records related to user.
+     * @param \Illuminate\Support\Facades\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showDeleted(DeletedOrderRequest $request): JsonResponse
+    public function showDeletedUser(Request $request): JsonResponse
     {
-        $deletedOrders = $this->OrderService->getDeletedOrders($request->validated());
+        $this->authorize('viewOrdersUser', Order::class);
+        $deletedOrders = $this->OrderService->getDeletedOrdersUser($request);
+        return self::paginated($deletedOrders, OrderResource::class, 'Orders retrieved successfully', 200);
+    }
+
+    /**
+     * Display soft-deleted records related to admin.
+     * @param \Illuminate\Support\Facades\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showDeletedAdmin(Request $request): JsonResponse
+    {
+        $this->authorize('viewOrdersAdmin', Order::class);
+        $deletedOrders = $this->OrderService->getDeletedOrdersAdmin($request);
         return self::paginated($deletedOrders, OrderResource::class, 'Orders retrieved successfully', 200);
     }
 
