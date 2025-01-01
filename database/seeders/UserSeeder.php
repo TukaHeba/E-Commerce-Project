@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Cart\Cart;
 use App\Models\User\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 
 class UserSeeder extends Seeder
@@ -28,6 +30,7 @@ class UserSeeder extends Seeder
         // Create 50 customer users using the factory and assign the customer role
         User::factory()->count(50)->create()->each(function ($user) {
             $user->assignRole('customer');
+            $user->cart()->create();
         });
     }
 }
