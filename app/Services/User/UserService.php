@@ -48,5 +48,11 @@ class UserService
         $user->update(array_filter($data));
         return $user;
     }
+    public function showmostExpensiveOrder($user)
+    {
+        $mostExpensiveOrder = $user->mostExpensiveOrder;
+        return   $mostExpensiveOrder;
+
+    }
 
 }

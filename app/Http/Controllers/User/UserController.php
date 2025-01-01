@@ -101,4 +101,10 @@ class UserController extends Controller
         return self::success(null, 'User force deleted successfully');
     }
 
+    public function showmostExpensiveOrder($user)
+    {
+        $mostExpensiveOrder = $this->UserService->showmostExpensiveOrder($user);
+        return self::success(new OrderResource($mostExpensiveOrder), 'Most Expensive Order for this Product restored successfully');
+    }
+
 }

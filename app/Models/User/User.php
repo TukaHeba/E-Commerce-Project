@@ -170,6 +170,17 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->first_name . ' ' . $this->last_name;
     }
+/**
+     * Get the most expensive delivered order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function mostExpensiveOrder()
+    {
+        return $this->hasOne(Order::class)
+            ->where('status', 'delivered')
+            ->ofMany('total_price', 'max');
+    }
 
 
 }
