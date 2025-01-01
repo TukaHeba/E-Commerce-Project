@@ -139,3 +139,4 @@ Route::middleware(['auth:api'])->group(function () {
 });
 
 
+Route::post('reports/send-unsold-products-email', [ReportController::class, 'sendUnsoldProductsEmail']);

@@ -64,6 +64,12 @@ class ReportController extends Controller
     {
         //
     }
+    public function sendUnsoldProductsEmail()
+    {
+        // Get the result from the ReportService
+        $unsoldProducts = $this->ReportService->sendUnsoldProductsEmail();
+        return self::success(ProductResource::collection($unsoldProducts), 'Products never been Sold retrieved successfully', 200);
+    }
 
 
 }
