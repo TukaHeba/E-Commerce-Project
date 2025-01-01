@@ -2,7 +2,6 @@
 
 namespace App\Services\Cart;
 
-use Exception;
 use App\Models\Cart\Cart;
 use App\Models\Order\Order;
 use App\Models\Product\Product;
@@ -10,32 +9,44 @@ use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\SendOrderConfirmationEmail;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CartService
 {
     /**
      * Checks out the cart by retrieving the cart items and calculating the total price.
      *
-     * Retrieves the authenticated user's cart and its items.
-     * Checks if the cart exists and if it contains items, throwing an exception if either condition is not met.
-     * Uses the helper method to get and return the cart item details and the total price.
+     * 1- Retrieves the authenticated user's cart and its items.
+     * 2- Checks if the cart exists and if it contains items, throwing an exception if either condition is not met.
+     * 3- Check product quantities.
+     * 4- Uses the helper method to get and return the cart item details and the total price.
      *
      * @return array Contains the cart items data and the total price.
      */
-
     public function cartCheckout()
     {
+        // Step 1
         $user = Auth::user();
         $cart = Cart::where('user_id', $user->id)->with('cartItems.product')->first();
 
+        // Step 2
         if (!$cart) {
-            throw new Exception('The cart does not exist.');
+            throw new ModelNotFoundException('The cart does not exist.');
         }
 
         if ($cart->cartItems->isEmpty()) {
-            throw new Exception('The cart is empty.');
+            throw new \Exception('The cart is empty.');
         }
 
+        // Step 3
+        foreach ($cart->cartItems as $cartItem) {
+            $product = $cartItem->product;
+            if ($product->product_quantity < $cartItem->quantity) {
+                throw new \Exception('Insufficient stock for product: ' . $product->name);
+            }
+        }
+
+        // Step 4
         return $this->getCartItemsDataAndTotalPrice($cart->cartItems);
     }
 
@@ -46,11 +57,10 @@ class CartService
      * 2- Fetch cart data using the cartCheckout method.
      * 3- Creates an order with the total price and shipping address.
      * 4- Saves the cart items as order items in the database.
-     * 5- Fetch product and check its quantity, throwing exception if the quantity not enough
-     * 6- Decrease product quantity
-     * 7- Clears the user's cart after the order is placed.
-     * 8- Commits the transaction if all steps are successful, or rolls back in case of an error.
-     * 9- Dispatch the email notification job
+     * 5- Fetch product and reduce its quantity.
+     * 6- Clears the user's cart after the order is placed.
+     * 7- Commits the transaction if all steps are successful, or rolls back in case of an error.
+     * 8- Dispatch the email notification job
      * 
      * @param string $shipping_address The address where the order will be shipped.
      * @return \App\Models\Order\Order The created order with its details.
@@ -83,29 +93,23 @@ class CartService
 
                 // Step 5
                 $product = Product::find($cartItemData['product_id']);
-                if ($product->product_quantity < $cartItemData['quantity']) {
-                    throw new Exception('Insufficient stock for product: ' . $product->name);
-                }
-
-                // Step 6
                 $product->product_quantity -= $cartItemData['quantity'];
                 $product->save();
             }
 
-            // Step 7
+            // Step 6
             $cart = Cart::where('user_id', Auth::id())->first();
             $cart->cartItems()->delete();
-            $cart->delete();
 
-            // Step 8
+            // Step 7
             DB::commit();
 
-            // Step 9
+            // Step 8
             $user = Auth::user();
             SendOrderConfirmationEmail::dispatch($user, $order);
 
             return $order;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
@@ -122,7 +126,6 @@ class CartService
      * @param \Illuminate\Database\Eloquent\Collection $cartItems Collection of cart items.
      * @return array Contains 'cart_items' data and 'total_price'.
      */
-
     private function getCartItemsDataAndTotalPrice($cartItems)
     {
         $cartItemsData = [];
