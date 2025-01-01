@@ -12,7 +12,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('report:products-remaining-command')
+            ->cron('0 0 1 */2 *') // تشغيل كل شهرين في اليوم الأول عند منتصف الليل
+            ->emailOutputTo('admin@gmail.com');
     }
 
     /**
@@ -20,7 +22,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
