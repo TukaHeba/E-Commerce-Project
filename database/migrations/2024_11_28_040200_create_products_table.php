@@ -19,7 +19,7 @@ return new class extends Migration
             // example $price = 0.1 + 0.2; // result might be 0.30000000000000004 instead of 0.3 because of how computer system stores floating points in binary lanaguge
             $table->decimal('price', 10, 2);    // 10 is the total number of digits, and 2 is the number of decimal places.
             $table->unsignedInteger('product_quantity'); // make sure in rules that this field must be positive number , negative numbers not allowed
-            $table->foreignId('sub_category_id')->constrained();   
+            $table->foreignId('maincategory_subcategory_id')->constrained('maincategory_subcategory')->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });
