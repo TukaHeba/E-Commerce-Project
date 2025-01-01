@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Report;
 
+use App\Models\User\User;
+use Illuminate\Http\Request;
+use App\Jobs\SendDelayedOrderEmail;
 use App\Http\Controllers\Controller;
 use App\Services\Report\ReportService;
-use Illuminate\Http\Request;
+use App\Http\Resources\ProductResource;
 
 class ReportController extends Controller
 {
@@ -61,4 +64,6 @@ class ReportController extends Controller
     {
         //
     }
+
+
 }

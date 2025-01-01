@@ -2,6 +2,11 @@
 
 namespace App\Services\Report;
 
+
+use App\Models\User\User;
+use App\Jobs\SendUnsoldProductEmail;
+use Illuminate\Support\Facades\Artisan;
+
 class ReportService
 {
     /**
@@ -51,4 +56,7 @@ class ReportService
     {
         //
     }
+
+
+
 }

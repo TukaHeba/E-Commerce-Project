@@ -4,6 +4,9 @@ namespace App\Services\User;
 
 use Exception;
 use App\Models\User\User;
+use Illuminate\Http\Request;
+use App\Services\Photo\PhotoService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class UserService
@@ -45,4 +48,5 @@ class UserService
         $user->update(array_filter($data));
         return $user;
     }
+
 }

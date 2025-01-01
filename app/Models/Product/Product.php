@@ -67,12 +67,13 @@ class Product extends Model
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
- /**
+    /**
      * Get the rates of products.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function ratings(){
+    public function ratings()
+    {
         return $this->hasMany(Rate::class);
     }
     /**
@@ -97,8 +98,8 @@ class Product extends Model
     public function scopeTopRated($query, int $limit = 10)
     {
         return $query->withAvg('ratings', 'rating')
-                     ->orderByDesc('ratings_avg_rating')
-                     ->take($limit);
+            ->orderByDesc('ratings_avg_rating')
+            ->take($limit);
     }
     /**
      * Scope to filter products by category.
@@ -141,9 +142,9 @@ class Product extends Model
             ->when($request->user_id, function ($q) use ($request) {
                 $q->whereIn('products.sub_category_id', function ($subQuery) use ($request) {
                     $subQuery->select('products.sub_category_id')
-                            ->from('favorites')
-                            ->join('products', 'favorites.product_id', '=', 'products.id')
-                            ->where('favorites.user_id', $request->user_id);
+                        ->from('favorites')
+                        ->join('products', 'favorites.product_id', '=', 'products.id')
+                        ->where('favorites.user_id', $request->user_id);
                 });
             })
             ->when($request->price && in_array($request->price, ['asc', 'desc']), function ($q) use ($request) {
@@ -268,4 +269,5 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
 }
