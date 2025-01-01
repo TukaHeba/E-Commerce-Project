@@ -67,24 +67,26 @@ class Order extends Model
     }
 
     /**
-     * Scope to filter orders by shipping_address, status & total_price.
+     * Scope to filter orders by shipping_address through LIKE, status & total_price within a range.
      * @param mixed $query
-     * @param mixed $filters
-     * @return \Illuminate\Contracts\Database\Eloquent\Builder
+     * @param mixed $request
+     * @return mixed
      */
-    public function scopeByFilters($query, $filters): Builder
+    public function scopeByFilters($query, $request)
     {
-        if (!empty($filters['shipping_address'])) {
-            $query->where('shipping_address', $filters['shipping_address']);
-        }
-
-        if (!empty($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
-
-        if (!empty($filters['total_price'])) {
-            $query->where('total_price', $filters['total_price']);
-        }
-        return $query;
+        return $query
+            ->when($request->has('shipping_address'), function ($query) use ($request) {
+                $query->where('shipping_address', 'LIKE', "%{$request->shipping_address}%");
+            })
+            ->when($request->status, function ($query) use ($request) {
+                $query->where('status', $request->status);
+            })
+            ->when($request->min_price || $request->max_price, function ($query) use ($request) {
+                $query->when($request->min_price, function ($query) use ($request) {
+                    $query->where('total_price', '>=', $request->min_price);
+                })->when($request->max_price, function ($query) use ($request) {
+                    $query->where('total_price', '<=', $request->max_price);
+                });
+            });
     }
 }
