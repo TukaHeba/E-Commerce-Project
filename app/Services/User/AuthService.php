@@ -2,20 +2,27 @@
 
 namespace App\Services\User;
 
-use App\Models\User\User;
 use App\Http\Resources\UserResource;
+use App\Models\Cart\Cart;
+use App\Models\User\User;
+use GuzzleHttp\Exception\ClientException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
-use Illuminate\Auth\AuthenticationException;
-use GuzzleHttp\Exception\ClientException;
 
 class AuthService
 {
     public function register(array $data): array
     {
         try {
-            $user = User::create($data);
+            $user = DB::transaction(function () use ($data) {
+                $user = User::create($data);
+                $user->assignRole('customer');
+                $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+                return $user;
+            });
             $token = Auth::login($user);
 
             return [
@@ -66,25 +73,28 @@ class AuthService
             throw new \Exception('Invalid credentials provided.', 422);
         }
 
-        $name = explode(' ', $user->name);
-        $userCreated = User::firstOrCreate(
-            ['email' => $user->email],
-            [
-                'first_name' => $name[0] ?? null,
-                'last_name' => $name[1] ?? null,
-                'email' => $user->email,
-            ]
-        );
-
-        $userCreated->providers()->updateOrCreate(
-            [
-                'provider' => $provider,
-                'provider_id' => $user->getId(),
-            ]
-        );
+        $userCreated = DB::transaction(function () use ($user, $provider) {
+            $name = explode(' ', $user->name);
+            $userCreated = User::firstOrCreate(
+                ['email' => $user->email],
+                [
+                    'first_name' => $name[0] ?? null,
+                    'last_name' => $name[1] ?? null,
+                    'email' => $user->email,
+                ]
+            );
+            $userCreated->assignRole('customer');
+            Cart::firstOrCreate(['user_id' => $userCreated->id]);
+            $userCreated->providers()->updateOrCreate(
+                [
+                    'provider' => $provider,
+                    'provider_id' => $user->getId(),
+                ]
+            );
+            return $userCreated;
+        });
 
         $token = Auth::login($userCreated);
-
         return [
             'user' => new UserResource($userCreated),
             'authorisation' => [
