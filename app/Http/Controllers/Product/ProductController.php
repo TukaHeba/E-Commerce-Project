@@ -166,6 +166,11 @@ class ProductController extends Controller
 
         return self::paginated($products, ProductResource::class, 'Top-rated products retrieved successfully', 200);
     }
+    public function showLargestQuantitySold($name)
+    {
+        $largestOrderItem = $this->ProductService->showLargestQuantitySold($name);
+        return self::success($largestOrderItem, 'Largest Quantity Sold for this Product restored successfully');
+    }
 
 
 }

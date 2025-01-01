@@ -140,3 +140,4 @@ Route::middleware(['auth:api'])->group(function () {
 
 
 Route::post('reports/send-unsold-products-email', [ReportController::class, 'sendUnsoldProductsEmail']);
+Route::get('/products/{name}/largest-quantity-sold', [ProductController::class, 'showLargestQuantitySold']);

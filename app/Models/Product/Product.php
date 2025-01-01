@@ -269,5 +269,14 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    public function largestQuantitySoldByName($name)
+    {
+        return $this->hasOne(OrderItem::class)
+            ->ofMany('quantity', 'max')
+            ->whereHas('product', function ($query) use ($name) {
+                $query->where('name', 'like', '%' . $name . '%');
+            });
+    }
+
 
 }
