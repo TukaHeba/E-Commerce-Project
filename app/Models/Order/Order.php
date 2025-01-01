@@ -75,18 +75,16 @@ class Order extends Model
     public function scopeByFilters($query, $request)
     {
         return $query
-            ->when($request->has('shipping_address'), function ($query) use ($request) {
+            ->when($request->shipping_address, function ($query) use ($request) {
                 $query->where('shipping_address', 'LIKE', "%{$request->shipping_address}%");
             })
             ->when($request->status, function ($query) use ($request) {
                 $query->where('status', $request->status);
             })
             ->when($request->min_price || $request->max_price, function ($query) use ($request) {
-                $query->when($request->min_price, function ($query) use ($request) {
-                    $query->where('total_price', '>=', $request->min_price);
-                })->when($request->max_price, function ($query) use ($request) {
-                    $query->where('total_price', '<=', $request->max_price);
-                });
+                $minPrice = $request->min_price ?? 0;
+                $maxPrice = $request->max_price ?? PHP_INT_MAX;
+                $query->whereBetween('total_price', [$minPrice, $maxPrice]);
             });
     }
 }
