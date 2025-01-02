@@ -28,9 +28,9 @@ class ReportController extends Controller
      * Products remaining in the cart without being ordered report
      * @return \Illuminate\Http\JsonResponse
      */
-    public function repor2()
+    public function productsRemainingReport()
     {
-        $productsRemaining = $this->ReportService->repor2();
+        $productsRemaining = $this->ReportService->getProductsRemaining();
         return self::paginated($productsRemaining, Report2Resource::class, 'Products retrieved successfully', 200);
     }
 
