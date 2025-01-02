@@ -115,6 +115,7 @@ Route::post('users/{user}/photos', [PhotoController::class, 'storePhoto']);
 Route::post('products/{product}/photos', [PhotoController::class, 'storePhoto']);
 Route::post('maincategory/{mainCategory}/photos', [PhotoController::class, 'storePhoto']);
 Route::post('subcategory/{subCategory}/photos', [PhotoController::class, 'storePhoto']);
+Route::post('products/{product}/MultiPhotos', [PhotoController::class, 'storeMultiplePhotos']);
 
 Route::delete('photos/{photo}', [PhotoController::class, 'destroy']);
 
