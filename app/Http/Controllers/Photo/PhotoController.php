@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Photo;
 use App\Models\Photo\Photo;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\Eloquent\Model;
 use App\Services\Photo\PhotoService;
+use Illuminate\Database\Eloquent\Model;
 use App\Http\Requests\Photo\StorePhotoRequest;
+use App\Http\Requests\Photo\StoreMultiplePhotosRequest;
 
 class PhotoController extends Controller
 {
@@ -42,6 +43,22 @@ class PhotoController extends Controller
 
         return self::success($photo, 'Photo uploaded successfully', 201);
     }
+
+    /**
+     * Store multiple photos dynamically based on the model.
+     *
+     * @param StoreMultiplePhotosRequest $request The validated request containing multiple photo data.
+     * @param Model $model The associated model for the photos like (user , product , MainCategory , SubCategory)
+     * @return JsonResponse The JSON response indicating success or failure for each photo.
+     */
+    public function storeMultiplePhotos(StoreMultiplePhotosRequest $request, Model $model): JsonResponse
+    {
+        // Store multiple photos using the PhotoService
+        $photos = $this->PhotoService->storeMultiplePhotos($request->file('photos'), $model);
+
+        return self::success($photos, 'Photos uploaded successfully', 201);
+    }
+
 
     /**
      * Remove a photo.
