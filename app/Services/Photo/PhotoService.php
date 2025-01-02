@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services\Photo;
+
 use Exception;
 use App\Models\Photo\Photo;
 use Illuminate\Support\Str;
@@ -11,44 +12,51 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class PhotoService
 {
+    /**
+     * @var string The API key for VirusTotal.
+     */
     protected $apiKey;
 
+    /**
+     * Constructor.
+     * Retrieves the VirusTotal API key from the .env file.
+     */
     public function __construct()
     {
-        $this->apiKey = env('VIRUSTOTAL_API_KEY'); // Add your API key to .env
+        $this->apiKey = env('VIRUSTOTAL_API_KEY');
     }
 
     /**
-     * Create a new Photo with the provided data.
+     * Store a single photo after validating, scanning, and saving it.
      *
-     * @param array $data The validated data to create a Photo.
-     * @return Photo|null The created Photo object on success, or null on failure.
+     * @param \Illuminate\Http\UploadedFile $photofile The photo file to upload.
+     * @param mixed $photoable The related model (e.g., a user or post).
+     * @return array Contains the created photo and a success message.
+     * @throws Exception If the file is malicious or fails any validation.
      */
-    public function storePhoto($photo, $phototableType, $phototableId)
+    public function storePhoto($photofile, $photoable)
     {
         $message = '';
 
-        // Scan the file
-        $scanResult = $this->scanFile($photo);
-        
-        // Check scan results for malicious content
-        if (isset($scanResult['data']['attributes']['stats'])) {
-            $maliciousCount = $scanResult['data']['attributes']['stats']['malicious'] ?? 0;
-            if ($maliciousCount > 0) {
-                throw new Exception('File contains a virus!', 400);
-            }else {
-                $message = 'Scan completed successfully, no virus found :)';
-            }
-        } 
+        // Scan the file for viruses
+        $scanResult = $this->scanFile($photofile);
+        $maliciousCount = $scanResult['data']['attributes']['stats']['malicious'] ?? 0;
+        if ($maliciousCount > 0) {
+            throw new Exception('File contains a virus!', 400);
+        } else {
+            $message = 'Scan completed successfully, no virus found :)';
+        }
 
-        // Validate and store the photo
-        $originalName = $photo->getClientOriginalName();
-        $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+        // Validate the file name and extension
+        $originalName = $photofile->getClientOriginalName();
+        $extension = $photofile->getClientOriginalExtension();
 
-        if (!$extension || strpos($originalName, '..') !== false || strpos($originalName, '/') !== false || strpos($originalName, '\\') !== false) {
+        // Disallow double extensions and path traversal attacks
+        if (preg_match('/\.[^.]+\./', $originalName) || strpos($originalName, '..') !== false || strpos($originalName, '/') !== false || strpos($originalName, '\\') !== false) {
             throw new Exception(trans('general.notAllowedAction'), 403);
         }
 
+        // Validate MIME type
         $allowedMimeTypes = [
             'image/jpeg',
             'image/jpg',
@@ -56,32 +64,57 @@ class PhotoService
             'image/gif',
             'image/webp',
         ];
-
-        $mime_type = $photo->getClientMimeType();
+        $mime_type = $photofile->getClientMimeType();
         if (!in_array($mime_type, $allowedMimeTypes)) {
             throw new FileException(trans('general.invalidFileType'), 403);
         }
 
-        $fileName = Str::random(32);
-        $filePath = "photo/{$fileName}.{$extension}";
-        $fileContent = file_get_contents($photo);
+        // Generate a unique file name and save the file
+        $fileName = Str::random(32) . '.' . $extension;
+        $filePath = "photos/{$fileName}";
 
-        if ($fileContent === false || !Storage::disk('local')->put($filePath, $fileContent)) {
+        if (!Storage::disk('local')->put($filePath, file_get_contents($photofile))) {
             throw new Exception(trans('general.failedToStoreFile'), 500);
         }
 
+        // Save the photo in the database
         $photo = Photo::create([
             'photo_name' => $originalName,
             'photo_path' => $filePath,
             'mime_type' => $mime_type,
-            'photoable_id' => $phototableId,
-            'photoable_type' => $phototableType,
+            'photoable_id' => $photoable->id,
+            'photoable_type' => get_class($photoable),
         ]);
 
         return ['photo' => $photo, 'message' => $message];
     }
-    
 
+    /**
+     * Store multiple photos by calling storePhoto for each file.
+     *
+     * @param array $photoFiles An array of uploaded photo files.
+     * @param mixed $photoable The related model (e.g., a user or post).
+     * @return array Results of each photo upload, including errors if any.
+     */
+    public function storeMultiplePhotos(array $photoFiles, $photoable)
+    {
+        $results = [];
+        foreach ($photoFiles as $photofile) {
+            try {
+                $results[] = $this->storePhoto($photofile, $photoable);
+            } catch (Exception $e) {
+                $results[] = ['photo' => null, 'message' => $e->getMessage(), 'status' => 'error'];
+            }
+        }
+        return $results;
+    }
+
+    /**
+     * Delete a photo from storage.
+     *
+     * @param string $filePath The path to the file in storage.
+     * @throws Exception If the file does not exist.
+     */
     public function deletePhoto($filePath)
     {
         if (Storage::exists($filePath)) {
@@ -91,18 +124,22 @@ class PhotoService
         }
     }
 
-    public function scanFile($filePath)
+    /**
+     * Scan a file for viruses using the VirusTotal API.
+     *
+     * @param \Illuminate\Http\UploadedFile $photofile The file to scan.
+     * @return array The scan result from the VirusTotal API.
+     * @throws Exception If the scan fails or the API returns an error.
+     */
+    public function scanFile($photofile)
     {
         $url = 'https://www.virustotal.com/api/v3/files';
 
-        // Upload the file to VirusTotal
         $response = Http::withHeaders([
             'x-apikey' => $this->apiKey,
-        ])->attach('file', fopen($filePath, 'r'), basename($filePath))->post($url);
+        ])->attach('file', fopen($photofile->getRealPath(), 'r'), $photofile->getClientOriginalName())->post($url);
 
-        // Check if the file was uploaded successfully
         if ($response->successful()) {
-            // Extract the analysis ID from the response
             $analysisId = $response->json()['data']['id'];
             return $this->pollScanResult($analysisId);
         } else {
@@ -114,31 +151,28 @@ class PhotoService
         }
     }
 
+    /**
+     * Poll VirusTotal for the scan result until it is completed.
+     *
+     * @param string $analysisId The ID of the scan analysis.
+     * @return array The completed scan result.
+     * @throws Exception If the scan times out or fails to complete.
+     */
     public function pollScanResult($analysisId)
     {
         $url = "https://www.virustotal.com/api/v3/analyses/{$analysisId}";
-        $maxAttempts = 10;
-        $attempt = 0;
 
-        // Poll every 10 seconds for the result until the scan is complete
-        do {
-            sleep(10); // wait 10 seconds between polling
+        for ($i = 0; $i < 10; $i++) {
+            sleep(10);
 
             $response = Http::withHeaders([
                 'x-apikey' => $this->apiKey,
             ])->get($url);
 
-            $scanResult = $response->json();
-
-            // Check if the scan is completed
-            if (isset($scanResult['data']['attributes']['status']) && $scanResult['data']['attributes']['status'] === 'completed') {
-                return $scanResult;
+            if ($response->successful() && $response->json()['data']['attributes']['status'] === 'completed') {
+                return $response->json();
             }
-
-            $attempt++;
-        } while ($attempt < $maxAttempts);
-
+        }
         throw new Exception('Scan timeout or failed to complete after polling.');
     }
-
 }
