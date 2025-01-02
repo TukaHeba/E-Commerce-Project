@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User\User;
+use App\Models\Order\Order;
 
 class OrderPolicy
 {
@@ -33,4 +34,29 @@ class OrderPolicy
     {
         return $user->hasRole('admin');
     }
+
+    /**
+     * Determine if the user can destroy the order.
+     *
+     * @param \App\Models\User\User $user
+     * @param \App\Models\Order $order
+     * @return bool
+     */
+    public function destroy(User $user, Order $order)
+    {
+        return $user->id === $order->user_id;
+    }
+
+    /**
+     * Determine if the user can show the order.
+     *
+     * @param \App\Models\User\User $user
+     * @param \App\Models\Order $order
+     * @return bool
+     */
+    public function show(User $user, Order $order)
+    {
+        return $user->id === $order->user_id;
+    }
+
 }

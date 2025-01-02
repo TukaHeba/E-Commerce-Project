@@ -52,11 +52,8 @@ class OrderController extends Controller
      */
     public function show(Order $order): JsonResponse
     {
-        if ($order->user_id !== Auth::id()) {
-            return self::error(null, 'You do not have permission to access this resource.', 403);
-        }
-        $order->load('orderItems');
-        return self::success(new OrderResource($order), 'Order retrieved successfully');
+        $this->authorize('show', $order);
+        return self::success(new OrderResource($order->load('orderItems')), 'Order retrieved successfully');
     }
 
     /**
@@ -78,10 +75,10 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        $destroiedOrder = $this->OrderService->destroyOrder($order);
-        return $destroiedOrder['status']
-            ? self::success(null, 'Order deleted successfully')
-            : self::error(new OrderResource($order), $destroiedOrder['msg'], $destroiedOrder['code']);
+        $this->authorize('destroy', $order);
+        $order->delete();
+        return self::success(null, 'Order deleted successfully');
+          
     }
 
     /**
