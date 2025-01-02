@@ -41,11 +41,12 @@ class ReportController extends Controller
     /**
      * Best-selling products for offers report
      */
-    public function repor4()
+    public function generateBestSellingProductsReport($limit)
     {
-        //
+       $products = $this->ReportService->BestSellingProductsReport($limit);
+       return self::paginated($products, null,'Products retrieved successfully', 200);
     }
-
+    
     /**
      * Best categories report
      */

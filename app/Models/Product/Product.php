@@ -76,7 +76,7 @@ class Product extends Model
             MainCategorySubCategory::class,
             'id',
             'id',
-            'maincategory_subcategory_id', 
+            'maincategory_subcategory_id',
             'main_category_id'
         );
     }
@@ -211,7 +211,7 @@ class Product extends Model
         return $query->where('product_quantity', '>', 0);
     }
 
-    public function scopeBestSelling($query)
+    public function scopeBestSelling($query,$limit = 30)
     {
         return $query
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
@@ -226,7 +226,7 @@ class Product extends Model
             )
             ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'sub_categories.sub_category_name')
             ->orderByDesc('total_sold')
-            ->take(30);
+            ->take($limit);
     }
 
     /**
