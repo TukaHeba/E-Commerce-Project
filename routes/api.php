@@ -10,6 +10,7 @@ use App\Http\Controllers\Permission\PermissionController;
 use App\Http\Controllers\Photo\PhotoController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Rate\RateController;
+use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\PasswordResetController;
@@ -139,3 +140,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/cart/checkout', [CartController::class, 'checkout']);
     Route::post('/cart/place-order', [CartController::class, 'placeOrder']);
 });
+
+// Report Routes
+Route::get('admin/products-remaining-report', [ReportController::class, 'repor2'])->middleware('auth');

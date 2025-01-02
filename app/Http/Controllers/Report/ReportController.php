@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Report2Resource;
 use App\Services\Report\ReportService;
 use Illuminate\Http\Request;
 
@@ -24,10 +25,12 @@ class ReportController extends Controller
 
     /**
      * Products remaining in the cart without being ordered report
+     * @return \Illuminate\Http\JsonResponse
      */
     public function repor2()
     {
-        //
+        $productsRemaining = $this->ReportService->repor2();
+        return self::paginated($productsRemaining, Report2Resource::class, 'Products retrieved successfully', 200);
     }
 
     /**

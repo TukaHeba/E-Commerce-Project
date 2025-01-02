@@ -2,6 +2,9 @@
 
 namespace App\Services\Report;
 
+use App\Models\CartItem\CartItem;
+use Carbon\Carbon;
+
 class ReportService
 {
     /**
@@ -14,10 +17,14 @@ class ReportService
 
     /**
      * Products remaining in the cart without being ordered report
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function repor2()
     {
-        //
+        $products_remaining = CartItem::where('created_at', '<=', Carbon::now()->subMonths(2))
+            ->paginate(10);
+
+        return $products_remaining;
     }
 
     /**
