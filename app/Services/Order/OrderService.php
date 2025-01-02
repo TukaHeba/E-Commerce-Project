@@ -53,24 +53,6 @@ class OrderService
     }
 
     /**
-     * Soft delete order
-     * @param \App\Models\Order\Order $order
-     * @return array
-     */
-    public function destroyOrder(Order $order)
-    {
-        if ($order->user_id !== Auth::id()) {
-            return [
-                'status' => false,
-                'msg' => 'You do not have permission to access this resource.',
-                'code' => 403
-            ];
-        }
-        $order->delete();
-        return ['status' => true];
-    }
-
-    /**
      * List of deleted orders related to user
      * @param mixed $request
      * @return mixed
