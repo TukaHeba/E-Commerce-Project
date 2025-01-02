@@ -43,7 +43,6 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('/cart-items', CartItemController::class)->except(['index', 'show']);
     Route::apiResource('/carts', CartController::class)->only(['index', 'show']);
     Route::get('/user-cart', [CartController::class, 'userCart']);
-
 });
 
 //Oauth
@@ -106,6 +105,7 @@ Route::middleware('auth')->controller(OrderController::class)->group(function ()
     Route::get('admin-orders/show-deleted', 'showDeletedAdmin');
     Route::post('orders/{id}/restore-deleted', 'restoreDeleted');
     Route::delete('orders/{id}/force-deleted', 'forceDeleted');
+    Route::get('orders/{order}/tracking', 'orderTracking');
 });
 Route::apiResource('orders', OrderController::class)->except(['index', 'store'])->middleware('auth');
 

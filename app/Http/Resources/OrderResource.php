@@ -23,6 +23,7 @@ class OrderResource extends JsonResource
             'order_items' => $this->whenLoaded('orderItems', function () {
                 return OrderItemResource::collection($this->orderItems);
             }),
+            'order_tracking' => OrderTrackingResource::collection($this->whenLoaded('orderTrackings')),
         ];
     }
 }

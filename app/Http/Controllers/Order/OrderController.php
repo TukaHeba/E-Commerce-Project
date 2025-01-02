@@ -130,4 +130,16 @@ class OrderController extends Controller
         $order = Order::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id)->forceDelete();
         return self::success(null, 'Order force deleted successfully');
     }
+
+    /**
+     * Retrieve order tracking details for a given order.
+     * 
+     * @param \App\Models\Order\Order $order
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function orderTracking(Order $order): JsonResponse
+    {
+        $order = $this->OrderService->getOrderTracking($order);
+        return self::success(new OrderResource($order), 'Order tracking data retrieved successfully.');
+    }
 }

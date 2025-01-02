@@ -52,7 +52,6 @@ class OrderService
         return $order;
     }
 
-
     /**
      * Soft delete order
      * @param \App\Models\Order\Order $order
@@ -85,6 +84,18 @@ class OrderService
                 ->paginate(10);
         });
         return $deletedOrders;
+    }
+
+    /**
+     * Fetch the tracking history associated with the specified order
+     * 
+     * @param \App\Models\Order\Order $order
+     * @return Order
+     */
+    public function getOrderTracking(Order $order)
+    {
+        $order->load('orderTrackings');
+        return $order;
     }
 
     /**
