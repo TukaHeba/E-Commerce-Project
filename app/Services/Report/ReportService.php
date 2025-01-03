@@ -5,6 +5,9 @@ namespace App\Services\Report;
 use Carbon\Carbon;
 use App\Models\Product\Product;
 use App\Models\CartItem\CartItem;
+use App\Models\Category\MainCategorySubCategory;
+use Illuminate\Support\Facades\DB;
+use App\Models\OrderItem\OrderItem;
 
 class ReportService
 {
@@ -47,9 +50,9 @@ class ReportService
     /**
      * Best categories report
      */
-    public function repor5()
+    public function BestCategories()
     {
-        //
+        return $BestCategories = Product::Selling()->paginate(10);
     }
 
     /**
