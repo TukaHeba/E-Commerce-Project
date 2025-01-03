@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Product\Product;
 use App\Models\CartItem\CartItem;
 
+
 class ReportService
 {
     /**
@@ -33,9 +34,9 @@ class ReportService
      */
     public function ProductsLowOnStockReport()
     {
-        return $lowStockProducts = Product::lowStock()->paginate(10);
+        return Product::lowStock()->paginate(10);
     }
-
+    
     /**
      * Best-selling products for offers report
      */

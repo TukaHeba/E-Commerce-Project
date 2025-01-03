@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Category\MainCategorySubCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Exports\LowStockExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Product extends Model
 {
@@ -34,7 +36,7 @@ class Product extends Model
         'maincategory_subcategory_id'
     ];
 
-    protected $hidden = ['product_quantity'];
+    // protected $hidden = ['product_quantity'];
     /**
      * The attributes that are not mass assignable.
      *
@@ -284,8 +286,18 @@ class Product extends Model
     {
         return $query->where('product_quantity', '<', $threshold);
     }
-
-
+    /**
+     * generate low stock products excel sheet as report to admin
+     * @return string
+     */
+    static function generateLowStockReport()
+    {
+        $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
+    
+        Excel::store(new LowStockExport, $fileName, 'local'); // Save to storage/app
+    
+        return $fileName;
+    }
     /**
      * Get the cart items associated with the product.
      *
