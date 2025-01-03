@@ -145,3 +145,5 @@ Route::middleware(['auth:api'])->group(function () {
 // Report Routes
 Route::get('admin/products-remaining-report', [ReportController::class, 'repor2'])->middleware('auth');
 Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+
+Route::get('/reports/top-countries', [ReportController::class, 'topCountries']);

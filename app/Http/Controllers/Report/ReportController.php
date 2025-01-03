@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Report;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Services\Report\ReportService;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report2Resource;
+use App\Models\Order\Order;
+use App\Services\Report\ReportService;
 
 class ReportController extends Controller
 {
     protected ReportService $ReportService;
+
     public function __construct(ReportService $ReportService)
     {
         $this->ReportService = $ReportService;
@@ -65,5 +66,21 @@ class ReportController extends Controller
     public function repor6()
     {
         //
+    }
+
+    /**
+     * Top 5 countries in terms of sales report
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function topCountries()
+    {
+        $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
+            ->join('addresses', 'orders.address_id', '=', 'addresses.id')
+            ->groupBy('addresses.country')
+            ->orderByDesc('total_orders')
+            ->take(5)
+            ->get();
+        return self::success($data, 'Top 5 countries in terms of sales report');
     }
 }
