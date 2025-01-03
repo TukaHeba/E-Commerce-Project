@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Report;
 
+
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report2Resource;
 use App\Models\Order\Order;
 use App\Services\Report\ReportService;
+use App\Jobs\SendDelayedOrderEmail;
+use App\Http\Resources\Report1Resource;
 
 class ReportController extends Controller
 {
@@ -22,7 +25,8 @@ class ReportController extends Controller
      */
     public function repor1()
     {
-        //
+        $latingOrders = $this->ReportService->repor1();
+        return self::paginated($latingOrders , Report1Resource::class , 'Lating orders retrieved successfully',200);
     }
 
     /**
@@ -61,26 +65,25 @@ class ReportController extends Controller
     }
 
     /**
+     * Report 6
      * The country with the highest number of orders report
-     */
-    public function repor6()
-    {
-        //
-    }
-
-    /**
-     * Top 5 countries in terms of sales report
-     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function topCountries()
     {
-        $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
-            ->join('addresses', 'orders.address_id', '=', 'addresses.id')
-            ->groupBy('addresses.country')
-            ->orderByDesc('total_orders')
-            ->take(5)
-            ->get();
+        $data = $this->ReportService->Top5Countries();
         return self::success($data, 'Top 5 countries in terms of sales report');
     }
+
+
+
+
+    public function sendUnsoldProductsEmail()
+    {
+        // Get the result from the ReportService
+        $unsoldProducts = $this->ReportService->sendUnsoldProductsEmail();
+        return self::success(ProductResource::collection($unsoldProducts), 'Products never been Sold retrieved successfully', 200);
+    }
+
+
 }
