@@ -6,29 +6,36 @@ use Illuminate\Http\Request;
 use App\Models\Product\Product;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Photo\StoreMultiplePhotosRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Resources\OrderItemResource;
 use App\Http\Resources\ProductResource;
+use App\Services\Photo\PhotoService;
 use App\Services\Product\ProductService;
 
 class ProductController extends Controller
 {
 
     protected ProductService $ProductService;
+    protected PhotoService $photoService;
 
-    public function __construct(ProductService $ProductService)
+    public function __construct(ProductService $ProductService , PhotoService $photoService)
     {
         $this->ProductService = $ProductService;
+        $this->photoService = $photoService ;
     }
 
     /**
      * Store a newly created resource in storage.
      * @throws \Exception
      */
-    public function store(StoreProductRequest $request): JsonResponse
+    public function store(StoreProductRequest $request , StoreMultiplePhotosRequest $storeMultiplePhotosRequest): JsonResponse
     {
-        $product = $this->ProductService->storeProduct($request->validated());
+        // Retrieve the photos that need to be stored
+        $photos = $storeMultiplePhotosRequest->file('photos');
+
+        $product = $this->ProductService->storeProduct($request->validated(),$photos);
         return self::success($product, 'Product created successfully', 201);
     }
 
@@ -46,7 +53,8 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $updatedProduct = $this->ProductService->updateProduct($product, $request->validated());
+        $deletedPhotos = $request->input('photosDeleted');
+        $updatedProduct = $this->ProductService->updateProduct($product, $request->validated() , $deletedPhotos);
         return self::success($updatedProduct, 'Product updated successfully');
     }
 
