@@ -32,6 +32,11 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Define a stricter rate limiter for authentication-related routes.
+        RateLimiter::for('auth', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
+
         // Define dynamic route model bindings
         Route::bind('user', function ($value) {
             return User::findOrFail($value);
@@ -48,7 +53,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('subCategory', function ($value) {
             return SubCategory::findOrFail($value);
         });
-        
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
