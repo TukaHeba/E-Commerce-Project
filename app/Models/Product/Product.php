@@ -76,7 +76,7 @@ class Product extends Model
             MainCategorySubCategory::class,
             'id',
             'id',
-            'maincategory_subcategory_id', 
+            'maincategory_subcategory_id',
             'main_category_id'
         );
     }
@@ -249,11 +249,11 @@ class Product extends Model
                         ->where('favorites.user_id', $user_id);
                 })
                     ->whereNotExists(function ($subQuery) use ($user_id) {     // to avoid show products allready user liked it .
-                    $subQuery->select(DB::raw(1))
-                        ->from('favorites')
-                        ->whereRaw('favorites.product_id = products.id')
-                        ->where('favorites.user_id', $user_id);
-                });
+                        $subQuery->select(DB::raw(1))
+                            ->from('favorites')
+                            ->whereRaw('favorites.product_id = products.id')
+                            ->where('favorites.user_id', $user_id);
+                    });
             })
             ->select(
                 'products.id',
@@ -264,6 +264,25 @@ class Product extends Model
             )
             ->join('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')     // get products belonf to these categories
             ->distinct();                                                          // to avoid repeate products if user like many products belongs to same category.
+    }
+    /**
+     * Scope to filter products with low stock.
+     *
+     * Filters products where `product_quantity` is less than the given threshold.
+     * Useful for generating low-stock reports or alerts.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $threshold The stock threshold (default: 10).
+     * 
+     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @example
+     * Product::lowStock()->get();       // Default threshold: 10
+     * Product::lowStock(5)->get();      // Custom threshold: 5
+     */
+    public function scopeLowStock($query, $threshold = 10)
+    {
+        return $query->where('product_quantity', '<', $threshold);
     }
 
 

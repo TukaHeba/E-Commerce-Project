@@ -5,6 +5,7 @@ namespace App\Services\Report;
 use App\Models\CartItem\CartItem;
 use App\Models\Order\Order;
 use Carbon\Carbon;
+use App\Models\Product\Product;
 
 class ReportService
 {
@@ -36,9 +37,9 @@ class ReportService
     /**
      * Products running low on the stock report
      */
-    public function repor3()
+    public function ProductsLowOnStockReport()
     {
-        //
+        return $lowStockProducts = Product::lowStock()->paginate(10);
     }
 
     /**
