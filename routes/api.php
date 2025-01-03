@@ -28,119 +28,147 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+// 1- Apply throttling (10 requests per minute) for authentication-related routes.
+Route::middleware(['throttle:auth', 'security'])->group(function () {
 
-//Oauth
-Route::get('/auth/{provider}', [AuthController::class, 'redirectToProvider']);
-Route::get('/auth/{provider}/callback', [AuthController::class, 'handleProviderCallback']);
+    // ----------------------------------- Authentication Routes ----------------------------------- //
+    Route::controller(AuthController::class)->group(function () {
+        Route::post('login', 'login');
+        Route::post('register',  'register');
+        Route::post('logout',  'logout')->middleware('auth:api');;
+        Route::post('refresh-token',  'refresh')->middleware('auth:api');;
+        // OAuth Routes
+        Route::get('auth/{provider}', 'redirectToProvider');
+        Route::get('auth/{provider}/callback', 'handleProviderCallback');
+    });
 
-Route::middleware('auth:api')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/refresh-token', [AuthController::class, 'refresh']);
 
-    //Cart & Cart item-----------------------------------------------------------
-    Route::apiResource('/cart-items', CartItemController::class)->except(['index', 'show']);
-    Route::apiResource('/carts', CartController::class)->only(['index', 'show']);
-    Route::get('/user-cart', [CartController::class, 'userCart']);
+    // ----------------------------------- Reset Password Routes ----------------------------------- //
+    Route::controller(PasswordResetController::class)->group(function () {
+        Route::post('password/reset', 'resetPassword');
+        Route::post('password/forgot', 'sendResetLink');
+    });
 });
 
-//Oauth
-Route::get('/auth/{provider}', [AuthController::class, 'redirectToProvider']);
-Route::get('/auth/{provider}/callback', [AuthController::class, 'handleProviderCallback']);
-
-//reset password
-Route::post('/password/forgot', [PasswordResetController::class, 'sendResetLink']);
-Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
+// 2- Apply throttling (60 requests per minute) for general API routes.
+Route::middleware(['throttle:api', 'security'])->group(function () {
 
 
-Route::get('users/myFavoriteProducts', [FavoriteController::class, 'show']);
-Route::get('users/showDeleted', [UserController::class, 'showDeleted']);
-Route::apiResource('users', UserController::class);
-Route::post('users/{user}/restoreDeleted', [UserController::class, 'restoreDeleted']);
-Route::delete('users/{user}/forceDeleted', [UserController::class, 'forceDeleted']);
+    // ----------------------------------------- User Routes ----------------------------------------- //
+    Route::controller(UserController::class)->middleware('auth:api')->group(function () {
+        Route::get('users/showDeleted', 'showDeleted');
+        Route::delete('users/{user}/forceDeleted', 'forceDeleted');
+        Route::post('users/{user}/restoreDeleted', 'restoreDeleted');
+        Route::apiResource('users', UserController::class);
+    });
 
-// Product Routes
-Route::prefix('products')->group(function () {
-    Route::get('latest-arrivals', [ProductController::class, 'getLatestProducts']); // List latest products added
-    Route::get('filter', [ProductController::class, 'getProductsWithFilter']); // List products with filters (price, name, category_id, latest)
-    Route::get('hotSelling', [ProductController::class, 'getBestSellingProducts']); // List best-selling products
-    Route::get('category', [ProductController::class, 'getProductsByCategory']); // List products by category
-    Route::middleware('auth:api')->get('you-may-like', [ProductController::class, 'getProductsUserMayLike']); // List products user may like
-    Route::get('trashed', [ProductController::class, 'showDeleted']); // List trashed products
-    Route::post('{id}/restore', [ProductController::class, 'restoreDeleted']); // Restore a trashed product
-    Route::delete('{id}/force-delete', [ProductController::class, 'forceDeleted']); // Force delete a product
-    Route::get('top-rated', [ProductController::class, 'topRatedProducts']); // Top rated products
+
+    // ---------------------------------- Roles & Permissuin Routes ---------------------------------- //
+    Route::apiResource('roles', RoleController::class);
+    Route::apiResource('permissions', PermissionController::class);
+
+
+    // ------------------------------------ Main Category Routes ------------------------------------ //
+    Route::controller(MainCategoryController::class)->middleware('auth:api')->group(function () {
+        Route::get('mainCategories/{mainCategory}/showDeleted', 'showDeleted');
+        Route::delete('mainCategories/{mainCategory}/forceDeleted', 'forceDeleted');
+        Route::post('mainCategories/{mainCategory}/restoreDeleted', 'restoreDeleted');
+        Route::apiResource('mainCategories', MainCategoryController::class)->except(['index', 'show']);
+    });
+    Route::apiResource('mainCategories', MainCategoryController::class)->only(['index', 'show']);
+
+
+    // ------------------------------------ Sub Category Routes ------------------------------------ //
+    Route::controller(SubCategoryController::class)->middleware('auth:api')->group(function () {
+        Route::get('subCategories/{subCategory}/showDeleted', 'showDeleted');
+        Route::delete('subCategories/{subCategory}/forceDeleted', 'forceDeleted');
+        Route::post('subCategories/{subCategory}/restoreDeleted', 'restoreDeleted');
+        Route::apiResource('subCategories', SubCategoryController::class)->except(['index', 'show']);
+    });
+    Route::apiResource('subCategories', SubCategoryController::class)->only(['index', 'show']);
+
+
+    // -------------------------------------- Favorite Routes -------------------------------------- //
+    Route::controller(FavoriteController::class)->middleware('auth:api')->group(function () {
+        Route::get('users/myFavoriteProducts', 'show');
+        Route::post('products/{product}/addToFavorite', 'store');
+        Route::delete('products/{product}/removeFromFavorite', 'destroy');
+    });
+
+
+    // --------------------------------------- Rate Routes --------------------------------------- //
+    Route::controller(RateController::class)->middleware('auth:api')->group(function () {
+        Route::get('rates/{rate}/showDeleted', 'showDeleted');
+        Route::delete('rates/{rate}/forceDeleted', 'forceDeleted');
+        Route::post('rates/{rate}/restoreDeleted', 'restoreDeleted');
+        Route::apiResource('rates', RateController::class)->except(['index', 'show']);
+    });
+    Route::apiResource('rates', RateController::class)->only(['index', 'show']);
+
+
+    // ------------------------------------- Cart Routes ------------------------------------- //
+    Route::controller(CartController::class)->middleware('auth:api')->group(function () {
+        Route::get('carts/user-cart', 'userCart');
+        Route::get('carts/checkout', 'checkout');
+        Route::post('carts/place-order', 'placeOrder');
+        Route::apiResource('carts', CartController::class)->only(['index', 'show']);
+    });
+
+
+    // ---------------------------------- Cart Items Routes ---------------------------------- //
+    Route::controller(CartItemController::class)->middleware('auth:api')->group(function () {
+        Route::post('cartItems', 'store');
+        Route::put('cartItems/{cartItem}', 'update');
+        Route::delete('cartItems/{cartItem}', 'destroy');
+    });
+
+    #FIXME Re-check showDeleted-user
+    // ------------------------------------- Order Routes ------------------------------------- //
+    Route::controller(OrderController::class)->middleware('auth:api')->group(function () {
+        Route::get('orders', 'indexAdmin');
+        Route::get('orders/user-orders', 'indexUser');
+        Route::get('orders/{order}/tracking', 'orderTracking');
+        Route::delete('orders/{order}/forceDeleted', 'forceDeleted');
+        Route::post('orders/{order}/restoreDeleted', 'restoreDeleted');
+        Route::get('orders/{order}/showDeleted-user', 'showDeletedUser');
+        Route::get('orders/{order}/showDeleted-admin', 'showDeletedAdmin');
+        Route::apiResource('orders', OrderController::class)->except(['index', 'store']);
+    });
+
+
+    #FIXME Re-check authenticated operations
+    // ------------------------------------- Photo Routes ------------------------------------- //
+    Route::controller(PhotoController::class)->middleware('auth:api')->group(function () {
+        Route::delete('photos/{photo}', 'destroy');
+        Route::post('users/{user}/photos', 'storePhoto');
+        Route::post('products/{product}/photos', 'storePhoto');
+        Route::post('subcategory/{subCategory}/photos', 'storePhoto');
+        Route::post('maincategory/{mainCategory}/photos', 'storePhoto');
+    });
+
+
+    // ------------------------------------- Product Routes ------------------------------------- //
+    Route::controller(ProductController::class)->group(function () {
+        Route::get('products', 'index');
+        Route::get('products/{product}', 'show');
+        Route::get('products/top-rated', 'topRatedProducts');
+        Route::get('products/filter', 'getProductsWithFilter');
+        Route::get('products/category', 'getProductsByCategory');
+        Route::get('products/latest-arrivals', 'getLatestProducts');
+        Route::get('products/hotSelling', 'getBestSellingProducts');
+
+        Route::middleware('auth:api')->group(function () {
+            Route::get('products/you-may-like', 'getProductsUserMayLike');
+            Route::get('products/{product}/showDeleted', 'showDeleted');
+            Route::delete('products/{product}/forceDeleted', 'forceDeleted');
+            Route::post('products/{product}/restoreDeleted', 'restoreDeleted');
+            Route::apiResource('products', ProductController::class)->except(['index', 'show']);
+        });
+    });
+
+
+    // -------------------------------------- Report Routes -------------------------------------- //
+    Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
+        Route::get('admin/products-remaining-report', 'repor2');
+    });
 });
-Route::apiResource('products', ProductController::class); // CRUD operations
-
-// Route::get('products/category', [ProductController::class, 'getProductsByCategory']);
-
-Route::apiResource('roles', RoleController::class); // CRUD Roles
-
-Route::apiResource('permissions', PermissionController::class); // CRUD Permissions
-
-//Main Category--------------------------------------------------------------------------------------------------------------------
-
-Route::apiResource('maincategory', MainCategoryController::class);
-
-
-Route::get('showDeleted_MainCategory', [MainCategoryController::class, 'showDeleted']);
-Route::get('restoreDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'restoreDeleted']);
-Route::delete('forceDeleted_MainCategory/{main_category_id}', [MainCategoryController::class, 'forceDeleted']);
-
-//Sub Category--------------------------------------------------------------------------------------------------------------------
-Route::apiResource('subcategory', SubCategoryController::class);
-
-
-Route::get('showDeleted_SubCategory', [SubCategoryController::class, 'showDeleted']);
-Route::get('restoreDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'restoreDeleted']);
-Route::delete('forceDeleted_SubCategory/{sub_category_id}', [SubCategoryController::class, 'forceDeleted']);
-
-// Order
-Route::middleware('auth')->controller(OrderController::class)->group(function () {
-    Route::get('user-orders', 'indexUser');
-    Route::get('admin-orders', 'indexAdmin');
-    Route::get('user-orders/show-deleted', 'showDeletedUser');
-    Route::get('admin-orders/show-deleted', 'showDeletedAdmin');
-    Route::post('orders/{id}/restore-deleted', 'restoreDeleted');
-    Route::delete('orders/{id}/force-deleted', 'forceDeleted');
-    Route::get('orders/{order}/tracking', 'orderTracking');
-});
-Route::apiResource('orders', OrderController::class)->except(['index', 'store'])->middleware('auth');
-
-
-//photo --------------------------------------------------------------------------
-Route::post('users/{user}/photos', [PhotoController::class, 'storePhoto']);
-Route::post('products/{product}/photos', [PhotoController::class, 'storePhoto']);
-Route::post('maincategory/{mainCategory}/photos', [PhotoController::class, 'storePhoto']);
-Route::post('subcategory/{subCategory}/photos', [PhotoController::class, 'storePhoto']);
-Route::post('products/{product}/MultiPhotos', [PhotoController::class, 'storeMultiplePhotos']);
-
-Route::delete('photos/{photo}', [PhotoController::class, 'destroy']);
-
-//Rate
-
-Route::middleware('auth:api')->prefix('rate')->group(function () {
-    Route::put('restore/{rate}', [RateController::class, 'restoreDeleted']);
-    Route::get('deleted-rates', [RateController::class, 'showDeleted']);
-    Route::delete('force-deleted-rate/{rate}', [RateController::class, 'forceDeleted']);
-    Route::put('{rate}', [RateController::class, 'update']);
-    Route::delete('{rate}', [RateController::class, 'destroy']);
-    Route::post('', [RateController::class, 'store']);
-});
-Route::apiResource('rate', RateController::class)->only(['index', 'show']);
-
-//favorites
-Route::post('products/{product}/addToFavorite', [FavoriteController::class, 'store']);
-Route::delete('products/{product}/removeFromFavorite', [FavoriteController::class, 'destroy']);
-Route::get('users/myFavoriteProducts', [FavoriteController::class, 'show']);
-
-// Checkout Routes
-Route::middleware(['auth:api'])->group(function () {
-    Route::get('/cart/checkout', [CartController::class, 'checkout']);
-    Route::post('/cart/place-order', [CartController::class, 'placeOrder']);
-});
-
-// Report Routes
-Route::get('admin/products-remaining-report', [ReportController::class, 'repor2'])->middleware('auth');
