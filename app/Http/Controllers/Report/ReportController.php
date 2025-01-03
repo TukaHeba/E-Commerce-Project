@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Report;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Report2Resource;
-use App\Services\Report\ReportService;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Services\Report\ReportService;
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\Report2Resource;
 
 class ReportController extends Controller
 {
@@ -36,9 +37,10 @@ class ReportController extends Controller
     /**
      * Products running low on the stock report
      */
-    public function repor3()
+    public function ProductsLowOnStockReport()
     {
-        //
+        $productsLowOnStock = $this->ReportService->ProductsLowOnStockReport();
+        return self::paginated($productsLowOnStock, ProductResource::class, 'Products retrieved successfully', 200);
     }
 
     /**

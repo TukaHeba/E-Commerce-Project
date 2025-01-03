@@ -170,5 +170,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
     // -------------------------------------- Report Routes -------------------------------------- //
     Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
         Route::get('admin/products-remaining-report', 'repor2');
+        Route::get('reports/ProductsLowOnStocks',  'ProductsLowOnStockReport');
     });
 });
