@@ -337,7 +337,7 @@ class Product extends Model
                 'main_categories.main_category_name as main_category_name',
                 DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
             )
-            ->groupBy('products.id', 'products.name', 'sub_categories.sub_category_name', 'main_categories.main_category_name')
+            ->groupBy('products.id', 'sub_categories.sub_category_name', 'main_categories.main_category_name')
             ->orderByDesc('total_sold')
             ->take(30);
     }
