@@ -98,6 +98,7 @@ class PhotoService
      */
     public function storeMultiplePhotos(array $photoFiles, $photoable)
     {
+        set_time_limit(120);
         $results = [];
         foreach ($photoFiles as $photofile) {
             try {
