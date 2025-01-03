@@ -87,4 +87,24 @@ class Order extends Model
                 $query->whereBetween('total_price', [$minPrice, $maxPrice]);
             });
     }
+
+    /**
+     * Scope to return latest order
+     * @param mixed $query
+     * @return mixed
+     */
+    public function scopeLatestOrder($query)
+    {
+        return $query->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Scope to return oldest order
+     * @param mixed $query
+     * @return mixed
+     */
+    public function scopeOldestOrder($query)
+    {
+        return $query->orderBy('created_at', 'asc');
+    }
 }

@@ -78,7 +78,7 @@ class OrderController extends Controller
         $this->authorize('destroy', $order);
         $order->delete();
         return self::success(null, 'Order deleted successfully');
-          
+
     }
 
     /**
@@ -130,7 +130,7 @@ class OrderController extends Controller
 
     /**
      * Retrieve order tracking details for a given order.
-     * 
+     *
      * @param \App\Models\Order\Order $order
      * @return \Illuminate\Http\JsonResponse
      */
@@ -139,4 +139,25 @@ class OrderController extends Controller
         $order = $this->OrderService->getOrderTracking($order);
         return self::success(new OrderResource($order), 'Order tracking data retrieved successfully.');
     }
+
+    /**
+     * Display oldest order in storage.
+     * @return JsonResponse
+     */
+    public function getOldestOrder()
+    {
+        $order = Order::oldestOrder()->first();
+        return self::success(new OrderResource($order->load('orderItems')), 'Oldest order retrieved successfully');
+    }
+
+    /**
+     * Display latest order in storage.
+     * @return JsonResponse
+     */
+    public function getLatestOrder()
+    {
+        $order = Order::latestOrder()->first();
+        return self::success(new OrderResource($order->load('orderItems')), 'Latest order retrieved successfully');
+    }
+
 }
