@@ -315,4 +315,30 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+
+
+
+
+
+
+
+
+    public function scopeSelling($query)
+    {
+        return $query
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
+            ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
+            ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id')
+            ->select(
+                'products.id',
+                'sub_categories.sub_category_name as sub_category_name',
+                'main_categories.main_category_name as main_category_name',
+                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
+            )
+            ->groupBy('products.id', 'products.name', 'sub_categories.sub_category_name', 'main_categories.main_category_name')
+            ->orderByDesc('total_sold')
+            ->take(30);
+    }
 }
