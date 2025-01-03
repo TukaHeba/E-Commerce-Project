@@ -168,5 +168,21 @@ class ProductService
         $product->save();
         return $product;
     }
+
+    public function showLargestQuantitySold($name)
+    {
+        $product = Product::where('name', 'like', '%' . $name . '%')->first();
+        if ($product) {
+            $largestOrderItem = $product->largestQuantitySoldByName($name)->first();
+            if ($largestOrderItem) {
+                return [
+                    'Order Id' => $largestOrderItem->order_id,
+                    'Product Id' => $largestOrderItem->product_id,
+                    'Quantity' => $largestOrderItem->quantity
+                ];
+            }
+        }
+    }
+
 }
 
