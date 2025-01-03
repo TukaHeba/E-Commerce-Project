@@ -171,12 +171,10 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
     Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
         Route::get('admin/products-remaining-report', 'repor2');
         Route::get('reports/ProductsLowOnStocks',  'ProductsLowOnStockReport');
-        Route::get('admin/lating-orders-report',[ReportController::class, 'repor1'])->middleware('auth');
-
+        Route::get('admin/lating-orders-report', 'repor1');
+        Route::post('reports/send-unsold-products-email',  'sendUnsoldProductsEmail');
     });
 });
 
-Route::post('reports/send-unsold-products-email', [ReportController::class, 'sendUnsoldProductsEmail']);
 Route::get('/products/{name}/largest-quantity-sold', [ProductController::class, 'showLargestQuantitySold']);
 Route::get('/users/{user}/most-expensive-order', [UserController::class, 'showmostExpensiveOrder']);
-
