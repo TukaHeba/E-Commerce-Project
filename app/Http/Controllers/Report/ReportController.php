@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Report;
 
 use Illuminate\Http\Request;
+use App\Models\User\User;
+use App\Jobs\SendDelayedOrderEmail;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Report1Resource;
 use App\Services\Report\ReportService;
-use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report2Resource;
+use App\Http\Resources\ProductResource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReportController extends Controller
 {
@@ -21,7 +25,8 @@ class ReportController extends Controller
      */
     public function repor1()
     {
-        //
+        $latingOrders = $this->ReportService->repor1();
+        return self::paginated($latingOrders , Report1Resource::class , 'Lating orders retrieved successfully',200);
     }
 
     /**
@@ -66,4 +71,12 @@ class ReportController extends Controller
     {
         //
     }
+    public function sendUnsoldProductsEmail()
+    {
+        // Get the result from the ReportService
+        $unsoldProducts = $this->ReportService->sendUnsoldProductsEmail();
+        return self::success(ProductResource::collection($unsoldProducts), 'Products never been Sold retrieved successfully', 200);
+    }
+
+
 }

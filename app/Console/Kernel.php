@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\SendDelayedOrderEmail;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -17,6 +18,8 @@ class Kernel extends ConsoleKernel
             ->emailOutputTo('admin@gmail.com');
         $schedule->command('app:low-on-stock-report-command')
             ->daily(); // run daily on midnight report
+        // $schedule->command('inspire')->hourly();
+        $schedule->command('app:unsold-products-email-command')->monthly();
     }
 
     /**
