@@ -26,7 +26,7 @@ class OrderItem extends Model
 
   /**
    * The attributes that are not mass assignable.
-   * 
+   *
    * @var array
    */
   protected $guarded = [];
@@ -42,7 +42,7 @@ class OrderItem extends Model
 
   /**
    * Get the order associated with the order item.
-   * 
+   *
    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
    */
   public function order()
@@ -52,7 +52,7 @@ class OrderItem extends Model
 
   /**
    * Get the product associated with the order item.
-   * 
+   *
    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
    */
   public function product()
