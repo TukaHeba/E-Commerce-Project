@@ -6,7 +6,9 @@ namespace App\Services\Product;
 use Illuminate\Http\Request;
 use App\Models\Product\Product;
 use App\Models\Category\SubCategory;
+use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Resources\ProductResource;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ProductService
@@ -63,13 +65,20 @@ class ProductService
      * @param int $sub_category_id - The ID of the category to filter products by.
      * @return \Illuminate\Pagination\LengthAwarePaginator - Returns a paginated list of products within the specified category.
      */
-    public function getProductsByCategory($sub_category_id)
-    {
-        $category = SubCategory::findOrFail($sub_category_id);
-        $cache_key = $this->generateCacheKey('products_by_category', ['category' => $category->sub_category_name]);
+    public function getProductsByCategory($request){
+    // return Product::byCategory($request)->paginate();
+        // dd($product);
+        $cache_key = $this->generateCacheKey('products_by_category', array_filter([
+            'sub_category_id' => $request->subCategoryId,
+            'main_category_id' => $request->mainCategoryId,
+        ]));
         $this->addCasheKey($cache_key);
-        return Cache::remember($cache_key, now()->addHour(), function () use ($sub_category_id) {
-            return Product::byCategory($sub_category_id)->bestSelling()->available()->paginate(10);
+
+        return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
+            return Product::with(['mainCategory', 'subCategory'])
+                ->byCategory($request)
+                ->available()
+                ->paginate(10);
         });
     }
 
@@ -83,7 +92,7 @@ class ProductService
         $cache_key = 'latest_products';
         $this->addCasheKey($cache_key);
         return Cache::remember($cache_key, now()->addHour(), function () {
-            return Product::latestProducts()->available()->with('category')->paginate(10);
+            return Product::latestProducts()->available()->with(['mainCategory', 'subCategory'])->paginate(10);
         });
     }
 
@@ -144,8 +153,8 @@ class ProductService
         $cache_key = 'top_rating_products';
         $this->addCasheKey($cache_key);
 
-        return Cache::remember($cache_key, now()->addHour(), function () use($limit) {
-            return Product::topRated($limit)->with('category')->available()->paginate(30);
+        return Cache::remember($cache_key, now()->addHour(), function () use ($limit) {
+            return Product::topRated($limit)->with(['mainCategory', 'subCategory'])->available()->paginate(30);
         });
     }
 

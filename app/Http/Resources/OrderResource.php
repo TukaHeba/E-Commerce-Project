@@ -19,7 +19,9 @@ class OrderResource extends JsonResource
             'user_id' => $this->user_id,
             'shipping_address' => $this->shipping_address,
             'status' => $this->status,
-            'total_price' => $this->total_price
+            'total_price' => $this->total_price,
+            'order_items'=> OrderItemResource::collection($this->whenLoaded('orderItems')),
+            'order_tracking' => OrderTrackingResource::collection($this->whenLoaded('orderTrackings')),
         ];
     }
 }

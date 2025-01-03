@@ -12,6 +12,12 @@ use Illuminate\Support\Str;
 
 class ResetPasswordService
 {
+    /**
+     * service send verification code in email
+     *
+     * @param array $data
+     * @return void
+     */
     public function sendResetLink(array $data)
     {
         // حذف التوكنات القديمة
@@ -34,14 +40,21 @@ class ResetPasswordService
         });
     }
 
+    /**
+     * service reset password
+     *
+     * @param array $data
+     * @return void
+     * @throws \Exception
+     */
     public function resetPassword(array $data)
     {
 
         // تحقق من صحة التوكن
         $reset = DB::table('password_reset_tokens')->where([
-                'email' => $data['email'],
-                'token' => $data['token']
-            ])->first();
+            'email' => $data['email'],
+            'token' => $data['token']
+        ])->first();
 
         if (empty($reset)) {
             throw new \Exception('Invalid token or email', 400);
@@ -53,6 +66,6 @@ class ResetPasswordService
         $user->save();
 
         // حذف التوكن بعد الاستخدام
-        DB::table('password_reset_tokens')->where(['email'=> $data['email']])->delete();
+        DB::table('password_reset_tokens')->where(['email' => $data['email']])->delete();
     }
 }

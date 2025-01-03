@@ -5,7 +5,6 @@ namespace App\Services\Order;
 use App\Models\User\User;
 use App\Models\Order\Order;
 use App\Jobs\SendNotification;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -13,25 +12,28 @@ class OrderService
 {
     /**
      * List of orders related to user
-     * @param array $data
+     * @param mixed $request
      * @return mixed
      */
-    public function getOrders(array $data)
+    public function getOrdersUser($request)
     {
-        $orders = Cache::remember('orders_' . Auth::id(), 1200, function () use ($data) {
-            return Order::byFilters($data)->where('user_id', Auth::id())->paginate(10);
+        $orders = Cache::remember('orders_' . Auth::id(), 1200, function () use ($request) {
+            return Order::byFilters($request)->where('user_id', Auth::id())->paginate(10);
         });
         return $orders;
     }
 
     /**
-     * Create new order
-     * @param array $data
-     * @return void
+     * List of orders related to admin
+     * @param mixed $request
+     * @return mixed
      */
-    public function storeOrder(array $data)
+    public function getOrdersAdmin($request)
     {
-        //
+        $orders = Cache::remember('orders_' . Auth::id(), 1200, function () use ($request) {
+            return Order::byFilters($request)->paginate(10);
+        });
+        return $orders;
     }
 
     /**
@@ -43,43 +45,51 @@ class OrderService
     public function updateOrder(Order $order, array $data)
     {
         $order->update(array_filter($data));
-        
+
         $user = User::where('id', $order->user_id)->first();
         SendNotification::dispatch($user->email, $user->first_name, $order->id, $order->status);
 
         return $order;
     }
 
-
     /**
-     * Soft delete order
-     * @param \App\Models\Order\Order $order
-     * @return array
+     * List of deleted orders related to user
+     * @param mixed $request
+     * @return mixed
      */
-    public function destroyOrder(Order $order)
+    public function getDeletedOrdersUser($request)
     {
-        if ($order && $order->user_id !== Auth::id()) {
-            return [
-                'status' => false,
-                'msg' => 'You do not have permission to access this resource.',
-                'code' => 403
-            ];
-        }
-        $order->delete();
-        return ['status' => true];
+        $deletedOrders = Cache::remember('deleted_orders_' . Auth::id(), 1200, function () use ($request) {
+            return Order::onlyTrashed()
+                ->byFilters($request)
+                ->where('user_id', Auth::id())
+                ->paginate(10);
+        });
+        return $deletedOrders;
     }
 
     /**
-     * List of deleted orders related to user
-     * @param array $data
+     * Fetch the tracking history associated with the specified order
+     * 
+     * @param \App\Models\Order\Order $order
+     * @return Order
+     */
+    public function getOrderTracking(Order $order)
+    {
+        $order->load('orderTrackings');
+        return $order;
+    }
+
+    /**
+     * List of deleted orders related to admin
+     * @param mixed $request
      * @return mixed
      */
-    public function getDeletedOrders(array $data)
+    public function getDeletedOrdersAdmin($request)
     {
-        $deletedOrders = Cache::remember('deleted_orders_' . Auth::id(), 1200, function () use ($data) {
+        $deletedOrders = Cache::remember('deleted_orders_' . Auth::id(), 1200, function () use ($request) {
             return Order::onlyTrashed()
-                ->byFilters($data)
-                ->where('user_id', Auth::id())
+                ->byFilters($request)
                 ->paginate(10);
         });
         return $deletedOrders;

@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OrderTrackingResource extends JsonResource
+class Report2Resource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +16,9 @@ class OrderTrackingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'old_status' => $this->old_status ?? 'not assigned',
-            'new_status' => $this->new_status,
-            'changed_at' => $this->created_at->toDateTimeString(),
+            'cart_id' => $this->cart_id,
+            'product' => new ProductResource($this->product),
+            'created_at' => Carbon::parse($this->created_at)->format('d F Y, h:i A')
         ];
     }
 }

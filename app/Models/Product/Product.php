@@ -10,9 +10,11 @@ use App\Models\Category\Category;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use App\Models\Category\SubCategory;
+use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Category\MainCategorySubCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
@@ -29,7 +31,7 @@ class Product extends Model
         'description',
         'price',
         'product_quantity',
-        'sub_category_id'
+        'maincategory_subcategory_id'
     ];
 
     protected $hidden = ['product_quantity'];
@@ -65,13 +67,54 @@ class Product extends Model
      */
     public function category()
     {
-        return $this->belongsTo(SubCategory::class, 'sub_category_id');
+        return $this->belongsTo(MainCategorySubCategory::class, 'maincategory_subcategory_id');
     }
+    public function mainCategory()
+    {
+        return $this->hasOneThrough(
+            MainCategory::class,
+            MainCategorySubCategory::class,
+            'id',
+            'id',
+            'maincategory_subcategory_id',
+            'main_category_id'
+        );
+    }
+
+    public function subCategory()
+    {
+        return $this->hasOneThrough(
+            SubCategory::class,
+            MainCategorySubCategory::class,
+            'id',
+            'id',
+            'maincategory_subcategory_id',
+            'sub_category_id'
+        );
+    }
+
+    /**
+     * Scope to filter products by category.
+     * @param mixed $query
+     * @param mixed $request
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByCategory($query, $request)
+    {
+        return $query->whereHas('category.mainCategory', function ($query) use ($request) {
+            $query->when($request->mainCategoryId, fn($q) => $q->where('main_categories.id', $request->mainCategoryId))
+                ->when($request->subCategoryId, fn($q) => $q->where('sub_categories.id', $request->subCategoryId));
+        });
+    }
+
+    /**
     /**
      * Get the rates of products.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function ratings()
+    {
     public function ratings()
     {
         return $this->hasMany(Rate::class);
@@ -100,18 +143,8 @@ class Product extends Model
         return $query->withAvg('ratings', 'rating')
             ->orderByDesc('ratings_avg_rating')
             ->take($limit);
-    }
-    /**
-     * Scope to filter products by category.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $category_id - The ID of the category to filter by.
-     * @param int $limit - The number of products to retrieve (default is 25).
-     * @return \Illuminate\Database\Eloquent\Builder - Returns the query filtered by category.
-     */
-    public function scopeByCategory($query, $sub_category_id, $limit = 30)
-    {
-        return $query->where('sub_category_id', $sub_category_id)->take($limit);
+            ->orderByDesc('ratings_avg_rating')
+            ->take($limit);
     }
 
     /**
@@ -140,6 +173,11 @@ class Product extends Model
                 $q->where('products.name', 'LIKE', '%' . $request->name . '%');
             })
             ->when($request->user_id, function ($q) use ($request) {
+                $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($request) {
+                    $subQuery->select('products.maincategory_subcategory_id')
+                        ->from('favorites')
+                        ->join('products', 'favorites.product_id', '=', 'products.id')
+                        ->where('favorites.user_id', $request->user_id);
                 $q->whereIn('products.sub_category_id', function ($subQuery) use ($request) {
                     $subQuery->select('products.sub_category_id')
                         ->from('favorites')
@@ -154,11 +192,11 @@ class Product extends Model
                 $q->orderBy('products.created_at', 'desc');
             })
             ->when($request->category_id, function ($q) use ($request) {
-                $q->where('products.sub_category_id', $request->category_id);
+                $q->where('products.maincategory_subcategory_id', $request->category_id);
             })
             ->where('product_quantity', '>', 0)
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')
+            ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
             ->select(
                 'products.id',
                 'products.name',
@@ -187,7 +225,7 @@ class Product extends Model
     {
         return $query
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')
+            ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
             ->select(
                 'products.id',
                 'products.name',
@@ -206,7 +244,6 @@ class Product extends Model
      * By join products.id with favourites.products_id tables
      * then take the products.category_id and join with categories.id tables
      * to get all products that belong to products category from favourites table
-     * جلب منتجات فئات المنتجات التي اعجب بها المستخدم / للحذف /
      * @param mixed $query
      * @param mixed $user_id
      * @return mixed
@@ -215,8 +252,8 @@ class Product extends Model
     {
         return $query
             ->when($user_id, function ($q) use ($user_id) {               // get categories of products that user like it .
-                $q->whereIn('products.sub_category_id', function ($subQuery) use ($user_id) {
-                    $subQuery->select('products.sub_category_id')
+                $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($user_id) {
+                    $subQuery->select('products.maincategory_subcategory_id')
                         ->from('favorites')
                         ->join('products', 'favorites.product_id', '=', 'products.id')     // I used join becouse it faster than with relation .
                         ->where('favorites.user_id', $user_id);
@@ -235,8 +272,27 @@ class Product extends Model
                 'products.price',
                 'sub_categories.sub_category_name as category_name'
             )
-            ->join('sub_categories', 'products.sub_category_id', '=', 'sub_categories.id')     // get products belonf to these categories
+            ->join('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')     // get products belonf to these categories
             ->distinct();                                                          // to avoid repeate products if user like many products belongs to same category.
+    }
+    /**
+     * Scope to filter products with low stock.
+     *
+     * Filters products where `product_quantity` is less than the given threshold.
+     * Useful for generating low-stock reports or alerts.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $threshold The stock threshold (default: 10).
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @example
+     * Product::lowStock()->get();       // Default threshold: 10
+     * Product::lowStock(5)->get();      // Custom threshold: 5
+     */
+    public function scopeLowStock($query, $threshold = 10)
+    {
+        return $query->where('product_quantity', '<', $threshold);
     }
 
 

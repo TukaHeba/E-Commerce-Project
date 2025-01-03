@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Report;
 
+use Illuminate\Http\Request;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use App\Jobs\SendDelayedOrderEmail;
 use App\Http\Controllers\Controller;
 use App\Services\Report\ReportService;
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\Report2Resource;
 use App\Http\Resources\ProductResource;
 
 class ReportController extends Controller
@@ -27,18 +30,21 @@ class ReportController extends Controller
 
     /**
      * Products remaining in the cart without being ordered report
+     * @return \Illuminate\Http\JsonResponse
      */
     public function repor2()
     {
-        //
+        $productsRemaining = $this->ReportService->repor2();
+        return self::paginated($productsRemaining, Report2Resource::class, 'Products retrieved successfully', 200);
     }
 
     /**
      * Products running low on the stock report
      */
-    public function repor3()
+    public function ProductsLowOnStockReport()
     {
-        //
+        $productsLowOnStock = $this->ReportService->ProductsLowOnStockReport();
+        return self::paginated($productsLowOnStock, ProductResource::class, 'Products retrieved successfully', 200);
     }
 
     /**
