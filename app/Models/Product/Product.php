@@ -108,13 +108,10 @@ class Product extends Model
     }
 
     /**
-    /**
      * Get the rates of products.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function ratings()
-    {
     public function ratings()
     {
         return $this->hasMany(Rate::class);
@@ -141,8 +138,6 @@ class Product extends Model
     public function scopeTopRated($query, int $limit = 10)
     {
         return $query->withAvg('ratings', 'rating')
-            ->orderByDesc('ratings_avg_rating')
-            ->take($limit);
             ->orderByDesc('ratings_avg_rating')
             ->take($limit);
     }
@@ -175,11 +170,6 @@ class Product extends Model
             ->when($request->user_id, function ($q) use ($request) {
                 $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($request) {
                     $subQuery->select('products.maincategory_subcategory_id')
-                        ->from('favorites')
-                        ->join('products', 'favorites.product_id', '=', 'products.id')
-                        ->where('favorites.user_id', $request->user_id);
-                $q->whereIn('products.sub_category_id', function ($subQuery) use ($request) {
-                    $subQuery->select('products.sub_category_id')
                         ->from('favorites')
                         ->join('products', 'favorites.product_id', '=', 'products.id')
                         ->where('favorites.user_id', $request->user_id);
@@ -283,7 +273,7 @@ class Product extends Model
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param int $threshold The stock threshold (default: 10).
-     *
+     * 
      * @return \Illuminate\Database\Eloquent\Builder
      *
      * @example

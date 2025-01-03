@@ -115,13 +115,6 @@ class ProductController extends Controller
             return self::error(null, 'No Products matched!', 404);
         }
         return self::paginated($products, ProductResource::class,'Products retrieved successfully', 200);
-    public function getProductsByCategory($categoryID)
-    {
-        $products = $this->ProductService->getProductsByCategory($categoryID);
-        if ($products->isEmpty()) {
-            return self::error(null, 'No Products matched!', 404);
-        }
-        return self::paginated($products, ProductResource::class, 'Products retrieved successfully', 200);
     }
 
     /**

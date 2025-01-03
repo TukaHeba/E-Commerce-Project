@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Report;
 
 use Illuminate\Http\Request;
 use App\Models\User\User;
-use Illuminate\Http\Request;
 use App\Jobs\SendDelayedOrderEmail;
 use App\Http\Controllers\Controller;
 use App\Services\Report\ReportService;
-use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report2Resource;
 use App\Http\Resources\ProductResource;
 

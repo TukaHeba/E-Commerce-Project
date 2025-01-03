@@ -9,7 +9,6 @@ use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Photo\PhotoController;
-use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\CartItem\CartItemController;
 use App\Http\Controllers\Favorite\FavoriteController;
