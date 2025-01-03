@@ -2,9 +2,10 @@
 
 namespace App\Services\Report;
 
+use App\Models\CartItem\CartItem;
+use App\Models\Order\Order;
 use Carbon\Carbon;
 use App\Models\Product\Product;
-use App\Models\CartItem\CartItem;
 
 
 use App\Models\User\User;
@@ -18,7 +19,12 @@ class ReportService
      */
     public function repor1()
     {
-        //
+        $sevenDaysAgo = Carbon::now()->subDays(7); // Create the current date and subtract 7 days from it
+
+        $lating_orders = Order::where('status','shipped')
+            ->where('created_at','<=',$sevenDaysAgo)->paginate(10);
+
+        return $lating_orders ;
     }
 
     /**

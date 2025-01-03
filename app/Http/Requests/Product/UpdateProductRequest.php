@@ -41,7 +41,9 @@ class UpdateProductRequest extends FormRequest
             'description'=>'nullable|string',
             'price'=>'nullable|numeric|min:0',
             'product_quantity'=>'nullable|int|min:0',
-            'category_id'=>'nullable|exists:categories,id'
+            'maincategory_subcategory_id'=>'nullable|exists:maincategory_subcategory,id',
+            'photosDeleted' => ['nullable', 'array', 'min:1'], // Ensure it's an array and at least one photo is provided.
+            'photosDeleted.*' => ['string'],
         ];
     }
 
