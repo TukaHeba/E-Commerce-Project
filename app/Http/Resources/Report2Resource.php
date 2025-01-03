@@ -17,7 +17,7 @@ class Report2Resource extends JsonResource
     {
         return [
             'cart_id' => $this->cart_id,
-            'product' => new ProductResource($this->product),
+            'product' => new ProductResource($this->whenLoaded('product')),
             'created_at' => Carbon::parse($this->created_at)->format('d F Y, h:i A')
         ];
     }

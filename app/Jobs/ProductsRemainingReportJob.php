@@ -2,9 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\CartItem\CartItem;
 use App\Services\Report\ReportService;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,18 +14,13 @@ class ProductsRemainingReportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * Create a new job instance.
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
      * Execute the job.
      */
-    public function handle(ReportService $reportService)
+    public function handle()
     {
-        $reportService->repor2();
+        \Log::info('Before execution job');
+        $reportService = app()->make(ReportService::class);
+        $reportService->getProductsRemaining();
+        \Log::info('After execution job');
     }
 }
