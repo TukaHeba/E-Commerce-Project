@@ -5,11 +5,10 @@ namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
-use App\Http\Resources\Report2Resource;
-use App\Models\Order\Order;
-use App\Services\Report\ReportService;
-use App\Jobs\SendDelayedOrderEmail;
 use App\Http\Resources\Report1Resource;
+use App\Http\Resources\Report2Resource;
+use App\Jobs\SendDelayedOrderEmail;
+use App\Services\Report\ReportService;
 
 class ReportController extends Controller
 {
@@ -26,7 +25,7 @@ class ReportController extends Controller
     public function repor1()
     {
         $latingOrders = $this->ReportService->repor1();
-        return self::paginated($latingOrders , Report1Resource::class , 'Lating orders retrieved successfully',200);
+        return self::paginated($latingOrders, Report1Resource::class, 'Lating orders retrieved successfully', 200);
     }
 
     /**
@@ -74,9 +73,6 @@ class ReportController extends Controller
         $data = $this->ReportService->Top5Countries();
         return self::success($data, 'Top 5 countries in terms of sales report');
     }
-
-
-
 
     public function sendUnsoldProductsEmail()
     {
