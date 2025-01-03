@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('addresses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('address_id')->constrained('addresses');
-            $table->string('postal_code');
-            $table->enum('status', ['pending', 'shipped', 'delivered', 'canceled'])->default('pending');
-            $table->decimal('total_price', 10 , 2);
+            $table->string('country');
+            $table->string('city');
+            $table->string('state');
+            $table->string('street');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('addresses');
     }
 };

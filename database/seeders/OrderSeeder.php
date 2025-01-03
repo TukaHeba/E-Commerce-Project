@@ -13,17 +13,21 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        Order::create([
-           'user_id' => 1,
-           'shipping_address' => 'homs',
-           'status' => 'pending',
-           'total_price' => 50.2,
-        ]);
-        Order::create([
-            'user_id' => 1,
-            'shipping_address' => 'damas',
-            'status' => 'pending',
-            'total_price' => 500.2,
-         ]);
+//        Order::create([
+//           'user_id' => 1,
+//           'address_id' => 1,
+//           'postal_code'=>'XXX',
+//           'status' => 'pending',
+//           'total_price' => 50.2,
+//        ]);
+//        Order::create([
+//            'user_id' => 1,
+//            'address_id' => 2,
+//            'postal_code'=>'XXX',
+//            'status' => 'pending',
+//            'total_price' => 500.2,
+//         ]);
+        Order::factory(200)->create();
+
     }
 }

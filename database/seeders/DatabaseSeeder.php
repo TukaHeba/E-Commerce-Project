@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             FavoriteSeeder::class,
             CartItemSeeder::class,
+            AddressSeeder::class,
             OrderSeeder::class,
             OrderTrackingSeeder::class,
             OrderItemSeeder::class,
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
             RateSeeder::class,
             AccountSeeder::class,
             TransactionSeeder::class,
+
         ]);
     }
 }
