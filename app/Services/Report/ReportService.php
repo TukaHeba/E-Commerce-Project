@@ -6,6 +6,11 @@ use Carbon\Carbon;
 use App\Models\Product\Product;
 use App\Models\CartItem\CartItem;
 
+
+use App\Models\User\User;
+use App\Jobs\SendUnsoldProductEmail;
+use Illuminate\Support\Facades\Artisan;
+
 class ReportService
 {
     /**
@@ -60,4 +65,20 @@ class ReportService
     {
         //
     }
+/**
+     * The products never been sold
+     */
+    public function sendUnsoldProductsEmail()
+    {
+        // Fetch all users with the role 'sales manager'
+        $user = User::role('sales manager')->first();
+        // Dispatch the job for each user and collect the results
+            $job = new SendUnsoldProductEmail($user);
+            $job->handle(); // Execute the job synchronously
+            $result = $job->getUnsoldProducts(); // Get the result
+        return $result;
+    }
+
+
+
 }
