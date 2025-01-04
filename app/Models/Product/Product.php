@@ -211,7 +211,7 @@ class Product extends Model
         return $query->where('product_quantity', '>', 0);
     }
 
-    public function scopeBestSelling($query,$limit = 30)
+    public function scopeBestSelling($query)
     {
         return $query
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
@@ -225,8 +225,7 @@ class Product extends Model
                 DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
             )
             ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'sub_categories.sub_category_name')
-            ->orderByDesc('total_sold')
-            ->take($limit);
+            ->orderByDesc('total_sold');
     }
 
     /**

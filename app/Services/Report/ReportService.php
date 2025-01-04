@@ -3,6 +3,7 @@
 namespace App\Services\Report;
 
 use App\Models\Product\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class ReportService
@@ -34,7 +35,7 @@ class ReportService
     /**
      * Best-selling products for offers report
      */
-    public function BestSellingProductsReport($limit)
+    public function BestSellingProductsReport()
     {
         return Cache::remember("best_selling_products_report", now()->addDay(), function () {
             return Product::bestSelling()->paginate(10);
