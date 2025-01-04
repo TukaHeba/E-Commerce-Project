@@ -2,6 +2,7 @@
 
 namespace App\Models\Order;
 
+use App\Models\Address\Address;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use App\Models\OrderTracking\OrderTracking;
 use App\Models\User\User;
@@ -21,7 +22,8 @@ class Order extends Model
      */
     protected $fillable = [
         'user_id',
-        'shipping_address',
+        'address_id',
+        'postal_code',
         'status',
         'total_price',
     ];
@@ -66,6 +68,10 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function address(){
+        return $this->belongsTo(Address::class);
+    }
+
     /**
      * Scope to filter orders by shipping_address through LIKE, status & total_price within a range.
      * @param mixed $query
@@ -87,4 +93,5 @@ class Order extends Model
                 $query->whereBetween('total_price', [$minPrice, $maxPrice]);
             });
     }
+
 }

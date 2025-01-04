@@ -6,11 +6,14 @@ use App\Models\CartItem\CartItem;
 use App\Models\Order\Order;
 use Carbon\Carbon;
 use App\Models\Product\Product;
-
-
+use App\Models\CartItem\CartItem;
+use App\Models\Category\MainCategorySubCategory;
+use Illuminate\Support\Facades\DB;
+use App\Models\OrderItem\OrderItem;
 use App\Models\User\User;
 use App\Jobs\SendUnsoldProductEmail;
 use Illuminate\Support\Facades\Artisan;
+
 
 class ReportService
 {
@@ -31,9 +34,10 @@ class ReportService
      * Products remaining in the cart without being ordered report
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function repor2()
+    public function getProductsRemaining()
     {
-        $products_remaining = CartItem::where('created_at', '<=', Carbon::now()->subMonths(2))
+        $products_remaining = CartItem::with('product')
+            ->where('created_at', '<=', Carbon::now()->subMonths(2))
             ->paginate(10);
 
         return $products_remaining;
@@ -58,9 +62,9 @@ class ReportService
     /**
      * Best categories report
      */
-    public function repor5()
+    public function BestCategories()
     {
-        //
+        return $BestCategories = Product::Selling()->paginate(10);
     }
 
     /**
@@ -85,5 +89,19 @@ class ReportService
     }
 
 
+    /**
+     * The country with the highest number of orders report
+     * @return mixed
+     */
+
+    public function Top5Countries(){
+        $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
+            ->join('addresses', 'orders.address_id', '=', 'addresses.id')
+            ->groupBy('addresses.country')
+            ->orderByDesc('total_orders')
+            ->take(5)
+            ->get();
+        return $data;
+    }
 
 }

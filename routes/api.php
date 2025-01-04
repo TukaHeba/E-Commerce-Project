@@ -1,21 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\CartItem\CartItemController;
+use App\Http\Controllers\Category\MainCategoryController;
+use App\Http\Controllers\Category\SubCategoryController;
+use App\Http\Controllers\Favorite\FavoriteController;
+use App\Http\Controllers\Order\OrderController;
+use App\Http\Controllers\Permission\PermissionController;
+use App\Http\Controllers\Photo\PhotoController;
+use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\User\AuthController;
-use App\Http\Controllers\User\UserController;
-use App\Http\Controllers\Order\OrderController;
-use App\Http\Controllers\Photo\PhotoController;
-use App\Http\Controllers\Product\ProductController;
-use App\Http\Controllers\CartItem\CartItemController;
-use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\User\PasswordResetController;
-use App\Http\Controllers\Category\SubCategoryController;
-use App\Http\Controllers\Category\MainCategoryController;
-use App\Http\Controllers\Permission\PermissionController;
+use App\Http\Controllers\User\UserController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +133,9 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('orders/{order}/showDeleted-user', 'showDeletedUser');
         Route::get('orders/{order}/showDeleted-admin', 'showDeletedAdmin');
         Route::apiResource('orders', OrderController::class)->except(['index', 'store']);
+        Route::get('orders/oldest-order', 'showOldestOrder');
+    Route::get('orders/latest-order', 'showLatestOrder');
+
     });
 
 
@@ -178,3 +181,24 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
 Route::get('/products/{name}/largest-quantity-sold', [ProductController::class, 'showLargestQuantitySold']);
 Route::get('/users/{user}/most-expensive-order', [UserController::class, 'showmostExpensiveOrder']);
+
+// Report Routes
+Route::get('admin/products-remaining-report', [ReportController::class, 'repor2'])->middleware('auth');
+Route::get('admin/lating-orders-report',[ReportController::class, 'repor1'])->middleware('auth');
+Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+
+Route::get('admin/products-remaining-report', [ReportController::class, 'repor2'])->middleware('auth');
+Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+Route::get('BestCategoriesReport', [ReportController::class, 'BestCategories']);
+
+Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+
+Route::get('/reports/top-countries', [ReportController::class, 'topCountries']);
+
+Route::get('admin/lating-orders-report', [ReportController::class, 'repor1'])->middleware('auth');
+
+Route::get('reports/products-remaining', [ReportController::class, 'productsRemainingReport'])->middleware('auth');
+
+Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+
+
