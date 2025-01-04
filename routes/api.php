@@ -152,6 +152,8 @@ Route::get('/users/{user}/most-expensive-order', [UserController::class, 'showmo
 // Report Routes
 
 Route::get('admin/products-remaining-report', [ReportController::class, 'repor2'])->middleware('auth');
+Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+Route::get('BestCategoriesReport', [ReportController::class, 'BestCategories']);
 
 Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
 
@@ -162,3 +164,4 @@ Route::get('admin/lating-orders-report', [ReportController::class, 'repor1'])->m
 Route::get('reports/products-remaining', [ReportController::class, 'productsRemainingReport'])->middleware('auth');
 
 Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+

@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Report;
 
-
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report1Resource;
 use App\Http\Resources\Report2Resource;
+use App\Http\Resources\SubMainCategoryResource;
 use App\Jobs\SendDelayedOrderEmail;
 use App\Services\Report\ReportService;
+
 
 class ReportController extends Controller
 {
@@ -58,9 +59,10 @@ class ReportController extends Controller
     /**
      * Best categories report
      */
-    public function repor5()
+    public function BestCategories()
     {
-        //
+        $BestCategories = $this->ReportService->BestCategories();
+        return self::paginated($BestCategories, SubMainCategoryResource::class, 'Categories retrieved successfully', 200);
     }
 
     /**
