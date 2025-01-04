@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Order;
 use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order\Order;
+use App\Models\User\User;
 use App\Services\Order\OrderService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -144,9 +145,9 @@ class OrderController extends Controller
      * Display oldest order in storage.
      * @return JsonResponse
      */
-    public function getOldestOrder()
+    public function showOldestOrder(): JsonResponse
     {
-        $order = Order::oldestOrder()->first();
+        $order = $this->OrderService->getOldestOrder();
         return self::success(new OrderResource($order->load('orderItems')), 'Oldest order retrieved successfully');
     }
 
@@ -154,9 +155,9 @@ class OrderController extends Controller
      * Display latest order in storage.
      * @return JsonResponse
      */
-    public function getLatestOrder()
+    public function showLatestOrder(): JsonResponse
     {
-        $order = Order::latestOrder()->first();
+        $order = $this->OrderService->getLatestOrder();
         return self::success(new OrderResource($order->load('orderItems')), 'Latest order retrieved successfully');
     }
 
