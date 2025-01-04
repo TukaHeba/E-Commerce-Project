@@ -26,7 +26,9 @@ class ProductsRemainingCommand extends Command
      */
     public function handle()
     {
+        \Log::info('Before execution command');
         ProductsRemainingReportJob::dispatch();
         $this->info('Products remaining report job dispatched successfully.');
+        \Log::info('After execution command');
     }
 }

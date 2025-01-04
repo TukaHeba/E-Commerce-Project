@@ -31,9 +31,10 @@ class ReportService
      * Products remaining in the cart without being ordered report
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function repor2()
+    public function getProductsRemaining()
     {
-        $products_remaining = CartItem::where('created_at', '<=', Carbon::now()->subMonths(2))
+        $products_remaining = CartItem::with('product')
+            ->where('created_at', '<=', Carbon::now()->subMonths(2))
             ->paginate(10);
 
         return $products_remaining;

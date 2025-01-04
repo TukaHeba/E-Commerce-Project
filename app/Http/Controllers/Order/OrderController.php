@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Order;
 use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order\Order;
+use App\Models\User\User;
 use App\Services\Order\OrderService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -78,7 +79,7 @@ class OrderController extends Controller
         $this->authorize('destroy', $order);
         $order->delete();
         return self::success(null, 'Order deleted successfully');
-          
+
     }
 
     /**
@@ -130,7 +131,7 @@ class OrderController extends Controller
 
     /**
      * Retrieve order tracking details for a given order.
-     * 
+     *
      * @param \App\Models\Order\Order $order
      * @return \Illuminate\Http\JsonResponse
      */
@@ -139,4 +140,25 @@ class OrderController extends Controller
         $order = $this->OrderService->getOrderTracking($order);
         return self::success(new OrderResource($order), 'Order tracking data retrieved successfully.');
     }
+
+    /**
+     * Display oldest order in storage.
+     * @return JsonResponse
+     */
+    public function showOldestOrder(): JsonResponse
+    {
+        $order = $this->OrderService->getOldestOrder();
+        return self::success(new OrderResource($order->load('orderItems')), 'Oldest order retrieved successfully');
+    }
+
+    /**
+     * Display latest order in storage.
+     * @return JsonResponse
+     */
+    public function showLatestOrder(): JsonResponse
+    {
+        $order = $this->OrderService->getLatestOrder();
+        return self::success(new OrderResource($order->load('orderItems')), 'Latest order retrieved successfully');
+    }
+
 }
