@@ -6,7 +6,6 @@ use App\Models\CartItem\CartItem;
 use App\Models\Order\Order;
 use Carbon\Carbon;
 use App\Models\Product\Product;
-use App\Models\CartItem\CartItem;
 use App\Models\Category\MainCategorySubCategory;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
