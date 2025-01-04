@@ -86,5 +86,19 @@ class ReportService
     }
 
 
+    /**
+     * The country with the highest number of orders report
+     * @return mixed
+     */
+
+    public function Top5Countries(){
+        $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
+            ->join('addresses', 'orders.address_id', '=', 'addresses.id')
+            ->groupBy('addresses.country')
+            ->orderByDesc('total_orders')
+            ->take(5)
+            ->get();
+        return $data;
+    }
 
 }
