@@ -106,6 +106,8 @@ Route::middleware('auth')->controller(OrderController::class)->group(function ()
     Route::post('orders/{id}/restore-deleted', 'restoreDeleted');
     Route::delete('orders/{id}/force-deleted', 'forceDeleted');
     Route::get('orders/{order}/tracking', 'orderTracking');
+    Route::get('orders/oldest-order', 'showOldestOrder');
+    Route::get('orders/latest-order', 'showLatestOrder');
 });
 Route::apiResource('orders', OrderController::class)->except(['index', 'store'])->middleware('auth');
 
@@ -142,7 +144,24 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/cart/place-order', [CartController::class, 'placeOrder']);
 });
 
+
+Route::post('reports/send-unsold-products-email', [ReportController::class, 'sendUnsoldProductsEmail']);
+Route::get('/products/{name}/largest-quantity-sold', [ProductController::class, 'showLargestQuantitySold']);
+Route::get('/users/{user}/most-expensive-order', [UserController::class, 'showmostExpensiveOrder']);
+
 // Report Routes
+
 Route::get('admin/products-remaining-report', [ReportController::class, 'repor2'])->middleware('auth');
 Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
 Route::get('BestCategoriesReport', [ReportController::class, 'BestCategories']);
+
+Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+
+Route::get('/reports/top-countries', [ReportController::class, 'topCountries']);
+
+Route::get('admin/lating-orders-report', [ReportController::class, 'repor1'])->middleware('auth');
+
+Route::get('reports/products-remaining', [ReportController::class, 'productsRemainingReport'])->middleware('auth');
+
+Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);
+

@@ -317,13 +317,6 @@ class Product extends Model
     }
 
 
-
-
-
-
-
-
-
     public function scopeSelling($query)
     {
         return $query
@@ -341,4 +334,14 @@ class Product extends Model
             ->orderByDesc('total_sold')
             ->take(30);
     }
+
+    public function largestQuantitySoldByName($name)
+    {
+        return $this->hasOne(OrderItem::class)
+            ->ofMany('quantity', 'max')
+            ->whereHas('product', function ($query) use ($name) {
+                $query->where('name', 'like', '%' . $name . '%');
+            });
+    }
+
 }
