@@ -106,8 +106,8 @@ Route::middleware('auth')->controller(OrderController::class)->group(function ()
     Route::post('orders/{id}/restore-deleted', 'restoreDeleted');
     Route::delete('orders/{id}/force-deleted', 'forceDeleted');
     Route::get('orders/{order}/tracking', 'orderTracking');
-    Route::get('orders/oldest-order', 'getOldestOrder');
-    Route::get('orders/latest-order', 'getLatestOrder');
+    Route::get('orders/oldest-order', 'showOldestOrder');
+    Route::get('orders/latest-order', 'showLatestOrder');
 });
 Route::apiResource('orders', OrderController::class)->except(['index', 'store'])->middleware('auth');
 
@@ -160,4 +160,3 @@ Route::get('/reports/top-countries', [ReportController::class, 'topCountries']);
 Route::get('admin/lating-orders-report', [ReportController::class, 'repor1'])->middleware('auth');
 
 Route::get('reports/products-remaining', [ReportController::class, 'productsRemainingReport'])->middleware('auth');
-Route::get('Reports/ProductsLowOnStocks', [ReportController::class, 'ProductsLowOnStockReport']);

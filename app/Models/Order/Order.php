@@ -114,4 +114,5 @@ class Order extends Model
     {
         return $query->orderBy('created_at', 'asc');
     }
+
 }
