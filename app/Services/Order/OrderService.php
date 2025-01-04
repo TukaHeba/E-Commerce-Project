@@ -5,6 +5,7 @@ namespace App\Services\Order;
 use App\Models\User\User;
 use App\Models\Order\Order;
 use App\Jobs\SendNotification;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -70,7 +71,7 @@ class OrderService
 
     /**
      * Fetch the tracking history associated with the specified order
-     * 
+     *
      * @param \App\Models\Order\Order $order
      * @return Order
      */
@@ -93,5 +94,33 @@ class OrderService
                 ->paginate(10);
         });
         return $deletedOrders;
+    }
+
+    /**
+     * Get oldest order related to user
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @return mixed
+     */
+    public function getOldestOrder()
+    {
+        $user = Auth::user();
+        if (!$oldestOrder = $user->oldestOrder) {
+            throw new ModelNotFoundException();
+        }
+        return $oldestOrder;
+    }
+
+    /**
+     * Get latest order related to user
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @return mixed
+     */
+    public function getLatestOrder()
+    {
+        $user = Auth::user();
+        if (!$latestOrder = $user->latestOrder) {
+            throw new ModelNotFoundException();
+        }
+        return $latestOrder;
     }
 }
