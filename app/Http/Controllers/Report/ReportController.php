@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Report;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Report\Top5CountryRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report1Resource;
 use App\Http\Resources\Report2Resource;
@@ -65,13 +66,15 @@ class ReportController extends Controller
 
     /**
      * Report 6
-     * The country with the highest number of orders report
+     * The country with the highest number of orders report With the ability to filter by a specific date
+     *
+     * @param Top5CountryRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function topCountries()
+    public function topCountries(Top5CountryRequest $request)
     {
-        $data = $this->ReportService->Top5Countries();
-        return self::success($data, 'Top 5 countries in terms of sales report');
+        $result = $this->ReportService->Top5Countries($request->validationData());
+        return self::success($result, 'Top 5 countries in terms of sales report');
     }
 
     public function sendUnsoldProductsEmail()
