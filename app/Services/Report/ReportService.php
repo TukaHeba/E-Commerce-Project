@@ -49,7 +49,7 @@ class ReportService
     {
         return Product::lowStock()->paginate(10);
     }
-    
+
     /**
      * Best-selling products for offers report
      */
@@ -76,15 +76,10 @@ class ReportService
 /**
      * The products never been sold
      */
-    public function sendUnsoldProductsEmail()
+    public function UnsoldProducts()
     {
-        // Fetch all users with the role 'sales manager'
-        $user = User::role('sales manager')->first();
-        // Dispatch the job for each user and collect the results
-            $job = new SendUnsoldProductEmail($user);
-            $job->handle(); // Execute the job synchronously
-            $result = $job->getUnsoldProducts(); // Get the result
-        return $result;
+        $unsoldProducts = Product::whereDoesntHave('orderItems')->paginate(10);
+        return $unsoldProducts;
     }
 
 

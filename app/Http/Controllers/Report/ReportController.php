@@ -76,12 +76,10 @@ class ReportController extends Controller
         return self::success($data, 'Top 5 countries in terms of sales report');
     }
 
-    public function sendUnsoldProductsEmail()
+    public function UnsoldProducts()
     {
         // Get the result from the ReportService
-        $unsoldProducts = $this->ReportService->sendUnsoldProductsEmail();
-        return self::success(ProductResource::collection($unsoldProducts), 'Products never been Sold retrieved successfully', 200);
+        $unsoldProducts = $this->ReportService->UnsoldProducts();
+        return self::paginated($unsoldProducts, ProductResource::class, 'Products never been Sold retrieved successfully', 200);
     }
-
-
 }

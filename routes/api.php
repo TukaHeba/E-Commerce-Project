@@ -177,6 +177,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('reports/best-categories-report',  'BestCategories');
         Route::get('reports/products-remaining', 'productsRemainingReport');
         Route::get('reports/products-low-on-stocks',  'ProductsLowOnStockReport');
-        Route::post('reports/send-unsold-products-email',  'sendUnsoldProductsEmail');
+        Route::get('reports/unsold-products',  'UnsoldProducts');
     });
 });
+
