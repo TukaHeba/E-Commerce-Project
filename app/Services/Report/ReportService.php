@@ -47,9 +47,9 @@ class ReportService
      */
     public function ProductsLowOnStockReport()
     {
-        return $lowStockProducts = Product::lowStock()->paginate(10);
+        return Product::lowStock()->paginate(10);
     }
-
+    
     /**
      * Best-selling products for offers report
      */
