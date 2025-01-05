@@ -6,6 +6,7 @@ use App\Models\Account\Account;
 use App\Models\Cart\Cart;
 use App\Models\Favorite\Favorite;
 use App\Models\Order\Order;
+use App\Models\Photo\Photo;
 use App\Models\Product\Product;
 use App\Models\Rate\Rate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -50,6 +51,10 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+    public $appends = [
+        'full_name',
+        'avatar'
     ];
 
     /**
@@ -158,7 +163,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Product::class, 'favorites')->withTimestamps();
     }
 
-    public $appends = ['full_name'];
+
 
 
     public function getFullNameAttribute()
@@ -194,5 +199,15 @@ class User extends Authenticatable implements JWTSubject
     public function latestOrder(): HasOne
     {
         return $this->hasOne(Order::class)->latestOfMany();
+    }
+
+    /**
+     * Get the avatar for user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function avatar()
+    {
+        return $this->morphOne(Photo::class, 'photoable');
     }
 }
