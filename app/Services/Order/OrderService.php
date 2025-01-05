@@ -5,6 +5,7 @@ namespace App\Services\Order;
 use App\Models\User\User;
 use App\Models\Order\Order;
 use App\Jobs\SendNotification;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -52,25 +53,6 @@ class OrderService
         return $order;
     }
 
-
-    /**
-     * Soft delete order
-     * @param \App\Models\Order\Order $order
-     * @return array
-     */
-    public function destroyOrder(Order $order)
-    {
-        if ($order->user_id !== Auth::id()) {
-            return [
-                'status' => false,
-                'msg' => 'You do not have permission to access this resource.',
-                'code' => 403
-            ];
-        }
-        $order->delete();
-        return ['status' => true];
-    }
-
     /**
      * List of deleted orders related to user
      * @param mixed $request
@@ -88,6 +70,18 @@ class OrderService
     }
 
     /**
+     * Fetch the tracking history associated with the specified order
+     *
+     * @param \App\Models\Order\Order $order
+     * @return Order
+     */
+    public function getOrderTracking(Order $order)
+    {
+        $order->load('orderTrackings');
+        return $order;
+    }
+
+    /**
      * List of deleted orders related to admin
      * @param mixed $request
      * @return mixed
@@ -100,5 +94,33 @@ class OrderService
                 ->paginate(10);
         });
         return $deletedOrders;
+    }
+
+    /**
+     * Get oldest order related to user
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @return mixed
+     */
+    public function getOldestOrder()
+    {
+        $user = Auth::user();
+        if (!$oldestOrder = $user->oldestOrder) {
+            throw new ModelNotFoundException();
+        }
+        return $oldestOrder;
+    }
+
+    /**
+     * Get latest order related to user
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @return mixed
+     */
+    public function getLatestOrder()
+    {
+        $user = Auth::user();
+        if (!$latestOrder = $user->latestOrder) {
+            throw new ModelNotFoundException();
+        }
+        return $latestOrder;
     }
 }

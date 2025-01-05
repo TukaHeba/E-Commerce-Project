@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Category\MainCategorySubCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Exports\LowStockExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Product extends Model
 {
@@ -34,7 +36,7 @@ class Product extends Model
         'maincategory_subcategory_id'
     ];
 
-    protected $hidden = ['product_quantity'];
+    // protected $hidden = ['product_quantity'];
     /**
      * The attributes that are not mass assignable.
      *
@@ -248,11 +250,11 @@ class Product extends Model
                         ->where('favorites.user_id', $user_id);
                 })
                     ->whereNotExists(function ($subQuery) use ($user_id) {     // to avoid show products allready user liked it .
-                    $subQuery->select(DB::raw(1))
-                        ->from('favorites')
-                        ->whereRaw('favorites.product_id = products.id')
-                        ->where('favorites.user_id', $user_id);
-                });
+                        $subQuery->select(DB::raw(1))
+                            ->from('favorites')
+                            ->whereRaw('favorites.product_id = products.id')
+                            ->where('favorites.user_id', $user_id);
+                    });
             })
             ->select(
                 'products.id',
@@ -264,8 +266,37 @@ class Product extends Model
             ->join('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')     // get products belonf to these categories
             ->distinct();                                                          // to avoid repeate products if user like many products belongs to same category.
     }
-
-
+    /**
+     * Scope to filter products with low stock.
+     *
+     * Filters products where `product_quantity` is less than the given threshold.
+     * Useful for generating low-stock reports or alerts.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $threshold The stock threshold (default: 10).
+     * 
+     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @example
+     * Product::lowStock()->get();       // Default threshold: 10
+     * Product::lowStock(5)->get();      // Custom threshold: 5
+     */
+    public function scopeLowStock($query, $threshold = 10)
+    {
+        return $query->where('product_quantity', '<', $threshold);
+    }
+    /**
+     * generate low stock products excel sheet as report to admin
+     * @return string
+     */
+    static function generateLowStockReport()
+    {
+        $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
+    
+        Excel::store(new LowStockExport, $fileName, 'local'); // Save to storage/app
+    
+        return $fileName;
+    }
     /**
      * Get the cart items associated with the product.
      *
@@ -295,4 +326,33 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+
+    public function scopeSelling($query)
+    {
+        return $query
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
+            ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
+            ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id')
+            ->select(
+                'products.id',
+                'sub_categories.sub_category_name as sub_category_name',
+                'main_categories.main_category_name as main_category_name',
+                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
+            )
+            ->groupBy('products.id', 'sub_categories.sub_category_name', 'main_categories.main_category_name')
+            ->orderByDesc('total_sold')
+            ->take(30);
+    }
+
+    public function largestQuantitySoldByName($name)
+    {
+        return $this->hasOne(OrderItem::class)
+            ->ofMany('quantity', 'max')
+            ->whereHas('product', function ($query) use ($name) {
+                $query->where('name', 'like', '%' . $name . '%');
+            });
+    }
+
 }

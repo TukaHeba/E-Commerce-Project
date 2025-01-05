@@ -9,10 +9,16 @@ use App\Models\Category\SubCategory;
 use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\ProductResource;
+use App\Models\Photo\Photo;
+use App\Services\Photo\PhotoService;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ProductService
 {
+    protected PhotoService $photoService ;
+    public function __construct(PhotoService $photoService){
+        $this->photoService = $photoService ;
+    }
 
     /**
      * Generate a unique cache key using a base string and parameters.
@@ -156,15 +162,44 @@ class ProductService
         });
     }
 
-    public function storeProduct($data)
+    public function storeProduct($data , $photos)
     {
-        return Product::create($data);
+        $product = Product::create($data);
+        $this->photoService->storeMultiplePhotos($photos , $product);
+
+        return $product ;
     }
-    public function updateProduct($product, $data)
+    public function updateProduct($product, $data , $photoForDelete = [])
     {
         $product->update($data);
+        foreach($photoForDelete as $filePath){
+            // Retrieve the photo based on its path
+            $photo = Photo::where('photo_path',$filePath)->first();
+            if($photo){
+                $this->photoService->deletePhoto($photo->photo_path);
+
+                // Delete photo from the Database
+                $photo->delete();
+            }
+        }
         $product->save();
         return $product;
     }
+
+    public function showLargestQuantitySold($name)
+    {
+        $product = Product::where('name', 'like', '%' . $name . '%')->first();
+        if ($product) {
+            $largestOrderItem = $product->largestQuantitySoldByName($name)->first();
+            if ($largestOrderItem) {
+                return [
+                    'Order Id' => $largestOrderItem->order_id,
+                    'Product Id' => $largestOrderItem->product_id,
+                    'Quantity' => $largestOrderItem->quantity
+                ];
+            }
+        }
+    }
+
 }
 
