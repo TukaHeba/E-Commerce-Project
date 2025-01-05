@@ -9,6 +9,7 @@ use App\Models\Order\Order;
 use App\Models\Product\Product;
 use App\Models\Rate\Rate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -171,7 +172,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->first_name . ' ' . $this->last_name;
     }
-/**
+
+    /**
      * Get the most expensive delivered order.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
@@ -183,5 +185,21 @@ class User extends Authenticatable implements JWTSubject
             ->ofMany('total_price', 'max');
     }
 
+    /**
+     * Get the oldest order.
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function oldestOrder(): HasOne
+    {
+        return $this->hasOne(Order::class)->oldestOfMany();
+    }
 
+    /**
+     * Get the latest order.
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function latestOrder(): HasOne
+    {
+        return $this->hasOne(Order::class)->latestOfMany();
+    }
 }
