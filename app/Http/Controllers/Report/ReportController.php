@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Report;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report1Resource;
-use App\Http\Resources\Report2Resource;
 use App\Http\Resources\SubMainCategoryResource;
 use App\Jobs\SendDelayedOrderEmail;
 use App\Services\Report\ReportService;
@@ -36,7 +35,7 @@ class ReportController extends Controller
     public function productsRemainingReport()
     {
         $productsRemaining = $this->ReportService->getProductsRemaining();
-        return self::paginated($productsRemaining, Report2Resource::class, 'Products retrieved successfully', 200);
+        return self::success($productsRemaining, 'Products retrieved successfully', 200);
     }
 
     /**

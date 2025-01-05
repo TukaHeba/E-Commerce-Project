@@ -2,6 +2,7 @@
 
 namespace App\Services\Report;
 
+use App\Models\Cart\Cart;
 use App\Models\CartItem\CartItem;
 use App\Models\Order\Order;
 use Carbon\Carbon;
@@ -23,24 +24,42 @@ class ReportService
     {
         $sevenDaysAgo = Carbon::now()->subDays(7); // Create the current date and subtract 7 days from it
 
-        $lating_orders = Order::where('status','shipped')
-            ->where('created_at','<=',$sevenDaysAgo)->paginate(10);
+        $lating_orders = Order::where('status', 'shipped')
+            ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
 
-        return $lating_orders ;
+        return $lating_orders;
     }
 
     /**
      * Products remaining in the cart without being ordered report
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return array|\Illuminate\Database\Eloquent\Collection
      */
     public function getProductsRemaining()
     {
-        $products_remaining = CartItem::with('product')
-            ->where('created_at', '<=', Carbon::now()->subMonths(2))
-            ->paginate(10);
+        $products_remaining = Cart::whereHas(
+            'cartItems',
+            function ($query) {
+                $query->where('created_at', '<=', Carbon::now()->subMonths(2));
+            }
+        )
+            ->with([
+                'cartItems' => function ($query) {
+                    $query->select('cart_id', 'product_id', 'created_at')
+                        ->where('created_at', '<=', Carbon::now()->subMonths(2));
+                }
+            ])
+            ->select('id', 'user_id')
+            ->get();
+
+        $products_remaining->each(function ($cart) {
+            $cart->cartItems->each(function ($item) {
+                $item->makeHidden('cart_id');
+            });
+        });
 
         return $products_remaining;
     }
+
 
     /**
      * Products running low on the stock report
@@ -49,7 +68,7 @@ class ReportService
     {
         return Product::lowStock()->paginate(10);
     }
-    
+
     /**
      * Best-selling products for offers report
      */
@@ -73,7 +92,7 @@ class ReportService
     {
         //
     }
-/**
+    /**
      * The products never been sold
      */
     public function sendUnsoldProductsEmail()
@@ -81,9 +100,9 @@ class ReportService
         // Fetch all users with the role 'sales manager'
         $user = User::role('sales manager')->first();
         // Dispatch the job for each user and collect the results
-            $job = new SendUnsoldProductEmail($user);
-            $job->handle(); // Execute the job synchronously
-            $result = $job->getUnsoldProducts(); // Get the result
+        $job = new SendUnsoldProductEmail($user);
+        $job->handle(); // Execute the job synchronously
+        $result = $job->getUnsoldProducts(); // Get the result
         return $result;
     }
 
@@ -93,7 +112,8 @@ class ReportService
      * @return mixed
      */
 
-    public function Top5Countries(){
+    public function Top5Countries()
+    {
         $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
             ->join('addresses', 'orders.address_id', '=', 'addresses.id')
             ->groupBy('addresses.country')
