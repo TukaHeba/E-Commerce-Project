@@ -10,6 +10,7 @@ use App\Models\User\User;
 use Carbon\Carbon;
 
 
+
 class ReportService
 {
     /**
@@ -43,7 +44,7 @@ class ReportService
      */
     public function ProductsLowOnStockReport()
     {
-        return $lowStockProducts = Product::lowStock()->paginate(10);
+        return Product::lowStock()->paginate(10);
     }
 
     /**
@@ -57,9 +58,9 @@ class ReportService
     /**
      * Best categories report
      */
-    public function repor5()
+    public function BestCategories()
     {
-        //
+        return $BestCategories = Product::Selling()->paginate(10);
     }
 
     /**

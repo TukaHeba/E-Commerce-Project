@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('report:products-remaining-command')
             ->cron('0 0 1 */2 *') // تشغيل كل شهرين في اليوم الأول عند منتصف الليل
             ->emailOutputTo('admin@gmail.com');
+        $schedule->command('app:low-on-stock-report-command')
+            ->daily(); // run daily on midnight report
         // $schedule->command('inspire')->hourly();
         $schedule->command('app:unsold-products-email-command')->monthly();
     }
