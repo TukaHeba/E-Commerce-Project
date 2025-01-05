@@ -6,16 +6,8 @@ use App\Models\CartItem\CartItem;
 use App\Models\Order\Order;
 use Carbon\Carbon;
 use App\Models\Product\Product;
-use App\Models\Category\MainCategorySubCategory;
-use Illuminate\Support\Facades\DB;
-use App\Models\OrderItem\OrderItem;
 use App\Models\User\User;
 use App\Jobs\SendUnsoldProductEmail;
-use Illuminate\Support\Facades\Artisan;
-
-
-use App\Models\Product\Product;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class ReportService
@@ -23,21 +15,21 @@ class ReportService
     /**
      * Orders late to deliver report
      */
-    public function repor1()
+    public function getOrdersLateToDeliver()
     {
         $sevenDaysAgo = Carbon::now()->subDays(7); // Create the current date and subtract 7 days from it
 
-        $lating_orders = Order::where('status','shipped')
-            ->where('created_at','<=',$sevenDaysAgo)->paginate(10);
+        $lating_orders = Order::where('status', 'shipped')
+            ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
 
-        return $lating_orders ;
+        return $lating_orders;
     }
 
     /**
      * Products remaining in the cart without being ordered report
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getProductsRemaining()
+    public function getProductsRemainingInCarts()
     {
         $products_remaining = CartItem::with('product')
             ->where('created_at', '<=', Carbon::now()->subMonths(2))
@@ -49,7 +41,7 @@ class ReportService
     /**
      * Products running low on the stock report
      */
-    public function ProductsLowOnStockReport()
+    public function getProductsLowOnStock()
     {
         return Product::lowStock()->paginate(10);
     }
@@ -57,7 +49,7 @@ class ReportService
     /**
      * Best-selling products for offers report
      */
-    public function BestSellingProductsReport()
+    public function getBestSellingProducts()
     {
         return Cache::remember("best_selling_products_report", now()->addDay(), function () {
             return Product::bestSelling()->paginate(10);
@@ -67,29 +59,22 @@ class ReportService
     /**
      * Best categories report
      */
-    public function BestCategories()
+    public function getBestCategories()
     {
         return $BestCategories = Product::Selling()->paginate(10);
     }
 
     /**
-     * The country with the highest number of orders report
-     */
-    public function repor6()
-    {
-        //
-    }
-/**
      * The products never been sold
      */
-    public function sendUnsoldProductsEmail()
+    public function getProductsNeverBeenSold()
     {
         // Fetch all users with the role 'sales manager'
         $user = User::role('sales manager')->first();
         // Dispatch the job for each user and collect the results
-            $job = new SendUnsoldProductEmail($user);
-            $job->handle(); // Execute the job synchronously
-            $result = $job->getUnsoldProducts(); // Get the result
+        $job = new SendUnsoldProductEmail($user);
+        $job->handle(); // Execute the job synchronously
+        $result = $job->getUnsoldProducts(); // Get the result
         return $result;
     }
 
@@ -99,7 +84,8 @@ class ReportService
      * @return mixed
      */
 
-    public function Top5Countries(){
+    public function getCountriesWithHighestOrders()
+    {
         $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
             ->join('addresses', 'orders.address_id', '=', 'addresses.id')
             ->groupBy('addresses.country')
@@ -108,5 +94,4 @@ class ReportService
             ->get();
         return $data;
     }
-
 }
