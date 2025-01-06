@@ -172,12 +172,13 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // -------------------------------------- Report Routes -------------------------------------- //
     Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
-        Route::get('reports/lating-orders-report', 'repor1');
-        Route::get('reports/top-countries',  'topCountries');
-        Route::get('reports/best-categories-report',  'BestCategories');
-        Route::get('reports/products-remaining', 'productsRemainingReport');
-        Route::get('reports/products-low-on-stocks',  'ProductsLowOnStockReport');
-        Route::get('reports/unsold-products',  'UnsoldProducts');
+        Route::get('reports/best-categories',  'bestCategoriesReport');
+        Route::get('reports/best-selling-products', 'bestSellingProductsReport');
+        Route::get('reports/products-low-on-stocks',  'productsLowOnStockReport');
+        Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport');
+        Route::post('reports/products-never-been-sold',  'productsNeverBeenSoldReport');
+        Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
+        Route::get('reports/countries-with-highest-orders',  'countriesWithHighestOrdersReport');
     });
 });
 

@@ -227,8 +227,7 @@ class Product extends Model
                 DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
             )
             ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'sub_categories.sub_category_name')
-            ->orderByDesc('total_sold')
-            ->take(30);
+            ->orderByDesc('total_sold');
     }
 
     /**
