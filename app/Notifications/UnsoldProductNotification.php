@@ -11,14 +11,14 @@ class UnsoldProductNotification extends Notification
 {
     use Queueable;
 
-    protected $product;
+    protected $unsoldProducts;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($product)
+    public function __construct($unsoldProducts)
     {
-        $this->product = $product;
+        $this->unsoldProducts = $unsoldProducts;
     }
 
     /**
@@ -28,7 +28,7 @@ class UnsoldProductNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return [ 'email','database'];
+        return ['mail','database'];
     }
 
     /**
@@ -36,13 +36,19 @@ class UnsoldProductNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
-            ->subject('Unsold Product Alert: ' . $this->product->id)
-            ->line('The product has not been sold')
-            ->line('Product Name: ' . $this->product->name)
-            ->line('Category: ' . $this->product->category)
-            ->action('View Product', url('/products/' . $this->product->id));
+        $mailMessage = (new MailMessage)
+            ->subject('The Products Has Not Been Sold');
+
+        foreach ($this->unsoldProducts as $product) {
+            $mailMessage->line('Product Name: ' . $product->name)
+                ->line('Main Category Id: ' . $product->category->main_category_id)
+                ->line('Sub Category Id:' . $product->category->sub_category_id)
+                ->action('View Product', url('/products/' . $product->id));
+        }
+
+        return $mailMessage;
     }
+
     /**
      * Get the database representation of the notification.
      *
@@ -50,10 +56,18 @@ class UnsoldProductNotification extends Notification
      */
     public function toDatabase(object $notifiable): array
     {
-        return [
-            'Product Id:' => $this->product->id,
-            'Category: ' => $this->product->category,
-            'message' => 'The product has not been sold',
-        ];
+
+        foreach ($this->unsoldProducts as $product) {
+            $data[] = [
+                'Product Id' => $product->id,
+                'Main Category Id' => $product->category->main_category_id,
+                'Sub Category Id' => $product->category->sub_category_id,
+            ];
+        }
+        return
+            [
+                'message' => 'The Products has not been sold',
+                'products' => $data
+            ];
     }
 }

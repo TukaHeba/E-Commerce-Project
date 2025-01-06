@@ -72,8 +72,6 @@ class ProductService
      * @return \Illuminate\Pagination\LengthAwarePaginator - Returns a paginated list of products within the specified category.
      */
     public function getProductsByCategory($request){
-    // return Product::byCategory($request)->paginate();
-        // dd($product);
         $cache_key = $this->generateCacheKey('products_by_category', array_filter([
             'sub_category_id' => $request->subCategoryId,
             'main_category_id' => $request->mainCategoryId,

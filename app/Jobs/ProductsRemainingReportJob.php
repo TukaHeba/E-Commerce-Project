@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ProductsRemainingReportJob implements ShouldQueue
 {
@@ -18,9 +19,9 @@ class ProductsRemainingReportJob implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info('Before execution job');
+        Log::info('Before execution job');
         $reportService = app()->make(ReportService::class);
         $reportService->getProductsRemaining();
-        \Log::info('After execution job');
+        Log::info('After execution job');
     }
 }
