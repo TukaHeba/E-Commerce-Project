@@ -92,6 +92,84 @@ class ProductService
     }
 
     /**
+     * Retrieve the latest available products with caching and pagination.
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator A paginated list of the latest products.
+     */
+    public function getLatestProducts()
+    {
+        $cache_key = 'latest_products';
+        $this->addCasheKey($cache_key);
+        return Cache::remember($cache_key, now()->addHour(), function () {
+            return Product::latestProducts()->available()->with(['mainCategory', 'subCategory'])->paginate(10);
+        });
+    }
+
+    /**
+     * Retrieve filtered products with caching and pagination based on query parameters.
+     *
+     * @param Request $request The HTTP request containing filter parameters.
+     * @return \Illuminate\Pagination\LengthAwarePaginator A paginated list of filtered products.
+     */
+    public function getProductsWithFilter(Request $request)
+    {
+        $request->merge(['user_id' => auth()->check() ? auth()->id() : null]);
+        $cache_key = $this->generateCacheKey('products_filter', $request->all());
+        $this->addCasheKey($cache_key);
+        return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
+            return Product::filterProducts($request)->paginate(10);
+        });
+    }
+
+    /**
+     * Retrieve best-selling products with caching and pagination.
+     *
+     * @param mixed $request The HTTP request for fetching best-selling products.
+     * @return mixed A paginated list of the best-selling products.
+     */
+    public function getBestSellingProducts()
+    {
+        $cache_key = 'best_selling_products';
+        $this->addCasheKey($cache_key);
+        return Cache::remember($cache_key, now()->addHour(), function () {
+            return Product::bestSelling('product_with_total_sold')
+                ->available()
+                ->paginate(10);
+        });
+    }
+
+    /**
+     * Retrieve products the user may like based on their preferences.
+     *
+     * @throws HttpResponseException If there is an issue fetching products.
+     * @return mixed A paginated list of products the user may like.
+     */
+    public function getProductsUserMayLike()
+    {
+        $user_id = auth()->id();
+        $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
+        $this->addCasheKey($cache_key);
+        return Cache::remember($cache_key, now()->addHour(), function () use ($user_id) {
+            return Product::mayLikeProducts($user_id)->available()->paginate(10);
+        });
+    }
+
+    /**
+     * Retrieve the top-rated products with caching and pagination.
+     *
+     * @param int $limit The maximum number of products to return.
+     * @return mixed A paginated list of top-rated products.
+     */
+    public function getTopRatedProducts(int $limit = 10)
+    {
+        $cache_key = 'top_rating_products';
+        $this->addCasheKey($cache_key);
+        return Cache::remember($cache_key, now()->addHour(), function () use ($limit) {
+            return Product::topRated($limit)->with(['mainCategory', 'subCategory'])->available()->paginate(30);
+        });
+    }
+
+    /**
      * Store a new product along with its associated photos.
      *
      * @param array $data The product data.
@@ -101,7 +179,7 @@ class ProductService
     public function storeProduct($data, $photos)
     {
         $product = Product::create($data);
-        $this->photoService->storeMultiplePhotos($photos, $product);
+        $this->photoService->storeMultiplePhotos($photos, $product);  // Store product photos.
         $this->clearProductCache();
         return $product;
     }
@@ -124,93 +202,10 @@ class ProductService
                 $photo->delete();
             }
         }
-
-        $product->save();
         $this->clearProductCache();
+        $product->save();
+
         return $product;
-    }
-
-    /**
-     * Retrieve the latest available products with caching and pagination.
-     *
-     * @return \Illuminate\Pagination\LengthAwarePaginator A paginated list of the latest products.
-     */
-    public function getLatestProducts()
-    {
-        $cache_key = 'latest_products';
-        $this->addCasheKey($cache_key);
-
-        return Cache::remember($cache_key, now()->addHour(), function () {
-            return Product::latestProducts()->available()->with(['mainCategory', 'subCategory'])->paginate(10);
-        });
-    }
-
-    /**
-     * Retrieve filtered products with caching and pagination based on query parameters.
-     *
-     * @param Request $request The HTTP request containing filter parameters.
-     * @return \Illuminate\Pagination\LengthAwarePaginator A paginated list of filtered products.
-     */
-    public function getProductsWithFilter(Request $request)
-    {
-        $request->merge(['user_id' => auth()->check() ? auth()->id() : null]);
-        $cache_key = $this->generateCacheKey('products_filter', $request->all());
-        $this->addCasheKey($cache_key);
-
-        return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
-            return Product::filterProducts($request)->paginate(10);
-        });
-    }
-
-    /**
-     * Retrieve best-selling products with caching and pagination.
-     *
-     * @param mixed $request The HTTP request for fetching best-selling products.
-     * @return mixed A paginated list of the best-selling products.
-     */
-    public function getBestSellingProducts()
-    {
-        $cache_key = 'best_selling_products';
-        $this->addCasheKey($cache_key);  // Track this cache key.
-
-        return Cache::remember($cache_key, now()->addHour(), function () {
-            return Product::bestSelling('product_with_total_sold')
-                ->available()
-                ->paginate(10);
-        });
-    }
-
-    /**
-     * Retrieve products the user may like based on their preferences.
-     *
-     * @throws HttpResponseException If there is an issue fetching products.
-     * @return mixed A paginated list of products the user may like.
-     */
-    public function getProductsUserMayLike()
-    {
-        $user_id = auth()->id();
-        $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
-        $this->addCasheKey($cache_key);
-
-        return Cache::remember($cache_key, now()->addHour(), function () use ($user_id) {
-            return Product::mayLikeProducts($user_id)->available()->paginate(10);
-        });
-    }
-
-    /**
-     * Retrieve the top-rated products with caching and pagination.
-     *
-     * @param int $limit The maximum number of products to return.
-     * @return mixed A paginated list of top-rated products.
-     */
-    public function getTopRatedProducts(int $limit = 10)
-    {
-        $cache_key = 'top_rating_products';
-        $this->addCasheKey($cache_key);
-
-        return Cache::remember($cache_key, now()->addHour(), function () use ($limit) {
-            return Product::topRated($limit)->with(['mainCategory', 'subCategory'])->available()->paginate(30);
-        });
     }
 
     /**
