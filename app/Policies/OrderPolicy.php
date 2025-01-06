@@ -39,7 +39,7 @@ class OrderPolicy
      * Determine if the user can destroy the order.
      *
      * @param \App\Models\User\User $user
-     * @param \App\Models\Order $order
+     * @param \App\Models\Order\Order $order
      * @return bool
      */
     public function destroy(User $user, Order $order)
@@ -51,7 +51,7 @@ class OrderPolicy
      * Determine if the user can show the order.
      *
      * @param \App\Models\User\User $user
-     * @param \App\Models\Order $order
+     * @param \App\Models\Order\Order $order
      * @return bool
      */
     public function show(User $user, Order $order)
