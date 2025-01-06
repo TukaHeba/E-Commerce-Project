@@ -3,13 +3,11 @@
 namespace App\Services\Report;
 
 use App\Models\Cart\Cart;
-use App\Models\CartItem\CartItem;
 use App\Models\Order\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Product\Product;
-use App\Models\User\User;
-use App\Jobs\SendUnsoldProductEmail;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class ReportService
@@ -96,18 +94,31 @@ class ReportService
 
 
     /**
-     * The country with the highest number of orders report
+     * The country with the highest number of orders report With the ability to filter by a specific date
+     *
+     * @param array $data
+     * @param int $country
      * @return mixed
      */
 
-    public function getCountriesWithHighestOrders()
+    public function getCountriesWithHighestOrders(array $data,int $country)
     {
-        $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
-            ->join('addresses', 'orders.address_id', '=', 'addresses.id')
-            ->groupBy('addresses.country')
-            ->orderByDesc('total_orders')
-            ->take(5)
-            ->get();
-        return $data;
+        $topCountries = Order::with('zone.city.country')
+            ->when(isset($data['start_date']), function ($q) use ($data) {
+                return $q->whereDate('created_at', '>=', $data['start_date']);
+            })
+            ->when(isset($data['end_date']), function ($q) use ($data) {
+                return $q->whereDate('created_at', '<=', $data['end_date']);
+            })
+            ->get()
+            ->groupBy(fn($order) => $order->zone->city->country->name) // تجميع حسب اسم الدولة
+            ->map(fn($orders, $countryName) => [
+                'country_name' => $countryName,
+                'total_orders' => $orders->count(),
+            ])
+            ->sortByDesc('total_orders') // ترتيب تنازلي حسب عدد الطلبات
+            ->take($country) // إرجاع أفضل 5 دول
+            ->values();
+        return $topCountries;
     }
 }

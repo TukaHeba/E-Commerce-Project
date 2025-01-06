@@ -2,8 +2,7 @@
 
 namespace App\Models\Order;
 
-use App\Models\Address\Address;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use App\Models\Address\Zone;
 use App\Models\OrderTracking\OrderTracking;
 use App\Models\User\User;
 use App\Models\OrderItem\OrderItem;
@@ -22,7 +21,7 @@ class Order extends Model
      */
     protected $fillable = [
         'user_id',
-        'address_id',
+        'zone_id',
         'postal_code',
         'status',
         'total_price',
@@ -68,9 +67,15 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function address(){
-        return $this->belongsTo(Address::class);
+    /**
+     * Get the zone that the order belongs to
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function zone(){
+        return $this->belongsTo(Zone::class);
     }
+
 
     /**
      * Scope to filter orders by shipping_address through LIKE, status & total_price within a range.
@@ -92,6 +97,27 @@ class Order extends Model
                 $maxPrice = $request->max_price ?? PHP_INT_MAX;
                 $query->whereBetween('total_price', [$minPrice, $maxPrice]);
             });
+    }
+
+
+    /**
+     * Scope to return latest order
+     * @param mixed $query
+     * @return mixed
+     */
+    public function scopeLatestOrder($query)
+    {
+        return $query->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Scope to return oldest order
+     * @param mixed $query
+     * @return mixed
+     */
+    public function scopeOldestOrder($query)
+    {
+        return $query->orderBy('created_at', 'asc');
     }
 
 }

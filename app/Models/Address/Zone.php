@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Address extends Model
+class Zone extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -17,30 +17,28 @@ class Address extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'country',
-        'city',
-        'state',
-        'street',
+        'name',
+        'city_id'
     ];
 
-    /**
-     * The attributes that are not mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [];
 
     /**
-     * The attributes that should be cast.
+     * Get orders for the zone
      *
-     * @var array<string, string>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    protected $casts = [
-        //
-    ];
 
     public function orders(){
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the city that the zone belongs to
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function city(){
+        return $this->belongsTo(City::class);
     }
 
 }
