@@ -26,7 +26,6 @@ class ReportService
             ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
 
         return $lating_orders;
-        return $lating_orders;
     }
 
     /**
@@ -92,16 +91,8 @@ class ReportService
      */
     public function getProductsNeverBeenSold()
     {
-        // Fetch all users with the role 'sales manager'
-        $user = User::role('sales manager')->first();
-        // Dispatch the job for each user and collect the results
-        $job = new SendUnsoldProductEmail($user);
-        $job->handle(); // Execute the job synchronously
-        $result = $job->getUnsoldProducts(); // Get the result
-        $job = new SendUnsoldProductEmail($user);
-        $job->handle(); // Execute the job synchronously
-        $result = $job->getUnsoldProducts(); // Get the result
-        return $result;
+        $unsoldProducts = Product::whereDoesntHave('orderItems')->paginate(10);
+        return $unsoldProducts;
     }
 
 
