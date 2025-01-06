@@ -72,6 +72,16 @@ class User extends Authenticatable implements JWTSubject
         });
     }
 
+    /**
+     * Get the route information for Telegram notifications.
+     * This method is used to specify the Telegram user ID where notifications should be sent for this model.
+     *
+     * @return string|null The Telegram user ID of the notifiable.
+     */
+    public function routeNotificationForTelegram()
+    {
+        return $this->telegram_user_id;
+    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
