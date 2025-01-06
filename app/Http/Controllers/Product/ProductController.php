@@ -7,6 +7,7 @@ use App\Models\Product\Product;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Photo\PhotoService;
+use App\Http\Resources\ProductResource;
 use App\Services\Product\ProductService;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
@@ -129,5 +130,72 @@ class ProductController extends Controller
         Product::onlyTrashed()->findOrFail($id)->forceDelete();
         $this->ProductService->clearProductCache();
         return self::success(null, 'Product force deleted successfully');
+    }
+
+    /**
+     *  Display a listing of the Products filtered By Category
+     * @param \Illuminate\Http\Request $request
+     * @return JsonResponse
+     */
+    public function getProductsByCategory(Request $request){
+        $products = $this->ProductService->getProductsByCategory($request);
+        if ($products->total() === 0) {
+            return self::error(null, 'No Products matched!', 404);
+        }
+        return self::paginated($products, ProductResource::class,'Products retrieved successfully', 200);
+    }
+
+    /**
+     * Display a listing of the latest Products
+     * @return mixed
+     */
+    public function getLatestProducts()
+    {
+        $products = $this->ProductService->getLatestProducts();
+        if ($products->isEmpty()) {
+            return self::error(null, 'No Products matched!', 404);
+        }
+        return self::paginated($products, ProductResource::class, 'Products retrieved successfully', 200);
+    }
+    /**
+     * Retrieve hot selling products with caching and pagination .
+     * @return JsonResponse
+     */
+    public function getBestSellingProducts()
+    {
+        $products = $this->ProductService->getBestSellingProducts();
+        if ($products->isEmpty()) {
+            return self::error(null, 'No Products matched!', 404);
+        }
+        return self::paginated($products, null, 'Products retrieved successfully', 200);
+    }
+    /**
+     * Retrieve products the user may like
+     * @return JsonResponse
+     */
+    public function getProductsUserMayLike()
+    {
+        $products = $this->ProductService->getProductsUserMayLike();
+        if ($products->isEmpty()) {
+            return self::error(null, 'Like Some Products,Please!', 404);
+        }
+        return self::paginated($products, null, 'Products retrieved successfully', 200);
+    }
+    /**
+     * Retrieve top Rated Products
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function topRatedProducts(Request $request): JsonResponse
+    {
+        $limit = $request->get('limit', 10);
+        $products = $this->ProductService->getTopRatedProducts($limit);
+
+        return self::paginated($products, ProductResource::class, 'Top-rated products retrieved successfully', 200);
+    }
+    public function showLargestQuantitySold($name)
+    {
+        $largestOrderItem = $this->ProductService->showLargestQuantitySold($name);
+        return self::success($largestOrderItem, 'Largest Quantity Sold for this Product restored successfully');
     }
 }
