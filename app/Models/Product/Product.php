@@ -37,7 +37,6 @@ class Product extends Model
         'maincategory_subcategory_id'
     ];
 
-    // protected $hidden = ['product_quantity'];
     /**
      * The attributes that are not mass assignable.
      *
@@ -46,16 +45,11 @@ class Product extends Model
     protected $guarded = [];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * Relations
      */
-    protected $casts = [
-        //
-    ];
+
     /**
-     * Get the users favored this product.
-     *
+     * Get the users who favored this product.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function favoredBy()
@@ -64,14 +58,18 @@ class Product extends Model
     }
 
     /**
-     * relation with category .
-     * each product belongs to one category
+     * Relation with category: each product belongs to one category.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category()
     {
         return $this->belongsTo(MainCategorySubCategory::class, 'maincategory_subcategory_id');
     }
+
+    /**
+     * Get the main category associated with the product.
+     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+     */
     public function mainCategory()
     {
         return $this->hasOneThrough(
@@ -84,6 +82,10 @@ class Product extends Model
         );
     }
 
+    /**
+     * Get the subcategory associated with the product.
+     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+     */
     public function subCategory()
     {
         return $this->hasOneThrough(
@@ -95,6 +97,60 @@ class Product extends Model
             'sub_category_id'
         );
     }
+
+    /**
+     * Get the rates associated with the product.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function ratings()
+    {
+        return $this->hasMany(Rate::class);
+    }
+
+    /**
+     * Get the cart items associated with the product.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    /**
+     * Get the photos associated with the product.
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function photos()
+    {
+        return $this->morphMany(Photo::class, 'photoable');
+    }
+
+    /**
+     * Get the order items associated with the product.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Get the order item with the largest quantity sold by product name.
+     * @param string $name
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function largestQuantitySoldByName($name)
+    {
+        return $this->hasOne(OrderItem::class)
+            ->ofMany('quantity', 'max')
+            ->whereHas('product', function ($query) use ($name) {
+                $query->where('name', 'like', '%' . $name . '%');
+            });
+    }
+
+    /**
+     * Scopes
+     */
 
     /**
      * Scope to filter products by category.
@@ -111,46 +167,10 @@ class Product extends Model
     }
 
     /**
-     * Get the rates of products.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function ratings()
-    {
-        return $this->hasMany(Rate::class);
-    }
-    /**
-     * Get the average rating for the product.
-     *
-     * @return float The average rating of the product.
-     */
-    public function averageRating(): float
-    {
-        $cacheKey = "product_avg_rating_{$this->id}";
-
-        return Cache::remember($cacheKey, now()->addMinutes(30), function () {
-            return $this->ratings()->avg('rating') ?? 0;
-        });
-    }
-    /**
-     * scope to get TopRated products
-     * @param mixed $query
-     * @param int $limit
-     * @return mixed
-     */
-    public function scopeTopRated($query, int $limit = 10)
-    {
-        return $query->withAvg('ratings', 'rating')
-            ->orderByDesc('ratings_avg_rating')
-            ->take($limit);
-    }
-
-    /**
      * Scope to retrieve the latest products.
-     *
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $limit - The number of latest products to retrieve (default is 25).
-     * @return \Illuminate\Database\Eloquent\Builder - Returns the query ordered by creation date, limited to the specified number.
+     * @param int $limit The number of latest products to retrieve (default: 30).
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeLatestProducts($query, $limit = 30)
     {
@@ -158,18 +178,92 @@ class Product extends Model
     }
 
     /**
-     * Scope to filter products based on multiple criteria: price order, name, category, and availability.
-     *
+     * Scope to filter available products (quantity > 0).
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Database\Eloquent\Builder - Returns the filtered query based on the specified criteria.
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeFilterProducts($query, $request)
+    public function scopeAvailable($query)
+    {
+        return $query->where('product_quantity', '>', 0);
+    }
+
+    /**
+     * Scope to get products that a user might like.
+     * Avoids products the user has already favored.
+     * @param mixed $query
+     * @param mixed $user_id
+     * @return mixed
+     */
+    public function scopeMayLikeProducts($query, $user_id)
+    {
+        $columns = $this->getColumns('product');
+        return $query
+            ->when($user_id, function ($q) use ($user_id) {
+                $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($user_id) {
+                    $subQuery->select('products.maincategory_subcategory_id')
+                        ->from('favorites')
+                        ->join('products', 'favorites.product_id', '=', 'products.id')
+                        ->where('favorites.user_id', $user_id);
+                })
+                    ->whereNotExists(function ($subQuery) use ($user_id) {
+                        $subQuery->select(DB::raw(1))
+                            ->from('favorites')
+                            ->whereRaw('favorites.product_id = products.id')
+                            ->where('favorites.user_id', $user_id);
+                    });
+            })
+            ->select($columns)
+            ->joinRelatedTables()
+            ->distinct();
+    }
+
+    /**
+     * Functions
+     */
+
+    /**
+     * Get the average rating for the product.
+     * @return float The average rating of the product.
+     */
+    public function averageRating(): float
+    {
+        $cacheKey = "product_avg_rating_{$this->id}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(30), function () {
+            $avgRating = $this->ratings()->avg('rating') ?? 0;
+            return round($avgRating, 2);
+        });
+    }
+
+    /**
+     * Generate a low-stock report in Excel format.
+     * @return string Path to the generated file.
+     */
+    static function generateLowStockReport()
+    {
+        $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
+        Excel::store(new LowStockExport, $fileName, 'local'); // Save to storage/app
+
+        return $fileName;
+    }
+
+    /**
+     * Utility functions
+     */
+
+    private function applyJoins($query)
     {
         return $query
-            ->when($request->name, function ($q) use ($request) {
-                $q->where('products.name', 'LIKE', '%' . $request->name . '%');
-            })
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
+            ->leftJoin('main_categories', 'products.maincategory_subcategory_id', '=', 'main_categories.id')
+            ->leftJoin('rates', 'products.id', '=', 'rates.product_id');
+    }
+
+    private function applyFilters($query, $request)
+    {
+        return $query
+            ->when($request->name, fn($q) => $q->where('products.name', 'LIKE', '%' . $request->name . '%'))
             ->when($request->user_id, function ($q) use ($request) {
                 $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($request) {
                     $subQuery->select('products.maincategory_subcategory_id')
@@ -178,47 +272,9 @@ class Product extends Model
                         ->where('favorites.user_id', $request->user_id);
                 });
             })
-            ->when($request->price && in_array($request->price, ['asc', 'desc']), function ($q) use ($request) {
-                $q->orderBy('products.price', $request->price);
-            })
-            ->when($request->latest, function ($q) {
-                $q->orderBy('products.created_at', 'desc');
-            })
-            ->when($request->category_id, function ($q) use ($request) {
-                $q->where('products.maincategory_subcategory_id', $request->category_id);
-            })
-            ->where('product_quantity', '>', 0)
-            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
-            ->select(
-                'products.id',
-                'products.name',
-                'products.description',
-                'products.price',
-                'sub_categories.sub_category_name as category_name',
-                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
-            )
-            ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'sub_categories.sub_category_name')
-            ->orderByDesc('total_sold')
-            ->take(100);
-    }
-
-    /**
-     * Scope to filter only available products.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder - Returns the query filtered by products with quantity greater than 0.
-     */
-    public function scopeAvailable($query)
-    {
-        return $query->where('product_quantity', '>', 0);
-    }
-    public function scopeJoinRelatedTables($query)
-    {
-        return $query
-            ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
-            ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
-            ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id');
+            ->when($request->mainCategoryId, fn($q) => $q->where('main_categories.id', $request->mainCategoryId))
+            ->when($request->subCategoryId, fn($q) => $q->where('sub_categories.id', $request->subCategoryId))
+            ->where('product_quantity', '>', 0);
     }
 
     /**
@@ -239,13 +295,21 @@ class Product extends Model
             'products.price'
         ];
         $totalSoldColumn = [
+            // Use DB::raw to calculate the total quantity of products sold (SUM of `order_items.quantity`) and set it as 'total_sold'.
+            // If no records are found, COALESCE ensures a default value of 0 is returned.
             DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
+        ];
+        $averageRate = [
+            // Use DB::raw to calculate the average rating (AVG of `rates.rating`) and round it to 2 decimal places.
+            // COALESCE ensures that if no ratings exist, a default value of 0 is returned. The result is aliased as 'ratings_avg_rating'.
+            DB::raw('ROUND(COALESCE(AVG(rates.rating), 0), 2) as ratings_avg_rating')
         ];
         return match ($type) {
             'product' => array_merge($productColumns, $categoryColumns),
             'category' => $categoryColumns,
             'category_with_total_sold' => array_merge($categoryColumns, $totalSoldColumn),
             'product_with_total_sold' => array_merge($productColumns, $categoryColumns, $totalSoldColumn),
+            'product_with_total_sold_and_rating' => array_merge($productColumns, $categoryColumns, $totalSoldColumn, $averageRate),
             default => throw new InvalidArgumentException('Invalid type for select columns'),
         };
     }
@@ -258,7 +322,7 @@ class Product extends Model
     private function getGroupByColumns($type)
     {
         return match (true) {
-            in_array($type, ['product', 'product_with_total_sold']) => [
+            in_array($type, ['product', 'product_with_total_sold', 'product_with_total_sold_and_rating']) => [
                 'products.id',
                 'products.name',
                 'products.description',
@@ -273,123 +337,4 @@ class Product extends Model
             default => throw new InvalidArgumentException('Invalid type for groupBy columns'),
         };
     }
-
-    /**
-     * Scope to get products may user like it
-     * By join products.id with favourites.products_id tables
-     * then take the products.category_id and join with categories.id tables
-     * to get all products that belong to products category from favourites table
-     * @param mixed $query
-     * @param mixed $user_id
-     * @return mixed
-     */
-    public function scopeMayLikeProducts($query, $user_id)
-    {
-        $columns = $this->getColumns('product');
-        return $query
-            ->when($user_id, function ($q) use ($user_id) {               // Get categories of products that the user likes.
-                $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($user_id) {
-                    $subQuery->select('products.maincategory_subcategory_id')
-                        ->from('favorites')
-                        ->join('products', 'favorites.product_id', '=', 'products.id')     // Using join for better performance compared to relations.
-                        ->where('favorites.user_id', $user_id);
-                })
-                    ->whereNotExists(function ($subQuery) use ($user_id) {     // Avoid showing products that the user has already liked.
-                    $subQuery->select(DB::raw(1))
-                        ->from('favorites')
-                        ->whereRaw('favorites.product_id = products.id')
-                        ->where('favorites.user_id', $user_id);
-                });
-            })
-            ->select($columns)
-            ->joinRelatedTables()
-            ->distinct();                                 // Avoid repeating products if the user likes multiple products from the same category.
-    }
-
-    /**
-     * scope to get Best Selling products or category
-     * @param mixed $query
-     * @param mixed $type
-     * @return mixed
-     */
-    public function scopeBestSelling($query, $type)
-    {
-        $columns = $this->getColumns($type);
-
-        return $query
-            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->joinRelatedTables()
-            ->select($columns)
-            ->groupBy(...$this->getGroupByColumns($type))
-            ->orderByDesc('total_sold');
-    }
-    /**
-     * Scope to filter products with low stock.
-     *
-     * Filters products where `product_quantity` is less than the given threshold.
-     * Useful for generating low-stock reports or alerts.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $threshold The stock threshold (default: 10).
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
-     *
-     * @example
-     * Product::lowStock()->get();       // Default threshold: 10
-     * Product::lowStock(5)->get();      // Custom threshold: 5
-     */
-    public function scopeLowStock($query, $threshold = 10)
-    {
-        return $query->where('product_quantity', '<', $threshold);
-    }
-    /**
-     * generate low stock products excel sheet as report to admin
-     * @return string
-     */
-    static function generateLowStockReport()
-    {
-        $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
-        Excel::store(new LowStockExport, $fileName, 'local'); // Save to storage/app
-
-        return $fileName;
-    }
-    /**
-     * Get the cart items associated with the product.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function cartItems()
-    {
-        return $this->hasMany(CartItem::class);
-    }
-
-    /**
-     * Get the photos associated with the product.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
-    public function photos()
-    {
-        return $this->morphMany(Photo::class, 'photoable');
-    }
-
-    /**
-     * Get the order items associated with the product.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function orderItems()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
-
-    public function largestQuantitySoldByName($name)
-    {
-        return $this->hasOne(OrderItem::class)
-            ->ofMany('quantity', 'max')
-            ->whereHas('product', function ($query) use ($name) {
-                $query->where('name', 'like', '%' . $name . '%');
-            });
-    }
-
 }

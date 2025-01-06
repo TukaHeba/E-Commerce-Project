@@ -6,13 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Product\Product;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Photo\StoreMultiplePhotosRequest;
+use App\Services\Photo\PhotoService;
+use App\Http\Resources\ProductResource;
+use App\Services\Product\ProductService;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
-use App\Http\Resources\OrderItemResource;
-use App\Http\Resources\ProductResource;
-use App\Services\Photo\PhotoService;
-use App\Services\Product\ProductService;
+use App\Http\Requests\Photo\StoreMultiplePhotosRequest;
 
 class ProductController extends Controller
 {
@@ -20,83 +19,10 @@ class ProductController extends Controller
     protected ProductService $ProductService;
     protected PhotoService $photoService;
 
-    public function __construct(ProductService $ProductService , PhotoService $photoService)
+    public function __construct(ProductService $ProductService, PhotoService $photoService)
     {
         $this->ProductService = $ProductService;
-        $this->photoService = $photoService ;
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     * @throws \Exception
-     */
-    public function store(StoreProductRequest $request , StoreMultiplePhotosRequest $storeMultiplePhotosRequest): JsonResponse
-    {
-        // Retrieve the photos that need to be stored
-        $photos = $storeMultiplePhotosRequest->file('photos');
-
-        $product = $this->ProductService->storeProduct($request->validated(),$photos);
-        return self::success($product, 'Product created successfully', 201);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product): JsonResponse
-    {
-        return self::success($product, 'Product retrieved successfully');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     * @throws \Exception
-     */
-    public function update(UpdateProductRequest $request, Product $product): JsonResponse
-    {
-        $deletedPhotos = $request->input('photosDeleted');
-        $updatedProduct = $this->ProductService->updateProduct($product, $request->validated() , $deletedPhotos);
-        return self::success($updatedProduct, 'Product updated successfully');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product): JsonResponse
-    {
-        $product->delete();
-        return self::success(null, 'Product deleted successfully');
-    }
-
-    /**
-     * Display soft-deleted records.
-     */
-    public function showDeleted(): JsonResponse
-    {
-        $products = Product::onlyTrashed()->get();
-        return self::success($products, 'Products retrieved successfully');
-    }
-
-    /**
-     * Restore a soft-deleted record.
-     * @param string $id
-     * @return JsonResponse
-     */
-    public function restoreDeleted(string $id): JsonResponse
-    {
-        $product = Product::onlyTrashed()->findOrFail($id);
-        $product->restore();
-        return self::success($product, 'Product restored successfully');
-    }
-
-    /**
-     * Permanently delete a soft-deleted record.
-     * @param string $id
-     * @return JsonResponse
-     */
-    public function forceDeleted(string $id): JsonResponse
-    {
-        $product = Product::onlyTrashed()->findOrFail($id)->forceDelete();
-        return self::success(null, 'Product force deleted successfully');
+        $this->photoService = $photoService;
     }
     /**
      * Display a listing of the Products With spicification Filter  //index//
@@ -112,17 +38,26 @@ class ProductController extends Controller
         }
         return self::paginated($products, null, 'Products retrieved successfully', 200);
     }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Product $product): JsonResponse
+    {
+        return self::success($product, 'Product retrieved successfully');
+    }
     /**
      *  Display a listing of the Products filtered By Category
      * @param \Illuminate\Http\Request $request
      * @return JsonResponse
      */
-    public function getProductsByCategory(Request $request){
+    public function getProductsByCategory(Request $request)
+    {
         $products = $this->ProductService->getProductsByCategory($request);
         if ($products->total() === 0) {
             return self::error(null, 'No Products matched!', 404);
         }
-        return self::paginated($products, ProductResource::class,'Products retrieved successfully', 200);
+        return self::paginated($products, ProductResource::class, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -178,6 +113,71 @@ class ProductController extends Controller
         $largestOrderItem = $this->ProductService->showLargestQuantitySold($name);
         return self::success($largestOrderItem, 'Largest Quantity Sold for this Product restored successfully');
     }
+    /**
+     * Store a newly created resource in storage.
+     * @throws \Exception
+     */
+    public function store(StoreProductRequest $request, StoreMultiplePhotosRequest $storeMultiplePhotosRequest): JsonResponse
+    {
+        // Retrieve the photos that need to be stored
+        $photos = $storeMultiplePhotosRequest->file('photos');
 
+        $product = $this->ProductService->storeProduct($request->validated(), $photos);
+        return self::success($product, 'Product created successfully', 201);
+    }
 
+    /**
+     * Update the specified resource in storage.
+     * @throws \Exception
+     */
+    public function update(UpdateProductRequest $request, Product $product): JsonResponse
+    {
+        $deletedPhotos = $request->input('photosDeleted');
+        $updatedProduct = $this->ProductService->updateProduct($product, $request->validated(), $deletedPhotos);
+        return self::success($updatedProduct, 'Product updated successfully');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Product $product): JsonResponse
+    {
+        $product->delete();
+        $this->ProductService->clearProductCache();
+        return self::success(null, 'Product deleted successfully');
+    }
+
+    /**
+     * Display soft-deleted records.
+     */
+    public function showDeleted(): JsonResponse
+    {
+        $products = Product::onlyTrashed()->get();
+        return self::success($products, 'Products retrieved successfully');
+    }
+
+    /**
+     * Restore a soft-deleted record.
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function restoreDeleted(string $id): JsonResponse
+    {
+        $product = Product::onlyTrashed()->findOrFail($id);
+        $product->restore();
+        $this->ProductService->clearProductCache();
+        return self::success($product, 'Product restored successfully');
+    }
+
+    /**
+     * Permanently delete a soft-deleted record.
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function forceDeleted(string $id): JsonResponse
+    {
+        $product = Product::onlyTrashed()->findOrFail($id)->forceDelete();
+        $this->ProductService->clearProductCache();
+        return self::success(null, 'Product force deleted successfully');
+    }
 }
