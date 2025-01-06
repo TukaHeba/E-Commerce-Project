@@ -5,7 +5,6 @@ namespace App\Services\Report;
 use App\Models\Cart\Cart;
 use App\Models\Order\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use App\Models\Product\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
