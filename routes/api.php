@@ -171,14 +171,14 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
 
     // -------------------------------------- Report Routes -------------------------------------- //
-    Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
-        Route::get('reports/best-categories',  'bestCategoriesReport');
-        Route::get('reports/best-selling-products', 'bestSellingProductsReport');
-        Route::get('reports/products-low-on-stocks',  'productsLowOnStockReport');
-        Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport');
-        Route::post('reports/products-never-been-sold',  'productsNeverBeenSoldReport');
-        Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
-        Route::get('reports/countries-with-highest-orders',  'countriesWithHighestOrdersReport');
+    Route::controller(ReportController::class)->middleware('auth:api')->prefix('reports')->group(function () {
+        Route::get('/best-categories', 'bestCategoriesReport');
+        Route::get('/best-selling-products', 'bestSellingProductsReport');
+        Route::get('/products-low-on-stocks', 'productsLowOnStockReport');
+        Route::get('/orders-late-to-deliver', 'ordersLateToDeliverReport');
+        Route::post('/products-never-been-sold', 'productsNeverBeenSoldReport');
+        Route::get('/products-remaining-in-carts', 'productsRemainingInCartsReport');
+        Route::get('/countries-with-highest-orders/{country?}', 'countriesWithHighestOrdersReport');
     });
 });
 

@@ -97,10 +97,11 @@ class ReportService
      * The country with the highest number of orders report With the ability to filter by a specific date
      *
      * @param array $data
+     * @param int $country
      * @return mixed
      */
 
-    public function getCountriesWithHighestOrders(array $data)
+    public function getCountriesWithHighestOrders(array $data,int $country)
     {
         $topCountries = Order::with('zone.city.country')
             ->when(isset($data['start_date']), function ($q) use ($data) {
@@ -116,7 +117,7 @@ class ReportService
                 'total_orders' => $orders->count(),
             ])
             ->sortByDesc('total_orders') // ترتيب تنازلي حسب عدد الطلبات
-            ->take(5) // إرجاع أفضل 5 دول
+            ->take($country) // إرجاع أفضل 5 دول
             ->values();
         return $topCountries;
     }

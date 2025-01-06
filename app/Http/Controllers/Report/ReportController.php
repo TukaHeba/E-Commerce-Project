@@ -53,8 +53,8 @@ class ReportController extends Controller
      */
     public function bestSellingProductsReport()
     {
-       $products = $this->ReportService->getBestSellingProducts();
-       return self::paginated($products, null,'Products retrieved successfully', 200);
+        $products = $this->ReportService->getBestSellingProducts();
+        return self::paginated($products, null, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -71,11 +71,13 @@ class ReportController extends Controller
      * The country with the highest number of orders report With the ability to filter by a specific date
      *
      * @param TopCountryRequest $request
+     * @param $country
      * @return \Illuminate\Http\JsonResponse
      */
-    public function countriesWithHighestOrdersReport(TopCountryRequest $request)
+
+    public function countriesWithHighestOrdersReport(TopCountryRequest $request, int $country = 5)
     {
-        $result = $this->ReportService->getCountriesWithHighestOrders($request->validationData());
+        $result = $this->ReportService->getCountriesWithHighestOrders($request->validationData(),$country);
         return self::success($result, 'Countries With Highest Orders Report');
     }
 
