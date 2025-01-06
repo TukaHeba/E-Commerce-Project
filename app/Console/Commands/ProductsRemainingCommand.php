@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\ProductsRemainingReportJob;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ProductsRemainingCommand extends Command
 {
@@ -26,9 +27,9 @@ class ProductsRemainingCommand extends Command
      */
     public function handle()
     {
-        \Log::info('Before execution command');
+        Log::info('Before execution command');
         ProductsRemainingReportJob::dispatch();
         $this->info('Products remaining report job dispatched successfully.');
-        \Log::info('After execution command');
+        Log::info('After execution command');
     }
 }
