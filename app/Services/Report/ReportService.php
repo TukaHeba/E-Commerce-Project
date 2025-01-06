@@ -27,9 +27,9 @@ class ReportService
 
     /**
      * Products remaining in the cart without being ordered report
-     * @return array|\Illuminate\Database\Eloquent\Collection
+     * @return array
      */
-    public function getProductsRemainingInCarts()
+    public function getProductsRemainingInCarts(): array
     {
         $products_remaining = Cart::whereHas(
             'cartItems',
@@ -40,21 +40,28 @@ class ReportService
             ->with([
                 'cartItems' => function ($query) {
                     $query->select('cart_id', 'product_id', 'created_at')
-                        ->where('created_at', '<=', Carbon::now()->subMonths(2));
+                        ->where('created_at', '<=', Carbon::now()->subMonths(2))
+                        ->with([
+                            'product' => function ($q) {
+                                $q->select('id', 'name');
+                            }
+                        ]);
                 }
             ])
             ->select('id', 'user_id')
             ->get();
 
-        $products_remaining->each(function ($cart) {
-            $cart->cartItems->each(function ($item) {
-                $item->makeHidden('cart_id');
+        return $products_remaining->map(function ($cart) {
+            $cart->cart_items = $cart->cartItems->map(function ($item) {
+                return [
+                    'product' => $item->product,
+                    'created_at' => Carbon::parse($item->created_at)->toDateString(),
+                ];
             });
-        });
-
-        return $products_remaining;
+            unset($cart->cartItems);
+            return $cart;
+        })->toArray();
     }
-
 
     /**
      * Products running low on the stock report
