@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Report\TopCountryRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report1Resource;
-use App\Http\Resources\SubMainCategoryResource;
 use App\Jobs\SendDelayedOrderEmail;
 use App\Services\Report\ReportService;
 
@@ -62,8 +61,8 @@ class ReportController extends Controller
      */
     public function bestCategoriesReport()
     {
-        $BestCategories = $this->ReportService->getBestCategories();
-        return self::paginated($BestCategories, SubMainCategoryResource::class, 'Categories retrieved successfully', 200);
+        $BestCategories = $this->ReportService->getBestSellingCategories();
+        return self::paginated($BestCategories, null, 'Categories retrieved successfully', 200);
     }
 
     /**

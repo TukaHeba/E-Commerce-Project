@@ -1,21 +1,22 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\Cart\CartController;
-use App\Http\Controllers\CartItem\CartItemController;
-use App\Http\Controllers\Category\MainCategoryController;
-use App\Http\Controllers\Category\SubCategoryController;
-use App\Http\Controllers\Favorite\FavoriteController;
-use App\Http\Controllers\Order\OrderController;
-use App\Http\Controllers\Permission\PermissionController;
-use App\Http\Controllers\Photo\PhotoController;
-use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Rate\RateController;
-use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\User\AuthController;
-use App\Http\Controllers\User\PasswordResetController;
 use App\Http\Controllers\User\UserController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Order\OrderController;
+use App\Http\Controllers\Photo\PhotoController;
+use App\Http\Controllers\Report\ReportController;
+use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\CartItem\CartItemController;
+use App\Http\Controllers\Favorite\FavoriteController;
+use App\Http\Controllers\User\PasswordResetController;
+use App\Http\Controllers\Category\SubCategoryController;
+use App\Http\Controllers\Category\MainCategoryController;
+use App\Http\Controllers\Permission\PermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -151,14 +152,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // ------------------------------------- Product Routes ------------------------------------- //
     Route::controller(ProductController::class)->group(function () {
-        Route::get('products', 'index');
-        Route::get('products/{product}', 'show');
-        Route::get('products/top-rated', 'topRatedProducts');
-        Route::get('products/filter', 'getProductsWithFilter');
-        Route::get('products/category', 'getProductsByCategory');
-        Route::get('products/latest-arrivals', 'getLatestProducts');
-        Route::get('products/hot-selling', 'getBestSellingProducts');
-
         Route::middleware('auth:api')->group(function () {
             Route::get('products/you-may-like', 'getProductsUserMayLike');
             Route::get('products/{product}/show-deleted', 'showDeleted');
@@ -167,18 +160,39 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
             Route::get('products/{name}/largest-quantity-sold', 'showLargestQuantitySold');
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
+        Route::get('products/hot-selling', 'getBestSellingProducts');
+        Route::get('products/top-rated', 'topRatedProducts');
+        Route::get('products/filter', 'getProductsWithFilter');
+        Route::get('products/category', 'getProductsByCategory');
+        Route::get('products/latest-arrivals', 'getLatestProducts');
+        Route::get('products', 'index');
+        Route::get('products/{product}', 'show');
     });
 
 
     // -------------------------------------- Report Routes -------------------------------------- //
-    Route::controller(ReportController::class)->middleware('auth:api')->prefix('reports')->group(function () {
-        Route::get('/best-categories', 'bestCategoriesReport');
-        Route::get('/best-selling-products', 'bestSellingProductsReport');
-        Route::get('/products-low-on-stocks', 'productsLowOnStockReport');
-        Route::get('/orders-late-to-deliver', 'ordersLateToDeliverReport');
-        Route::post('/products-never-been-sold', 'productsNeverBeenSoldReport');
-        Route::get('/products-remaining-in-carts', 'productsRemainingInCartsReport');
-        Route::get('/countries-with-highest-orders/{country?}', 'countriesWithHighestOrdersReport');
+    Route::controller(ReportController::class)->group(function () {
+        Route::get('reports/best-categories',  'bestCategoriesReport');
+        Route::get('reports/best-selling-products', 'bestSellingProductsReport');
+        Route::get('reports/products-low-on-stocks',  'productsLowOnStockReport');
+        Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport');
+        Route::get('reports/products-never-been-sold',  'productsNeverBeenSoldReport');
+        Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
+        Route::get('reports/countries-with-highest-orders',  'countriesWithHighestOrdersReport');
     });
+
+
+
+    // -------------------------------------- Export Routes -------------------------------------- //
+    Route::controller(ExportController::class)->middleware('auth:api')->group(function () {
+        Route::get('Export/best-categories',  'bestCategoriesExport');
+        Route::get('Export/best-selling-products', 'bestSellingProductsExport');
+        Route::get('Export/products-low-on-stocks',  'productsLowOnStockExport');
+        Route::get('Export/orders-late-to-deliver', 'ordersLateToDeliverExport');
+        Route::get('Export/products-never-been-sold',  'productsNeverBeenSoldExport');
+        Route::get('Export/countries-with-highest-orders',  'countriesWithHighestOrdersExport');
+    });
+
 });
+
 
