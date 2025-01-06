@@ -91,8 +91,7 @@ class ReportService
      */
     public function getProductsNeverBeenSold()
     {
-        $unsoldProducts = Product::whereDoesntHave('orderItems')->paginate(10);
-        return $unsoldProducts;
+        return Product::neverBeenSold()->paginate(10);
     }
 
 

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\User\User;
+use App\Models\Product\Product;
 use Illuminate\Console\Command;
 use App\Jobs\SendUnsoldProductEmail;
 
@@ -29,8 +30,10 @@ class UnsoldProductsEmailCommand extends Command
     {
         $users = User::role('sales manager')->get();
        foreach ($users as $user) {
-        SendUnsoldProductEmail::dispatch($user);
+        SendUnsoldProductEmail::dispatch($user , Product::generateProductsNeverBeenSoldReport());
+
     }
     }
+
 }
 

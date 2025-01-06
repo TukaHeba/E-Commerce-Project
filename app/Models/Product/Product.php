@@ -5,19 +5,20 @@ namespace App\Models\Product;
 use App\Models\Rate\Rate;
 use App\Models\User\User;
 use App\Models\Photo\Photo;
+use App\Exports\UnsoldExport;
+use App\Exports\LowStockExport;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use App\Models\Category\SubCategory;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Category\MainCategorySubCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Exports\LowStockExport;
-use Maatwebsite\Excel\Facades\Excel;
 
 class Product extends Model
 {
@@ -274,7 +275,7 @@ class Product extends Model
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param int $threshold The stock threshold (default: 10).
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      *
      * @example
@@ -286,15 +287,42 @@ class Product extends Model
         return $query->where('product_quantity', '<', $threshold);
     }
     /**
+     * Scope to filter unsold products.
+     *
+     * Filters unsold products.
+     * Useful for generating products-never-been-sold reports or alerts.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     */
+    public function scopeNeverBeenSold($query)
+    {
+        return $query->whereDoesntHave('orderItems');
+    }
+    /**
      * generate low stock products excel sheet as report to admin
      * @return string
      */
     static function generateLowStockReport()
     {
         $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
-    
+
         Excel::store(new LowStockExport, $fileName, 'local'); // Save to storage/app
-    
+
+        return $fileName;
+    }
+       /**
+     * generate  products has never been sold excel sheet as report
+     * @return string
+     */
+    static function generateProductsNeverBeenSoldReport()
+    {
+        $fileName = 'reports/products-never-been-sold-report' . now()->format('Y-m-d') . '.xlsx';
+
+        Excel::store(new UnsoldExport, $fileName, 'local'); // Save to storage/app
+
         return $fileName;
     }
     /**
