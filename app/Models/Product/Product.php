@@ -5,19 +5,20 @@ namespace App\Models\Product;
 use App\Models\Rate\Rate;
 use App\Models\User\User;
 use App\Models\Photo\Photo;
+use InvalidArgumentException;
+use App\Exports\LowStockExport;
 use App\Models\CartItem\CartItem;
 use App\Models\Category\Category;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use App\Models\Category\SubCategory;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Category\MainCategorySubCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Exports\LowStockExport;
-use Maatwebsite\Excel\Facades\Excel;
 
 class Product extends Model
 {
@@ -212,22 +213,65 @@ class Product extends Model
     {
         return $query->where('product_quantity', '>', 0);
     }
-
-    public function scopeBestSelling($query)
+    public function scopeJoinRelatedTables($query)
     {
         return $query
-            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
-            ->select(
+            ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
+            ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
+            ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id');
+    }
+
+    /**
+     * Get the columns to select based on the type.
+     * @param string $type
+     * @return array
+     */
+    private function getColumns($type)
+    {
+        $categoryColumns = [
+            'sub_categories.sub_category_name as sub_category_name',
+            'main_categories.main_category_name as main_category_name'
+        ];
+        $productColumns = [
+            'products.id',
+            'products.name',
+            'products.description',
+            'products.price'
+        ];
+        $totalSoldColumn = [
+            DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
+        ];
+        return match ($type) {
+            'product' => array_merge($productColumns, $categoryColumns),
+            'category' => $categoryColumns,
+            'category_with_total_sold' => array_merge($categoryColumns, $totalSoldColumn),
+            'product_with_total_sold' => array_merge($productColumns, $categoryColumns, $totalSoldColumn),
+            default => throw new InvalidArgumentException('Invalid type for select columns'),
+        };
+    }
+
+    /**
+     * Get the group by columns based on the type.
+     * @param string $type
+     * @return array
+     */
+    private function getGroupByColumns($type)
+    {
+        return match (true) {
+            in_array($type, ['product', 'product_with_total_sold']) => [
                 'products.id',
                 'products.name',
                 'products.description',
                 'products.price',
-                'sub_categories.sub_category_name as category_name',
-                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
-            )
-            ->groupBy('products.id', 'products.name', 'products.description', 'products.price', 'sub_categories.sub_category_name')
-            ->orderByDesc('total_sold');
+                'sub_categories.sub_category_name',
+                'main_categories.main_category_name'
+            ],
+            in_array($type, ['category', 'category_with_total_sold']) => [
+                'sub_categories.sub_category_name',
+                'main_categories.main_category_name'
+            ],
+            default => throw new InvalidArgumentException('Invalid type for groupBy columns'),
+        };
     }
 
     /**
@@ -241,30 +285,43 @@ class Product extends Model
      */
     public function scopeMayLikeProducts($query, $user_id)
     {
+        $columns = $this->getColumns('product');
         return $query
-            ->when($user_id, function ($q) use ($user_id) {               // get categories of products that user like it .
+            ->when($user_id, function ($q) use ($user_id) {               // Get categories of products that the user likes.
                 $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($user_id) {
                     $subQuery->select('products.maincategory_subcategory_id')
                         ->from('favorites')
-                        ->join('products', 'favorites.product_id', '=', 'products.id')     // I used join becouse it faster than with relation .
+                        ->join('products', 'favorites.product_id', '=', 'products.id')     // Using join for better performance compared to relations.
                         ->where('favorites.user_id', $user_id);
                 })
-                    ->whereNotExists(function ($subQuery) use ($user_id) {     // to avoid show products allready user liked it .
-                        $subQuery->select(DB::raw(1))
-                            ->from('favorites')
-                            ->whereRaw('favorites.product_id = products.id')
-                            ->where('favorites.user_id', $user_id);
-                    });
+                    ->whereNotExists(function ($subQuery) use ($user_id) {     // Avoid showing products that the user has already liked.
+                    $subQuery->select(DB::raw(1))
+                        ->from('favorites')
+                        ->whereRaw('favorites.product_id = products.id')
+                        ->where('favorites.user_id', $user_id);
+                });
             })
-            ->select(
-                'products.id',
-                'products.name',
-                'products.description',
-                'products.price',
-                'sub_categories.sub_category_name as category_name'
-            )
-            ->join('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')     // get products belonf to these categories
-            ->distinct();                                                          // to avoid repeate products if user like many products belongs to same category.
+            ->select($columns)
+            ->joinRelatedTables()
+            ->distinct();                                 // Avoid repeating products if the user likes multiple products from the same category.
+    }
+
+    /**
+     * scope to get Best Selling products or category
+     * @param mixed $query
+     * @param mixed $type
+     * @return mixed
+     */
+    public function scopeBestSelling($query, $type)
+    {
+        $columns = $this->getColumns($type);
+
+        return $query
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->joinRelatedTables()
+            ->select($columns)
+            ->groupBy(...$this->getGroupByColumns($type))
+            ->orderByDesc('total_sold');
     }
     /**
      * Scope to filter products with low stock.
@@ -324,25 +381,6 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
-    }
-
-
-    public function scopeSelling($query)
-    {
-        return $query
-            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
-            ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
-            ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id')
-            ->select(
-                'products.id',
-                'sub_categories.sub_category_name as sub_category_name',
-                'main_categories.main_category_name as main_category_name',
-                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold')
-            )
-            ->groupBy('products.id', 'sub_categories.sub_category_name', 'main_categories.main_category_name')
-            ->orderByDesc('total_sold')
-            ->take(30);
     }
 
     public function largestQuantitySoldByName($name)

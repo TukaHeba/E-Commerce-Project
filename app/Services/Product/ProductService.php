@@ -128,10 +128,13 @@ class ProductService
         $cache_key = 'best_selling_products';
         $this->addCasheKey($cache_key);
 
-        return Cache::remember($cache_key, now()->addHour(), function () {
-            return Product::bestSelling()->available()->paginate(10);
+        return Cache::remember($cache_key, now()->addHour(), function ()  {
+            return Product::bestSelling('product_with_total_sold')
+                ->available()
+                ->paginate(10);
         });
     }
+
     /**
      * Retrieve Products User May Like
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
@@ -140,7 +143,7 @@ class ProductService
     public function getProductsUserMayLike()
     {
         $user_id = auth()->id();
-        $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
+        $cache_key = $this->generateCacheKey('products_may_like_by22:', ['user' => $user_id]);
         $this->addCasheKey($cache_key);
 
         return Cache::remember($cache_key, now()->addHour(), function () use ($user_id) {
