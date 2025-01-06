@@ -4,8 +4,9 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use NotificationChannels\Telegram\TelegramMessage;
+use NotificationChannels\Telegram\TelegramChannel;
 
 class OrderConfirmationNotification extends Notification
 {
@@ -28,7 +29,7 @@ class OrderConfirmationNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'telegram'];
     }
 
     /**
@@ -59,14 +60,13 @@ class OrderConfirmationNotification extends Notification
     }
 
     /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
+     * Get the Telegram representation of the notification.
      */
-    public function toArray(object $notifiable): array
+    public function toTelegram($notifiable)
     {
-        return [
-            //
-        ];
+        $telegramMessage = TelegramMessage::create()
+            ->content("*Order Confirmation*\nYour order has been confirmed!\n\n*Order ID:* {$this->order->id}\n*Total Price:* \$" . number_format($this->order->total_price, 2))
+            ->options(['parse_mode' => 'Markdown']);
+        return $telegramMessage;
     }
 }
