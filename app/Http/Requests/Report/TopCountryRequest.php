@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Requests\User\Auth;
+namespace App\Http\Requests\Report;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rules\Password;
 
-class RegisterRequest extends FormRequest
+class TopCountryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,18 +25,11 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'max:30', 'confirmed',
-                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
-            'phone' => ['string', 'max:255', 'nullable'],
-            'address' => ['required', 'string', 'max:255'],
-            'is_male' => ['required', 'boolean'],
-            'birthdate' => ['required', 'date'],
-            'avatar'=>['image', 'mimes:jpeg,png,jpg,webp','mimetypes:image/jpeg,image/png,image/jpg,image/webp', 'max:8192']
+            'start_date' => ['date', 'nullable'],
+            'end_date' => ['date', 'nullable']
         ];
     }
+
 
     /**
      * Define custom error messages for validation failures.
@@ -47,15 +39,7 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
-            'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
             'date' => 'The :attribute must be a valid date.',
-            'exists' => 'The selected :attribute is invalid.',
-            'string' => 'The :attribute must be a string type.',
-            'boolean' => 'The :attribute must be a boolean type.',
         ];
     }
 
