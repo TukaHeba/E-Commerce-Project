@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\Role\RoleController;
@@ -177,9 +178,23 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('reports/best-selling-products', 'bestSellingProductsReport');
         Route::get('reports/products-low-on-stocks',  'productsLowOnStockReport');
         Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport');
-        Route::post('reports/products-never-been-sold',  'productsNeverBeenSoldReport');
+        Route::get('reports/products-never-been-sold',  'productsNeverBeenSoldReport');
         Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
         Route::get('reports/countries-with-highest-orders',  'countriesWithHighestOrdersReport');
     });
+
+
+
+    // -------------------------------------- Export Routes -------------------------------------- //
+    Route::controller(ExportController::class)->middleware('auth:api')->group(function () {
+        Route::get('Export/best-categories',  'bestCategoriesExport');
+        Route::get('Export/best-selling-products', 'bestSellingProductsExport');
+        Route::get('Export/products-low-on-stocks',  'productsLowOnStockExport');
+        Route::get('Export/orders-late-to-deliver', 'ordersLateToDeliverExport');
+        Route::get('Export/products-never-been-sold',  'productsNeverBeenSoldExport');
+        Route::get('Export/countries-with-highest-orders',  'countriesWithHighestOrdersExport');
+    });
+
 });
+
 

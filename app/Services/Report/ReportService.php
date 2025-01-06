@@ -23,8 +23,6 @@ class ReportService
 
         $lating_orders = Order::where('status', 'shipped')
             ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
-        $lating_orders = Order::where('status', 'shipped')
-            ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
 
         return $lating_orders;
     }
