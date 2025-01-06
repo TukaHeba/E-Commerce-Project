@@ -2,12 +2,12 @@
 
 namespace App\Services\Report;
 
-use App\Models\CartItem\CartItem;
+use App\Models\Cart\Cart;
 use App\Models\Order\Order;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Models\Product\Product;
-use App\Models\User\User;
-use App\Jobs\SendUnsoldProductEmail;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class ReportService
@@ -27,15 +27,40 @@ class ReportService
 
     /**
      * Products remaining in the cart without being ordered report
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return array
      */
-    public function getProductsRemainingInCarts()
+    public function getProductsRemainingInCarts(): array
     {
-        $products_remaining = CartItem::with('product')
-            ->where('created_at', '<=', Carbon::now()->subMonths(2))
-            ->paginate(10);
+        $products_remaining = Cart::whereHas(
+            'cartItems',
+            function ($query) {
+                $query->where('created_at', '<=', Carbon::now()->subMonths(2));
+            }
+        )
+            ->with([
+                'cartItems' => function ($query) {
+                    $query->select('cart_id', 'product_id', 'created_at')
+                        ->where('created_at', '<=', Carbon::now()->subMonths(2))
+                        ->with([
+                            'product' => function ($q) {
+                                $q->select('id', 'name');
+                            }
+                        ]);
+                }
+            ])
+            ->select('id', 'user_id')
+            ->get();
 
-        return $products_remaining;
+        return $products_remaining->map(function ($cart) {
+            $cart->cart_items = $cart->cartItems->map(function ($item) {
+                return [
+                    'product' => $item->product,
+                    'created_at' => Carbon::parse($item->created_at)->toDateString(),
+                ];
+            });
+            unset($cart->cartItems);
+            return $cart;
+        })->toArray();
     }
 
     /**
@@ -46,22 +71,23 @@ class ReportService
         return Product::lowStock()->paginate(10);
     }
 
+
     /**
      * Best-selling products for offers report
      */
     public function getBestSellingProducts()
     {
-        return Cache::remember("best_selling_products_report", now()->addDay(), function () {
-            return Product::bestSelling()->paginate(10);
+        return Cache::remember("best_selling_products_report", now()->addDay(), function ()  {
+            return Product::bestSelling('product_with_total_sold')->paginate(10);
         });
     }
 
     /**
      * Best categories report
      */
-    public function getBestCategories()
+    public function getBestSellingCategories()
     {
-        return $BestCategories = Product::Selling()->paginate(10);
+        return $BestCategories = Product::bestSelling('category_with_total_sold')->paginate(10);
     }
 
     /**
@@ -69,29 +95,36 @@ class ReportService
      */
     public function getProductsNeverBeenSold()
     {
-        // Fetch all users with the role 'sales manager'
-        $user = User::role('sales manager')->first();
-        // Dispatch the job for each user and collect the results
-        $job = new SendUnsoldProductEmail($user);
-        $job->handle(); // Execute the job synchronously
-        $result = $job->getUnsoldProducts(); // Get the result
-        return $result;
+        return Product::neverBeenSold()->paginate(10);
     }
 
 
     /**
-     * The country with the highest number of orders report
+     * The country with the highest number of orders report With the ability to filter by a specific date
+     *
+     * @param array $data
+     * @param int $country
      * @return mixed
      */
 
-    public function getCountriesWithHighestOrders()
+    public function getCountriesWithHighestOrders(array $data,int $country)
     {
-        $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
-            ->join('addresses', 'orders.address_id', '=', 'addresses.id')
-            ->groupBy('addresses.country')
-            ->orderByDesc('total_orders')
-            ->take(5)
-            ->get();
-        return $data;
+        $topCountries = Order::with('zone.city.country')
+            ->when(isset($data['start_date']), function ($q) use ($data) {
+                return $q->whereDate('created_at', '>=', $data['start_date']);
+            })
+            ->when(isset($data['end_date']), function ($q) use ($data) {
+                return $q->whereDate('created_at', '<=', $data['end_date']);
+            })
+            ->get()
+            ->groupBy(fn($order) => $order->zone->city->country->name) // تجميع حسب اسم الدولة
+            ->map(fn($orders, $countryName) => [
+                'country_name' => $countryName,
+                'total_orders' => $orders->count(),
+            ])
+            ->sortByDesc('total_orders') // ترتيب تنازلي حسب عدد الطلبات
+            ->take($country) // إرجاع أفضل 5 دول
+            ->values();
+        return $topCountries;
     }
 }

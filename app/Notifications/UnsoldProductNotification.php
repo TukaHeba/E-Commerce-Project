@@ -6,19 +6,22 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
+
 
 class UnsoldProductNotification extends Notification
 {
     use Queueable;
 
-    protected $product;
+    protected $filePath;
+
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($product)
+    public function __construct($filePath)
     {
-        $this->product = $product;
+        $this->filePath = $filePath;
     }
 
     /**
@@ -28,7 +31,7 @@ class UnsoldProductNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return [ 'email','database'];
+        return ['mail'];
     }
 
     /**
@@ -37,23 +40,13 @@ class UnsoldProductNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Unsold Product Alert: ' . $this->product->id)
-            ->line('The product has not been sold')
-            ->line('Product Name: ' . $this->product->name)
-            ->line('Category: ' . $this->product->category)
-            ->action('View Product', url('/products/' . $this->product->id));
-    }
-    /**
-     * Get the database representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toDatabase(object $notifiable): array
-    {
-        return [
-            'Product Id:' => $this->product->id,
-            'Category: ' => $this->product->category,
-            'message' => 'The product has not been sold',
-        ];
+            ->greeting('Hello dear ')
+            ->subject('The Products Has Not Been Sold report')
+            ->attach(Storage::path($this->filePath), [
+                'as' => 'products-never-been-sold.xlsx',
+                'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ])
+            ->line('Here is excel sheet in the attachment for the products has not been sold ')
+            ->line('Best Regrads !');
     }
 }

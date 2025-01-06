@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Report\TopCountryRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\Report1Resource;
-use App\Http\Resources\Report2Resource;
-use App\Http\Resources\SubMainCategoryResource;
 use App\Jobs\SendDelayedOrderEmail;
 use App\Services\Report\ReportService;
 
@@ -36,7 +35,7 @@ class ReportController extends Controller
     public function productsRemainingInCartsReport()
     {
         $productsRemaining = $this->ReportService->getProductsRemainingInCarts();
-        return self::paginated($productsRemaining, Report2Resource::class, 'Products retrieved successfully', 200);
+        return self::success($productsRemaining, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -53,8 +52,8 @@ class ReportController extends Controller
      */
     public function bestSellingProductsReport()
     {
-       $products = $this->ReportService->getBestSellingProducts();
-       return self::paginated($products, null,'Products retrieved successfully', 200);
+        $products = $this->ReportService->getBestSellingProducts();
+        return self::paginated($products, null, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -62,27 +61,28 @@ class ReportController extends Controller
      */
     public function bestCategoriesReport()
     {
-        $BestCategories = $this->ReportService->getBestCategories();
-        return self::paginated($BestCategories, SubMainCategoryResource::class, 'Categories retrieved successfully', 200);
+        $BestCategories = $this->ReportService->getBestSellingCategories();
+        return self::paginated($BestCategories, null, 'Categories retrieved successfully', 200);
     }
 
     /**
      * Report 6
-     * The country with the highest number of orders report
+     * The country with the highest number of orders report With the ability to filter by a specific date
+     *
+     * @param TopCountryRequest $request
+     * @param $country
      * @return \Illuminate\Http\JsonResponse
      */
-    public function countriesWithHighestOrdersReport()
+
+    public function countriesWithHighestOrdersReport(TopCountryRequest $request, int $country = 5)
     {
-        $data = $this->ReportService->getCountriesWithHighestOrders();
-        return self::success($data, 'Top 5 countries in terms of sales report');
+        $result = $this->ReportService->getCountriesWithHighestOrders($request->validationData(),$country);
+        return self::success($result, 'Countries With Highest Orders Report');
     }
 
     public function productsNeverBeenSoldReport()
     {
-        // Get the result from the ReportService
         $unsoldProducts = $this->ReportService->getProductsNeverBeenSold();
-        return self::success(ProductResource::collection($unsoldProducts), 'Products never been Sold retrieved successfully', 200);
+        return self::paginated($unsoldProducts, ProductResource::class, 'Products never been Sold retrieved successfully', 200);
     }
-
-
 }
