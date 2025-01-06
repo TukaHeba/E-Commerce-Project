@@ -181,3 +181,4 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('reports/countries-with-highest-orders',  'countriesWithHighestOrdersReport');
     });
 });
+

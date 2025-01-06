@@ -82,6 +82,4 @@ class ReportController extends Controller
         $unsoldProducts = $this->ReportService->getProductsNeverBeenSold();
         return self::success(ProductResource::collection($unsoldProducts), 'Products never been Sold retrieved successfully', 200);
     }
-
-
 }
