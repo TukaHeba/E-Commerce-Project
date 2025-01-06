@@ -2,21 +2,18 @@
 
 namespace App\Services\Report;
 
-use App\Models\CartItem\CartItem;
+use App\Models\User\User;
 use App\Models\Order\Order;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Models\Product\Product;
-use App\Models\Category\MainCategorySubCategory;
+use App\Models\CartItem\CartItem;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
-use App\Models\User\User;
 use App\Jobs\SendUnsoldProductEmail;
-use Illuminate\Support\Facades\Artisan;
-
-
-use App\Models\Product\Product;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
+use App\Models\Category\MainCategorySubCategory;
 
 class ReportService
 {

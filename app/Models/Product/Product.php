@@ -274,7 +274,7 @@ class Product extends Model
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param int $threshold The stock threshold (default: 10).
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      *
      * @example
@@ -292,9 +292,8 @@ class Product extends Model
     static function generateLowStockReport()
     {
         $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
-    
         Excel::store(new LowStockExport, $fileName, 'local'); // Save to storage/app
-    
+
         return $fileName;
     }
     /**
