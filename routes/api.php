@@ -35,9 +35,11 @@ Route::middleware(['throttle:auth', 'security'])->group(function () {
     // ----------------------------------- Authentication Routes ----------------------------------- //
     Route::controller(AuthController::class)->group(function () {
         Route::post('login', 'login');
-        Route::post('register',  'register');
-        Route::post('logout',  'logout')->middleware('auth:api');;
-        Route::post('refresh-token',  'refresh')->middleware('auth:api');;
+        Route::post('register', 'register');
+        Route::post('logout', 'logout')->middleware('auth:api');
+        ;
+        Route::post('refresh-token', 'refresh')->middleware('auth:api');
+        ;
         // OAuth Routes
         Route::get('auth/{provider}', 'redirectToProvider');
         Route::get('auth/{provider}/callback', 'handleProviderCallback');
@@ -152,14 +154,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // ------------------------------------- Product Routes ------------------------------------- //
     Route::controller(ProductController::class)->group(function () {
-        Route::get('products', 'index');
-        Route::get('products/{product}', 'show');
-        Route::get('products/top-rated', 'topRatedProducts');
-        Route::get('products/filter', 'getProductsWithFilter');
-        Route::get('products/category', 'getProductsByCategory');
-        Route::get('products/latest-arrivals', 'getLatestProducts');
-        Route::get('products/hot-selling', 'getBestSellingProducts');
-
         Route::middleware('auth:api')->group(function () {
             Route::get('products/you-may-like', 'getProductsUserMayLike');
             Route::get('products/{product}/show-deleted', 'showDeleted');
@@ -168,11 +162,18 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
             Route::get('products/{name}/largest-quantity-sold', 'showLargestQuantitySold');
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
+        Route::get('products/hot-selling', 'getBestSellingProducts');
+        Route::get('products/top-rated', 'topRatedProducts');
+        Route::get('products/filter', 'getProductsWithFilter');
+        Route::get('products/category', 'getProductsByCategory');
+        Route::get('products/latest-arrivals', 'getLatestProducts');
+        Route::get('products', 'index');
+        Route::get('products/{product}', 'show');
     });
 
 
     // -------------------------------------- Report Routes -------------------------------------- //
-    Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
+    Route::controller(ReportController::class)->group(function () {
         Route::get('reports/best-categories',  'bestCategoriesReport');
         Route::get('reports/best-selling-products', 'bestSellingProductsReport');
         Route::get('reports/products-low-on-stocks',  'productsLowOnStockReport');

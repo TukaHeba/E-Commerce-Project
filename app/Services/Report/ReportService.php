@@ -5,7 +5,8 @@ namespace App\Services\Report;
 use App\Models\Cart\Cart;
 use App\Models\CartItem\CartItem;
 use App\Models\Order\Order;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Models\Product\Product;
 use App\Models\User\User;
 use App\Jobs\SendUnsoldProductEmail;
@@ -71,17 +72,17 @@ class ReportService
      */
     public function getBestSellingProducts()
     {
-        return Cache::remember("best_selling_products_report", now()->addDay(), function () {
-            return Product::bestSelling()->paginate(10);
+        return Cache::remember("best_selling_products_report", now()->addDay(), function ()  {
+            return Product::bestSelling('product_with_total_sold')->paginate(10);
         });
     }
 
     /**
      * Best categories report
      */
-    public function getBestCategories()
+    public function getBestSellingCategories()
     {
-        return $BestCategories = Product::Selling()->paginate(10);
+        return $BestCategories = Product::bestSelling('category_with_total_sold')->paginate(10);
     }
 
     /**
