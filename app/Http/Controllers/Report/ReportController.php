@@ -82,8 +82,7 @@ class ReportController extends Controller
 
     public function productsNeverBeenSoldReport()
     {
-        // Get the result from the ReportService
         $unsoldProducts = $this->ReportService->getProductsNeverBeenSold();
-        return self::success(ProductResource::collection($unsoldProducts), 'Products never been Sold retrieved successfully', 200);
+        return self::paginated($unsoldProducts, ProductResource::class, 'Products never been Sold retrieved successfully', 200);
     }
 }
