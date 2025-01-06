@@ -36,8 +36,8 @@ Route::middleware(['throttle:auth', 'security'])->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::post('login', 'login');
         Route::post('register', 'register');
-        Route::post('logout', 'logout')->middleware('auth:api');;
-        Route::post('refresh-token', 'refresh')->middleware('auth:api');;
+        Route::post('logout', 'logout')->middleware('auth:api');
+        Route::post('refresh-token', 'refresh')->middleware('auth:api');
         // OAuth Routes
         Route::get('auth/{provider}', 'redirectToProvider');
         Route::get('auth/{provider}/callback', 'handleProviderCallback');
