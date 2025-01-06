@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\ProductsRemainingReportJob;
+use App\Models\User\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -28,7 +29,8 @@ class ProductsRemainingCommand extends Command
     public function handle()
     {
         Log::info('Before execution command');
-        ProductsRemainingReportJob::dispatch();
+        $user = User::firstWhere('email', 'admin@gmail.com');
+        ProductsRemainingReportJob::dispatch($user);
         $this->info('Products remaining report job dispatched successfully.');
         Log::info('After execution command');
     }
