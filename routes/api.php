@@ -185,7 +185,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
 
     // -------------------------------------- Export Routes -------------------------------------- //
-    Route::controller(ExportController::class)->middleware('auth:api')->group(function () {
+    Route::controller(ExportController::class)->group(function () {
         Route::get('Export/best-categories',  'bestCategoriesExport');
         Route::get('Export/best-selling-products', 'bestSellingProductsExport');
         Route::get('Export/products-low-on-stocks',  'productsLowOnStockExport');
