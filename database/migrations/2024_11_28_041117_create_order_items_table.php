@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -19,6 +18,10 @@ return new class extends Migration
             $table->decimal('price');
             $table->timestamps();
             $table->softDeletes();
+
+            // Indexing columns to optimize performance
+            $table->index(['order_id', 'product_id'], 'index_orderItems_order_product');
+            $table->index('quantity', 'index_orderItems_quantity');
         });
     }
 

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,6 +17,10 @@ return new class extends Migration
             $table->unsignedInteger('quantity'); // must be positive number
             $table->timestamps();
             $table->softDeletes();
+
+            // Indexing columns to optimize performance
+            $table->index(['cart_id', 'product_id'], 'index_cartItems_cart_product');
+            $table->index('quantity', 'index_cartItems_quantity');
         });
     }
 
