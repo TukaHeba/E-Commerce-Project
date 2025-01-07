@@ -5,6 +5,7 @@ namespace App\Services\User;
 use App\Http\Resources\UserResource;
 use App\Models\Cart\Cart;
 use App\Models\User\User;
+use App\Services\Photo\PhotoService;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,13 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthService
 {
+
+    protected PhotoService $photoService ;
+    public function __construct(PhotoService $photoService){
+        $this->photoService = $photoService ;
+    }
+
+
     /**
      * User registration and shopping cart creation with register process
      * @param array $data
@@ -26,7 +34,10 @@ class AuthService
             $user = DB::transaction(function () use ($data) {
                 $user = User::create($data);
                 $user->assignRole('customer');
-                $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+                Cart::firstOrCreate(['user_id' => $user->id]);
+                if(isset($data['avatar'])){
+                    $result = $this->photoService->storePhoto($data['avatar'],$user);
+                }
                 return $user;
             });
             $token = Auth::login($user);
