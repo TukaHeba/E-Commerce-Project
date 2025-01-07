@@ -3,47 +3,46 @@
 namespace App\Services\Export;
 
 use Carbon\Carbon;
-use App\Models\Cart\Cart;
-use App\Models\Order\Order;
-use App\Models\Product\Product;
+use Illuminate\Support\Facades\Storage;
+use App\Services\Report\ReportService;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use App\Http\Requests\Report\TopCountryRequest;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 
 class ExportService
 {
+    protected ReportService $ReportService;
+
+    public function __construct(ReportService $ReportService)
+    {
+        $this->ReportService = $ReportService;
+    }
+
     /*
      * Export best categories report and save it on storeg.
+     * return Excel sheet
      */
     public function bestCategoriesExport()
     {
-        $BestCategories = Product::bestSelling('category_with_total_sold')->get();
+       $BestCategories = $this->ReportService->getBestSellingCategories();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $sheet->setCellValue('A1', 'ID');
-        $sheet->setCellValue('B1', 'Sub Category Name');
-        $sheet->setCellValue('C1', 'Main Category Name');
+        $sheet->setCellValue('A1', 'Sub Category Name');
+        $sheet->setCellValue('B1', 'Main Category Name');
 
         $row = 2;
         foreach ($BestCategories as $BestCategory) {
-            $sheet->setCellValue('A' . $row, $BestCategory->id);
-            $sheet->setCellValue('B' . $row, $BestCategory->sub_category_name);
-            $sheet->setCellValue('C' . $row, $BestCategory->main_category_name);
+            $sheet->setCellValue('A' . $row, $BestCategory->sub_category_name);
+            $sheet->setCellValue('B' . $row, $BestCategory->main_category_name);
             $row++;
         }
 
-        //توليد ملف الاكسل و حفظه في مجلد
-        $filePath = storage_path('app/public/Best_Categories.xlsx');
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
-
-        //تحميل الملف مباشرة 
-        $response = new StreamedResponse(function () use ($filePath) {
-            readfile($filePath);
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
         });
 
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -54,10 +53,12 @@ class ExportService
 
     /*
      * Export best selling products report and save it on storeg.
+     * return Excel sheet
      */
     public function bestSellingProductsExport()
     {
-        $bestSellingProducts = Product::bestSelling('product_with_total_sold')->get();
+
+        $bestSellingProducts = $this->ReportService->getBestSellingProducts();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -82,14 +83,9 @@ class ExportService
             $row++;
         }
 
-        //توليد ملف الاكسل و حفظه في مجلد
-        $filePath = storage_path('app/public/Best_Selling_Products.xlsx');
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
-
-        //تحميل الملف مباشرة 
-        $response = new StreamedResponse(function () use ($filePath) {
-            readfile($filePath);
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
         });
 
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -100,10 +96,11 @@ class ExportService
 
     /*
      * Export products low on stock report and save it on storeg.
+     * return Excel sheet
      */
     public function productsLowOnStockExport()
     {
-        $LowOnStockproducts = Product::lowStock()->get();
+        $LowOnStockproducts = $this->ReportService->getProductsLowOnStock();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -130,14 +127,9 @@ class ExportService
             $row++;
         }
 
-        //توليد ملف الاكسل و حفظه في مجلد
-        $filePath = storage_path('app/public/Low_On_Stock_Products.xlsx');
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
-
-        //تحميل الملف مباشرة 
-        $response = new StreamedResponse(function () use ($filePath) {
-            readfile($filePath);
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
         });
 
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -148,12 +140,11 @@ class ExportService
 
     /*
      * Export orders late to deliver report and save it on storeg.
+     * return Excel sheet
      */
     public function ordersLateToDeliverExport()
     {
-        $sevenDaysAgo = Carbon::now()->subDays(7); // Create the current date and subtract 7 days from it
-
-        $lating_orders = Order::where('status', 'shipped')->where('created_at', '<=', $sevenDaysAgo)->get();
+        $lating_orders = $this->ReportService->getOrdersLateToDeliver();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -174,14 +165,9 @@ class ExportService
             $row++;
         }
 
-        //توليد ملف الاكسل و حفظه في مجلد
-        $filePath = storage_path('app/public/orders_Late_To_Deliver.xlsx');
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
-
-        //تحميل الملف مباشرة 
-        $response = new StreamedResponse(function () use ($filePath) {
-            readfile($filePath);
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
         });
 
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -189,13 +175,14 @@ class ExportService
 
         return $response;
     }
-
+    
     /*
      * Export products never been sold report and save it on storeg.
+     * return Excel sheet
      */
     public function productsNeverBeenSoldExport()
     {
-        $unsoldProducts = Product::neverBeenSold()->get();
+        $unsoldProducts = $this->ReportService->getProductsNeverBeenSold();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -223,14 +210,9 @@ class ExportService
         }
 
 
-        //توليد ملف الاكسل و حفظه في مجلد
-        $filePath = storage_path('app/public/unsold_Products.xlsx');
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
-
-        //تحميل الملف مباشرة 
-        $response = new StreamedResponse(function () use ($filePath) {
-            readfile($filePath);
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
         });
 
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -241,30 +223,12 @@ class ExportService
 
     /*
      * Export products remaining in cart report and save it on storeg.
+     * return Excel sheet
      */
     public function productsRemainingInCartsExport()
     {
-        $products_remaining = Cart::whereHas(
-            'cartItems',
-            function ($query) {
-                $query->where('created_at', '<=', Carbon::now()->subMonths(2));
-            }
-        )
-            ->with([
-                'cartItems' => function ($query) {
-                    $query->select('cart_id', 'product_id', 'created_at')
-                        ->where('created_at', '<=', Carbon::now()->subMonths(2))
-                        ->with([
-                            'product' => function ($q) {
-                                $q->select('id', 'name');
-                            }
-                        ]);
-                }
-            ])
-            ->select('id', 'user_id')
-            ->get();
+        $products_remaining = $this->ReportService->getProductsRemainingInCarts();
             
-
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -284,15 +248,9 @@ class ExportService
             $row++;
         }
 
-
-        //توليد ملف الاكسل و حفظه في مجلد
-        $filePath = storage_path('app/public/products_remaining.xlsx');
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
-
-        //تحميل الملف مباشرة 
-        $response = new StreamedResponse(function () use ($filePath) {
-            readfile($filePath);
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
         });
 
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -303,27 +261,11 @@ class ExportService
 
     /*
      * Export countries with highest orders report and save it on storeg.
+     * return Excel sheet
      */
-    public function countriesWithHighestOrdersExport(TopCountryRequest $request, int $country = 5)
+    public function countriesWithHighestOrdersExport($request, $country)
     {
-        $data = $request->validationData();
-
-        $topCountries = Order::with('zone.city.country')
-            ->when(isset($data['start_date']), function ($q) use ($data) {
-                return $q->whereDate('created_at', '>=', $data['start_date']);
-            })
-            ->when(isset($data['end_date']), function ($q) use ($data) {
-                return $q->whereDate('created_at', '<=', $data['end_date']);
-            })
-            ->get()
-            ->groupBy(fn($order) => $order->zone->city->country->name)
-            ->map(fn($orders, $countryName) => [
-                'country_name' => $countryName,
-                'total_orders' => $orders->count(),
-            ])
-            ->sortByDesc('total_orders')
-            ->take($country)
-            ->values();
+        $topCountries = $this->ReportService->getCountriesWithHighestOrders($request->validationData(),$country);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -340,12 +282,9 @@ class ExportService
             $row++;
         }
 
-        $filePath = storage_path('app/public/countries_With_Highest_Orders.xlsx');
-        $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
-
-        $response = new StreamedResponse(function () use ($filePath) {
-            readfile($filePath);
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
         });
 
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
