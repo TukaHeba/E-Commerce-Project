@@ -100,9 +100,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // --------------------------------------- Rate Routes --------------------------------------- //
     Route::controller(RateController::class)->middleware('auth:api')->group(function () {
-        Route::get('rates/{rate}/show-deleted', 'showDeleted');
-        Route::delete('rates/{rate}/force-deleted', 'forceDeleted');
-        Route::post('rates/{rate}/restore-deleted', 'restoreDeleted');
         Route::apiResource('rates', RateController::class)->except(['index', 'show']);
     });
     Route::apiResource('rates', RateController::class)->only(['index', 'show']);
