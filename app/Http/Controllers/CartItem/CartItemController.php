@@ -18,26 +18,22 @@ class CartItemController extends Controller
     {
         $this->cartItemService = $cartItemService;
     }
-
-
     /**
-     * Store a newly created resource in storage.
+     * store a new Item in cart.
      *
      * @param StoreCartItemRequest $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-
     public function store(StoreCartItemRequest $request)
     {
         $data = $request->validationData();
-        $this->cartItemService->store($data);
-        return self::success(null, 'Added successfully!', 201);
+        $cartItem = $this->cartItemService->store($data);
+        return self::success($cartItem, 'A new item Added successfully!', 201);
     }
 
-
     /**
-     *  Update the specified resource in storage.
+     *  Update item cart quantity.
      *
      * @param UpdateCartItemRequest $request
      * @param CartItem $cartItem
@@ -46,7 +42,7 @@ class CartItemController extends Controller
     public function update(UpdateCartItemRequest $request, CartItem $cartItem)
     {
         $cartItem->update(['quantity' => $request->quantity]);
-        return self::success(new CartItemResource($cartItem), 'updated successfully!');
+        return self::success(new CartItemResource($cartItem->load('product')), 'Item cart updated successfully!');
     }
 
     /**
@@ -60,6 +56,4 @@ class CartItemController extends Controller
         $this->cartItemService->deleteItem($cartItem);
         return self::success(null, 'deleted successfully!');
     }
-
-
 }
