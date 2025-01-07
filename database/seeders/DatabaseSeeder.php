@@ -27,9 +27,6 @@ class DatabaseSeeder extends Seeder
             OrderItemSeeder::class,
             PhotoSeeder::class,
             RateSeeder::class,
-            AccountSeeder::class,
-            TransactionSeeder::class,
-
         ]);
     }
 }
