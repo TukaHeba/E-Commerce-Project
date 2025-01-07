@@ -34,7 +34,8 @@ class RegisterRequest extends FormRequest
             'phone' => ['string', 'max:255', 'nullable'],
             'address' => ['required', 'string', 'max:255'],
             'is_male' => ['required', 'boolean'],
-            'birthdate' => ['required', 'date']
+            'birthdate' => ['required', 'date'],
+            'avatar'=>['image', 'mimes:jpeg,png,jpg,webp','mimetypes:image/jpeg,image/png,image/jpg,image/webp', 'max:8192']
         ];
     }
 

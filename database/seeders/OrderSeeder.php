@@ -27,7 +27,7 @@ class OrderSeeder extends Seeder
 //            'status' => 'pending',
 //            'total_price' => 500.2,
 //         ]);
-        Order::factory(200)->create();
+        Order::factory(400)->create();
 
     }
 }

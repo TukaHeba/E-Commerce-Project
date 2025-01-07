@@ -3,13 +3,10 @@
 namespace App\Services\Report;
 
 use App\Models\Cart\Cart;
-use App\Models\CartItem\CartItem;
 use App\Models\Order\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use App\Models\Product\Product;
-use App\Models\User\User;
-use App\Jobs\SendUnsoldProductEmail;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class ReportService
@@ -23,17 +20,15 @@ class ReportService
 
         $lating_orders = Order::where('status', 'shipped')
             ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
-        $lating_orders = Order::where('status', 'shipped')
-            ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
 
         return $lating_orders;
     }
 
     /**
      * Products remaining in the cart without being ordered report
-     * @return array|\Illuminate\Database\Eloquent\Collection
+     * @return array
      */
-    public function getProductsRemainingInCarts()
+    public function getProductsRemainingInCarts(): array
     {
         $products_remaining = Cart::whereHas(
             'cartItems',
@@ -44,21 +39,28 @@ class ReportService
             ->with([
                 'cartItems' => function ($query) {
                     $query->select('cart_id', 'product_id', 'created_at')
-                        ->where('created_at', '<=', Carbon::now()->subMonths(2));
+                        ->where('created_at', '<=', Carbon::now()->subMonths(2))
+                        ->with([
+                            'product' => function ($q) {
+                                $q->select('id', 'name');
+                            }
+                        ]);
                 }
             ])
             ->select('id', 'user_id')
             ->get();
 
-        $products_remaining->each(function ($cart) {
-            $cart->cartItems->each(function ($item) {
-                $item->makeHidden('cart_id');
+        return $products_remaining->map(function ($cart) {
+            $cart->cart_items = $cart->cartItems->map(function ($item) {
+                return [
+                    'product' => $item->product,
+                    'created_at' => Carbon::parse($item->created_at)->toDateString(),
+                ];
             });
-        });
-
-        return $products_remaining;
+            unset($cart->cartItems);
+            return $cart;
+        })->toArray();
     }
-
 
     /**
      * Products running low on the stock report
@@ -92,24 +94,36 @@ class ReportService
      */
     public function getProductsNeverBeenSold()
     {
-        $unsoldProducts = Product::whereDoesntHave('orderItems')->paginate(10);
-        return $unsoldProducts;
+        return Product::neverBeenSold()->paginate(10);
     }
 
 
     /**
-     * The country with the highest number of orders report
+     * The country with the highest number of orders report With the ability to filter by a specific date
+     *
+     * @param array $data
+     * @param int $country
      * @return mixed
      */
 
-    public function getCountriesWithHighestOrders()
+    public function getCountriesWithHighestOrders(array $data,int $country)
     {
-        $data = Order::selectRaw('addresses.country, COUNT(orders.id) as total_orders')
-            ->join('addresses', 'orders.address_id', '=', 'addresses.id')
-            ->groupBy('addresses.country')
-            ->orderByDesc('total_orders')
-            ->take(5)
-            ->get();
-        return $data;
+        $topCountries = Order::with('zone.city.country')
+            ->when(isset($data['start_date']), function ($q) use ($data) {
+                return $q->whereDate('created_at', '>=', $data['start_date']);
+            })
+            ->when(isset($data['end_date']), function ($q) use ($data) {
+                return $q->whereDate('created_at', '<=', $data['end_date']);
+            })
+            ->get()
+            ->groupBy(fn($order) => $order->zone->city->country->name) // تجميع حسب اسم الدولة
+            ->map(fn($orders, $countryName) => [
+                'country_name' => $countryName,
+                'total_orders' => $orders->count(),
+            ])
+            ->sortByDesc('total_orders') // ترتيب تنازلي حسب عدد الطلبات
+            ->take($country) // إرجاع أفضل 5 دول
+            ->values();
+        return $topCountries;
     }
 }
