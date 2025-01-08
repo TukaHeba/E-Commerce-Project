@@ -25,7 +25,7 @@ class ExportService
      */
     public function bestCategoriesExport()
     {
-       $BestCategories = $this->ReportService->getBestSellingCategories();
+        $BestCategories = $this->ReportService->getBestSellingCategories();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -175,7 +175,7 @@ class ExportService
 
         return $response;
     }
-    
+
     /*
      * Export products never been sold report.
      * return Excel sheet
@@ -192,7 +192,7 @@ class ExportService
         $sheet->setCellValue('C1', 'Description');
         $sheet->setCellValue('D1', 'Price');
         $sheet->setCellValue('E1', 'Quantity');
-                $sheet->setCellValue('F1', 'Sub Category Name');
+        $sheet->setCellValue('F1', 'Sub Category Name');
         $sheet->setCellValue('G1', 'MAin Category Name');
         $sheet->setCellValue('H1', 'average rating');
 
@@ -203,7 +203,7 @@ class ExportService
             $sheet->setCellValue('C' . $row, $unsoldProduct->description);
             $sheet->setCellValue('D' . $row, $unsoldProduct->price);
             $sheet->setCellValue('E' . $row, $unsoldProduct->product_quantity);
-                       $sheet->setCellValue('F' . $row, $unsoldProduct->subCategory->sub_category_name);
+            $sheet->setCellValue('F' . $row, $unsoldProduct->subCategory->sub_category_name);
             $sheet->setCellValue('G' . $row, $unsoldProduct->mainCategory->main_category_name);
             $sheet->setCellValue('H' . $row, $unsoldProduct->averageRating() ?? 0);
             $row++;
@@ -221,14 +221,13 @@ class ExportService
         return $response;
     }
 
-    /*
+    /**
      * Export products remaining in cart report.
-     * return Excel sheet
+     * @return string
      */
-    public function productsRemainingInCartsExport()
+    public function productsRemainingInCartsExport(): string
     {
         $products_remaining = $this->ReportService->getProductsRemainingInCarts();
-            
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -240,23 +239,25 @@ class ExportService
 
         $row = 2;
         foreach ($products_remaining as $product_remaining) {
-            $sheet->setCellValue('A' . $row, $product_remaining->cart_id);
-            $sheet->setCellValue('B' . $row, $product_remaining->user_id);
-            $sheet->setCellValue('C' . $row, $product_remaining->product_id);
-            $sheet->setCellValue('D' . $row, $product_remaining->product->name);
-            $sheet->setCellValue('E' . $row, $product_remaining->created_at);
-            $row++;
+            foreach ($product_remaining['cart_items'] as $cart_item) {
+                $sheet->setCellValue('A' . $row, $cart_item['cart_id']);
+                $sheet->setCellValue('B' . $row, $product_remaining['user_id']);
+                $sheet->setCellValue('C' . $row, $cart_item['product_id']);
+                $sheet->setCellValue('D' . $row, $cart_item['product']['name']);
+                $sheet->setCellValue('E' . $row, $cart_item['created_at']);
+                $row++;
+            }
         }
 
-        $response = new StreamedResponse(function () use ($spreadsheet) {
-            $writer = new Xlsx($spreadsheet);
-            $writer->save('php://output');
-        });
+        $fileName = 'products_remaining_' . now()->format('Y-m-d') . '.xlsx';
+        $filePath = 'reports/' . $fileName;
+        if (!Storage::exists('public/reports')) {
+            Storage::makeDirectory('public/reports');
+        }
 
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $response->headers->set('Content-Disposition', 'attachment; filename="products_remaining.xlsx"');
-
-        return $response;
+        $writer = new Xlsx($spreadsheet);
+        $writer->save(Storage::disk('public')->path($filePath));
+        return $filePath;
     }
 
     /*
@@ -265,7 +266,7 @@ class ExportService
      */
     public function countriesWithHighestOrdersExport($request, $country)
     {
-        $topCountries = $this->ReportService->getCountriesWithHighestOrders($request->validationData(),$country);
+        $topCountries = $this->ReportService->getCountriesWithHighestOrders($request->validationData(), $country);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -293,21 +294,13 @@ class ExportService
         return $response;
     }
 
-
-
-
-
-
-
-
-
     /*
      * Export best categories report and save it on storeg.
      * return filePath
      */
     public function bestCategoriesExportStorage()
     {
-       $BestCategories = $this->ReportService->getBestSellingCategories();
+        $BestCategories = $this->ReportService->getBestSellingCategories();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -444,9 +437,9 @@ class ExportService
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
 
-        return $filePath; 
+        return $filePath;
     }
-    
+
     /*
      * Export products never been sold report and save it on storeg.
      * return filePath
@@ -463,7 +456,7 @@ class ExportService
         $sheet->setCellValue('C1', 'Description');
         $sheet->setCellValue('D1', 'Price');
         $sheet->setCellValue('E1', 'Quantity');
-                $sheet->setCellValue('F1', 'Sub Category Name');
+        $sheet->setCellValue('F1', 'Sub Category Name');
         $sheet->setCellValue('G1', 'MAin Category Name');
         $sheet->setCellValue('H1', 'average rating');
 
@@ -474,7 +467,7 @@ class ExportService
             $sheet->setCellValue('C' . $row, $unsoldProduct->description);
             $sheet->setCellValue('D' . $row, $unsoldProduct->price);
             $sheet->setCellValue('E' . $row, $unsoldProduct->product_quantity);
-                       $sheet->setCellValue('F' . $row, $unsoldProduct->subCategory->sub_category_name);
+            $sheet->setCellValue('F' . $row, $unsoldProduct->subCategory->sub_category_name);
             $sheet->setCellValue('G' . $row, $unsoldProduct->mainCategory->main_category_name);
             $sheet->setCellValue('H' . $row, $unsoldProduct->averageRating() ?? 0);
             $row++;
@@ -496,7 +489,7 @@ class ExportService
     public function productsRemainingInCartsExportStorage()
     {
         $products_remaining = $this->ReportService->getProductsRemainingInCarts();
-            
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -521,7 +514,7 @@ class ExportService
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
 
-        return $filePath; 
+        return $filePath;
     }
 
     /*
@@ -530,7 +523,7 @@ class ExportService
      */
     public function countriesWithHighestOrdersExportStorage($request, $country)
     {
-        $topCountries = $this->ReportService->getCountriesWithHighestOrders($request->validationData(),$country);
+        $topCountries = $this->ReportService->getCountriesWithHighestOrders($request->validationData(), $country);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -552,6 +545,6 @@ class ExportService
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
 
-        return $filePath; 
+        return $filePath;
     }
 }
