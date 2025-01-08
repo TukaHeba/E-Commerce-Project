@@ -130,8 +130,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('orders/{order}/tracking', 'orderTracking');
         Route::delete('orders/{order}/force-deleted', 'forceDeleted');
         Route::post('orders/{order}/restore-deleted', 'restoreDeleted');
-        Route::get('orders/{order}/show-deleted-user', 'showDeletedUser');
-        Route::get('orders/{order}/show-deleted-admin', 'showDeletedAdmin');
+        Route::get('orders/{order}/show-deleted-admin', 'getDeletedOrdersAdmin');
         Route::apiResource('orders', OrderController::class)->except(['index', 'store']);
     });
 
