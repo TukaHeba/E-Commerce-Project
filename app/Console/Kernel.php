@@ -14,15 +14,16 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('report:products-remaining-command')
-            ->cron('0 0 1 */2 *'); // تشغيل كل شهرين في اليوم الأول عند منتصف الليل
+            ->cron('0 0 1 */2 *');
 
-            $schedule->command('app:low-on-stock-report-command')
-            ->daily(); // run daily on midnight report
+        $schedule->command('app:low-on-stock-report-command')
+            ->daily();
 
         $schedule->command('app:unsold-products-email-command')->monthly();
 
-        //تشغيل عملية ارسال تقرير التصنيفات كل ثلاثة أشهر
         $schedule->command('app:best_category_report_command')->everyFiveSeconds();
+
+        $schedule->command('app:best-products-report-command')->quarterlyOn(1, '08:00');
     }
 
     /**

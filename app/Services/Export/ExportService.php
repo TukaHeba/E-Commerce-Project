@@ -293,14 +293,6 @@ class ExportService
         return $response;
     }
 
-
-
-
-
-
-
-
-
     /*
      * Export best categories report and save it on storeg.
      * return filePath

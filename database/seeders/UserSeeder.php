@@ -120,6 +120,20 @@ class UserSeeder extends Seeder
         $customer->assignRole('customer');
         $customer->cart()->create();
 
+        $customer = User::create([
+            'first_name' => 'Nourhan',
+            'last_name' => 'Almohammed',
+            'email' => 'gnourhhaan1994@gmail.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('customer5@12345678'),
+            'phone' => fake()->phoneNumber,
+            'address' => fake()->address,
+            'is_male' => fake()->boolean,
+            'birthdate' => fake()->date(),
+            'telegram_user_id' => fake()->optional()->randomNumber(),
+        ]);
+        $customer->assignRole('customer');
+        $customer->cart()->create();
 
         $customer = User::create([
             'first_name' => 'customer5',
