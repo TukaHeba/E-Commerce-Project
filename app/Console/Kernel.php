@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('report:products-remaining-command')
-            ->cron('0 0 1 */2 *'); // تشغيل كل شهرين في اليوم الأول عند منتصف الليل
+            ->cron('0 0 1 */2 *');  // Running each 2 months in first day at mid night
         $schedule->command('app:low-on-stock-report-command')
             ->daily(); // run daily on midnight report
         // $schedule->command('inspire')->hourly();
