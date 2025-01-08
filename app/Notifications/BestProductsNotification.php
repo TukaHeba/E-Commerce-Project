@@ -3,13 +3,12 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class BestCAtegoriesNotification extends Notification
+class BestProductsNotification extends Notification
 {
     use Queueable;
     protected $filePath;
@@ -38,12 +37,12 @@ class BestCAtegoriesNotification extends Notification
     {
         return (new MailMessage)
             ->greeting('Hello dear admin')
-            ->subject('Best Categories Report for the last 3 months')
+            ->subject('Best Products Report for the last 3 months')
             ->attach(Storage::disk('public')->path($this->filePath), [
-                'as' => 'Best_Categories.xlsx',
+                'as' => 'Best_Products.xlsx',
                 'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ])
-            ->line('Here is the Excel sheet in the attachment for the best categories for the last 3 months.')
+            ->line('Here is the Excel sheet in the attachment for the best products for the last 3 months.')
             ->line('Best Regards!');
     }
 

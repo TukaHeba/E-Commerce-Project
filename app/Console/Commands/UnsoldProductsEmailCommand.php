@@ -29,11 +29,9 @@ class UnsoldProductsEmailCommand extends Command
     public function handle()
     {
         $users = User::role('sales manager')->get();
-       foreach ($users as $user) {
-        SendUnsoldProductEmail::dispatch($user , Product::generateProductsNeverBeenSoldReport());
-
+        foreach ($users as $user) {
+            SendUnsoldProductEmail::dispatch($user, Product::generateProductsNeverBeenSoldReport());
+        }
     }
-    }
-
 }
 

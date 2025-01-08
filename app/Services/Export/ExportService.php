@@ -175,7 +175,7 @@ class ExportService
 
         return $response;
     }
-    
+
     /*
      * Export products never been sold report.
      * return Excel sheet
@@ -228,7 +228,7 @@ class ExportService
     public function productsRemainingInCartsExport()
     {
         $products_remaining = $this->ReportService->getProductsRemainingInCarts();
-            
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -292,14 +292,6 @@ class ExportService
 
         return $response;
     }
-
-
-
-
-
-
-
-
 
     /*
      * Export best categories report and save it on storeg.
@@ -444,9 +436,9 @@ class ExportService
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
 
-        return $filePath; 
+        return $filePath;
     }
-    
+
     /*
      * Export products never been sold report and save it on storeg.
      * return filePath
@@ -496,7 +488,7 @@ class ExportService
     public function productsRemainingInCartsExportStorage()
     {
         $products_remaining = $this->ReportService->getProductsRemainingInCarts();
-            
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -521,7 +513,7 @@ class ExportService
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
 
-        return $filePath; 
+        return $filePath;
     }
 
     /*
@@ -552,6 +544,6 @@ class ExportService
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
 
-        return $filePath; 
+        return $filePath;
     }
 }
