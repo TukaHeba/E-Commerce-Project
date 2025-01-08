@@ -14,103 +14,19 @@ class SubCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $categories = [
-            //sub categories -----------------------------------
-            [
-                'sub_category_name' => 'Novels',
-            ],
-            [
-                'sub_category_name' => 'Science',
-            ],
-            [
-                'sub_category_name' => 'Rings',
-            ],
-            [
-                'sub_category_name' => 'Flowers',
-            ],
-            [
-                'sub_category_name' => 'Mugs',
-            ],
-            [
-                'sub_category_name' => 'Clothes',
-            ],
-            [
-                'sub_category_name' => 'Toys',
-            ],
-            [
-                'sub_category_name' => 'Bags',
-            ],
-            [
-                'sub_category_name' => 'Glasses',
-            ]
-        ];
+        $subcategories = [
+            'Smartphones', 'Laptops', 'Tablets', 'Wearable Tech', 'Cameras', 'Audio Equipment', // for Electronics
+            'Furniture', 'Decor', 'Lighting', 'Storage Solutions', 'Bedding', // for Home
+            'Cookware', 'Kitchen Appliances', 'Cutlery', 'Dinnerware', 'Bakeware', // for Kitchen
+            'Men\'s Clothing', 'Women\'s Clothing', 'shoses', 'Accessories', 'Activewear', // for Fashion
+             'Vitamins & Supplements', 'Health Monitoring Devices', 'First Aid', 'Exercise Equipment', // for Health
+             'Skincare', 'Makeup', 'Hair Care', 'Fragrances', 'Nail Care', // for Beauty
+             'Fitness Equipment', 'Outdoor Gear', 'Team Sports Gear', 'Athletic Clothing', 'Footwear' // for Sports
+             ];
 
-        foreach ($categories as $category) {
-            SubCategory::create($category);
+        foreach ($subcategories as $category) {
+            SubCategory::create(['sub_category_name'=> $category]);
         }
-        
-        //pivot table ----------------------------------------------------------------------------
-        $pivotcategories = [
-            [
-                'main_category_id' => 6,
-                'sub_category_id' => 1,
-            ],
-            [
-                'main_category_id' => 6,
-                'sub_category_id' => 2,
-            ], 
-            [
-                'main_category_id' => 5,
-                'sub_category_id' => 3,
-            ],
-            [
-                'main_category_id' => 4,
-                'sub_category_id' => 4,
-            ],
-            [
-                'main_category_id' => 4,
-                'sub_category_id' => 5,
-            ],
-            [
-                'main_category_id' => 1,
-                'sub_category_id' => 6,
-            ],
-            [
-                'main_category_id' => 2,
-                'sub_category_id' => 6,
-            ],
-            [
-                'main_category_id' => 3,
-                'sub_category_id' => 6,
-            ],
-            [
-                'main_category_id' => 3,
-                'sub_category_id' => 7,
-            ],
-            [
-                'main_category_id' => 1,
-                'sub_category_id' => 8,
-            ],
-            [
-                'main_category_id' => 2,
-                'sub_category_id' => 8,
-            ],
-            [
-                'main_category_id' => 1,
-                'sub_category_id' => 9,
-            ],
-            [
-                'main_category_id' => 2,
-                'sub_category_id' => 9,
-            ],
-            [
-                'main_category_id' => 3,
-                'sub_category_id' => 9,
-            ]
-        ];
 
-        foreach ($pivotcategories as $pivotcategory) {
-            DB::table('maincategory_subcategory')->insert($pivotcategory);
-        }
-    }
+}
 }

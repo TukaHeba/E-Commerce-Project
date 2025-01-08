@@ -34,6 +34,7 @@ class UserFactory extends Factory
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
+            'telegram_user_id' => fake()->optional()->randomNumber(),
         ];
     }
 
@@ -42,7 +43,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }

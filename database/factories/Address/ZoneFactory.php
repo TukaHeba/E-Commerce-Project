@@ -6,7 +6,7 @@ use App\Models\Address\City;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Zone>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Address\Zone>
  */
 class ZoneFactory extends Factory
 {
@@ -19,7 +19,7 @@ class ZoneFactory extends Factory
     {
         return [
             'name' => $this->faker->streetName,
-            'city_id' => City::factory(),
+            'city_id' => City::inRandomOrder()->first(),
         ];
     }
 }

@@ -14,16 +14,88 @@ class FavoriteSeeder extends Seeder
     public function run(): void
     {
         Favorite::create([
-            'user_id' => 1,
+            'user_id' => 4,
             'product_id' => 2,
-         ]);
-         Favorite::create([
-            'user_id' => 2,
-            'product_id' => 3,
-         ]);
-         Favorite::create([
-            'user_id' => 1,
+        ]);
+        Favorite::create([
+            'user_id' => 4,
+            'product_id' => 7,
+        ]);
+        Favorite::create([
+            'user_id' => 4,
+            'product_id' => 13,
+        ]);
+
+        Favorite::create([
+            'user_id' => 12,
+            'product_id' => 7,
+        ]);
+        Favorite::create([
+            'user_id' => 12,
+            'product_id' => 13,
+        ]);
+
+        Favorite::create([
+            'user_id' => 20,
+            'product_id' => 13,
+        ]);
+        Favorite::create([
+            'user_id' => 20,
+            'product_id' => 19,
+        ]);
+        Favorite::create([
+            'user_id' => 20,
+            'product_id' => 27,
+        ]);
+
+
+        Favorite::create([
+            'user_id' => 33,
             'product_id' => 4,
-         ]);
+        ]);
+        Favorite::create([
+            'user_id' => 33,
+            'product_id' => 19,
+        ]);
+        Favorite::create([
+            'user_id' => 33,
+            'product_id' => 30,
+        ]);
+
+
+        Favorite::create([
+            'user_id' => 40,
+            'product_id' => 4,
+        ]);
+        Favorite::create([
+            'user_id' => 40,
+            'product_id' => 7,
+        ]);
+        Favorite::create([
+            'user_id' => 40,
+            'product_id' => 30,
+        ]);
+        Favorite::create([
+            'user_id' => 40,
+            'product_id' => 22,
+        ]);
+
+
+        Favorite::create([
+            'user_id' => 52,
+            'product_id' => 7,
+        ]);
+        Favorite::create([
+            'user_id' => 52,
+            'product_id' => 20,
+        ]);
+        Favorite::create([
+            'user_id' => 52,
+            'product_id' => 30,
+        ]);
+        Favorite::create([
+            'user_id' => 52,
+            'product_id' => 34,
+        ]);
     }
 }

@@ -22,9 +22,11 @@ class AddressSeeder extends Seeder
                 City::factory()
                     ->count(5) // 3 مدن لكل دولة
                     ->has(
-                        Zone::factory()->count(8) // 4 مناطق لكل مدينة
-                    )
+                        Zone::factory()->count(8),
+                        'zones'
+                    ) // 4 مناطق لكل مدينة
             )
+
             ->create();
     }
 }
