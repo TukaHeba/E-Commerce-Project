@@ -5,7 +5,7 @@ namespace Database\Factories\Address;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Country>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Address\Country>
  */
 class CountryFactory extends Factory
 {
@@ -19,5 +19,6 @@ class CountryFactory extends Factory
         return [
             'name' => $this->faker->country,
         ];
+
     }
 }

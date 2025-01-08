@@ -6,7 +6,7 @@ use App\Models\Address\Country;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\City>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Address\City>
  */
 class CityFactory extends Factory
 {
@@ -18,8 +18,8 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->city, // اسم المدينة باستخدام مكتبة Faker
-            'country_id' => Country::factory(),
+            'name' => $this->faker->city,
+            'country_id' => Country::inRandomOrder()->first(),
         ];
     }
 }
