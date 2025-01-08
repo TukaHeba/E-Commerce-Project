@@ -55,9 +55,7 @@ class ReportService
      */
     public function getBestSellingProducts()
     {
-        return Cache::remember("best_selling_products_report", now()->addDay(), function () {
-            return Product::bestSelling('product_with_total_sold')->paginate(10);
-        });
+        return Product::bestSelling('product_with_total_sold')->paginate(10);
     }
 
     /**
@@ -65,7 +63,7 @@ class ReportService
      */
     public function getBestSellingCategories()
     {
-        return $BestCategories = Product::bestSelling('category_with_total_sold')->paginate(10);
+        return Product::bestSelling('category_with_total_sold')->paginate(10);
     }
 
     /**
@@ -100,8 +98,8 @@ class ReportService
                 'country_name' => $countryName,
                 'total_orders' => $orders->count(),
             ])
-            ->sortByDesc('total_orders') // ترتيب تنازلي حسب عدد الطلبات
-            ->take($country) // إرجاع أفضل 5 دول
+            ->sortByDesc('total_orders')
+            ->take($country)
             ->values();
         return $topCountries;
     }

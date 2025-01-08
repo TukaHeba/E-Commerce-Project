@@ -228,6 +228,7 @@ class ExportService
     public function productsRemainingInCartsExport(): string
     {
         $products_remaining = $this->ReportService->getProductsRemainingInCarts();
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -440,6 +441,7 @@ class ExportService
         return $filePath;
     }
 
+
     /*
      * Export products never been sold report and save it on storeg.
      * return filePath
@@ -476,6 +478,11 @@ class ExportService
 
         $fileName = 'unsold_Products.xlsx';
         $filePath = 'reports/' . $fileName;
+        // Ensure the directory exists
+         if (!Storage::exists('public/reports'))
+          {
+            Storage::makeDirectory('public/reports');
+         }
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
 
