@@ -58,7 +58,7 @@ class RateService
      * Retrieve a paginated list of rates based on the given filter criteria.
      *
      * @param \Illuminate\Http\Request $request The request containing filter parameters.
-     * @return \Illuminate\Contracts\Pagination\Paginator Paginated rates.
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator Paginated rates.
      */
     public function getRates($request)
     {
@@ -100,7 +100,7 @@ class RateService
     }
 
     /**
-     * Soft delete a rate.
+     * delete a rate.
      *
      * @param \App\Models\Rate\Rate $rate The rate to delete.
      * @return void
@@ -109,33 +109,5 @@ class RateService
     {
         $rate->delete();
         $this->clearRateCache();
-    }
-
-    /**
-     * Retrieve a paginated list of soft-deleted rates.
-     *
-     * @return \Illuminate\Contracts\Pagination\Paginator Paginated soft-deleted rates.
-     */
-    public function showDeleted()
-    {
-        $cache_key = 'deleted-rates';
-        $this->addCasheKey($cache_key);
-
-        return Cache::remember($cache_key, now()->addHour(), function () {
-            return Rate::onlyTrashed()->with(['user', 'product'])->paginate(10);
-        });
-    }
-
-    /**
-     * Restore a soft-deleted rate.
-     *
-     * @param \App\Models\Rate\Rate $rate The soft-deleted rate to restore.
-     * @return \App\Models\Rate\Rate The restored rate with its relations.
-     */
-    public function restoreDeleted(Rate $rate)
-    {
-        $rate->restore();
-        $this->clearRateCache();
-        return $rate->load(['user', 'product']);
     }
 }

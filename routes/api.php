@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ExportController;
+use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\Role\RoleController;
@@ -99,9 +99,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // --------------------------------------- Rate Routes --------------------------------------- //
     Route::controller(RateController::class)->middleware('auth:api')->group(function () {
-        Route::get('rates/{rate}/show-deleted', 'showDeleted');
-        Route::delete('rates/{rate}/force-deleted', 'forceDeleted');
-        Route::post('rates/{rate}/restore-deleted', 'restoreDeleted');
         Route::apiResource('rates', RateController::class)->except(['index', 'show']);
     });
     Route::apiResource('rates', RateController::class)->only(['index', 'show']);
@@ -133,8 +130,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('orders/{order}/tracking', 'orderTracking');
         Route::delete('orders/{order}/force-deleted', 'forceDeleted');
         Route::post('orders/{order}/restore-deleted', 'restoreDeleted');
-        Route::get('orders/{order}/show-deleted-user', 'showDeletedUser');
-        Route::get('orders/{order}/show-deleted-admin', 'showDeletedAdmin');
+        Route::get('orders/{order}/show-deleted-admin', 'getDeletedOrdersAdmin');
         Route::apiResource('orders', OrderController::class)->except(['index', 'store']);
     });
 
@@ -171,7 +167,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
 
     // -------------------------------------- Report Routes -------------------------------------- //
-    Route::controller(ReportController::class)->group(function () {
+    Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
         Route::get('reports/best-categories',  'bestCategoriesReport');
         Route::get('reports/best-selling-products', 'bestSellingProductsReport');
         Route::get('reports/products-low-on-stocks',  'productsLowOnStockReport');
@@ -180,9 +176,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
         Route::get('reports/countries-with-highest-orders',  'countriesWithHighestOrdersReport');
     });
-
-
-
     // -------------------------------------- Export Routes -------------------------------------- //
     Route::controller(ExportController::class)->middleware('auth:api')->group(function () {
         Route::get('Export/best-categories',  'bestCategoriesExport');
@@ -190,9 +183,9 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('Export/products-low-on-stocks',  'productsLowOnStockExport');
         Route::get('Export/orders-late-to-deliver', 'ordersLateToDeliverExport');
         Route::get('Export/products-never-been-sold',  'productsNeverBeenSoldExport');
+        Route::get('Export/products-remaining-in-carts', 'productsRemainingInCartsExport');
         Route::get('Export/countries-with-highest-orders',  'countriesWithHighestOrdersExport');
     });
-
 });
 
 

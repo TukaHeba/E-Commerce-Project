@@ -19,6 +19,9 @@ class Kernel extends ConsoleKernel
             ->daily(); // run daily on midnight report
         // $schedule->command('inspire')->hourly();
         $schedule->command('app:unsold-products-email-command')->monthly();
+
+        //تشغيل عملية ارسال تقرير التصنيفات كل ثلاثة أشهر
+        $schedule->command('app:best_category_report_command')->everyFiveSeconds();
     }
 
     /**
