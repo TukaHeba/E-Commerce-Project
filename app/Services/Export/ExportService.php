@@ -475,6 +475,11 @@ class ExportService
 
         $fileName = 'unsold_Products.xlsx';
         $filePath = 'reports/' . $fileName;
+        // Ensure the directory exists
+         if (!Storage::exists('public/reports'))
+          {
+            Storage::makeDirectory('public/reports');
+         }
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
 
