@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('postal_code');
             $table->enum('status', ['pending', 'shipped', 'delivered', 'canceled'])->default('pending');
             $table->decimal('total_price', 10, 2);
+            $table->string('order_number')->unique(); 
             $table->timestamps();
             $table->softDeletes();
 
