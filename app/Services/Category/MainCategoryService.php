@@ -2,22 +2,30 @@
 
 namespace App\Services\Category;
 
+use App\Jobs\SendNotification;
+use App\Traits\CacheManagerTrait;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Jobs\SendNotification;
 use App\Models\Category\MainCategory;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class MainCategoryService
 {
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'main_categories_cache_keys';
     /**
-     * method to view all main categories with a filtes on (????)
-     * @return /Illuminate\Http\JsonResponse if have an error
+     * method to view all main categories
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getMainCategorys($request)
+    public function getMainCategories(): LengthAwarePaginator
     {
+        $cache_key = 'main_categories';
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
-        $maincategories = MainCategory::with('subCategories')->get();
-        return $maincategories;
+        return Cache::remember($cache_key, now()->addWeek(), function () {
+            return MainCategory::with('subCategories')->paginate(10);
+        });
     }
 
     /**
@@ -35,6 +43,7 @@ class MainCategoryService
         $maincategory->subCategories()->attach($data['sub_category_name']);
         $maincategory->save();
 
+        $this->clearCacheGroup($this->groupe_key_cache);
         return $maincategory;
     }
 
@@ -53,7 +62,7 @@ class MainCategoryService
             $maincategory->subCategories()->sync($data['sub_category_name']);
             $maincategory->save();
         }
-
+        $this->clearCacheGroup($this->groupe_key_cache);
         return $maincategory;
     }
 
@@ -67,6 +76,7 @@ class MainCategoryService
         $mainCategory = MainCategory::findOrFail($id);
         $mainCategory->delete();
         $mainCategory->subCategories()->updateExistingPivot($mainCategory->subCategories->pluck('id'), ['deleted_at' => now()]);
+        $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
     /**

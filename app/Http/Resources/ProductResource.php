@@ -15,17 +15,16 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'             => $this->id,
-            'name'           => $this->name,
-            'description'    => $this->description,
-            'price'          => $this->price,
-            'product_quantity' => $this->product_quantity,
-            'category'       => [
-                'main_category' => $this->whenLoaded('mainCategory', fn() => $this->mainCategory->main_category_name),
-                'sub_category'  => $this->whenLoaded('subCategory', fn() => $this->subCategory->sub_category_name),
+            'Product id'             => $this->id,
+            'Product Name'           => $this->name,
+            'Product Description'    => $this->description,
+            'Product Price'          => $this->price,
+            'Product Quantity' => $this->product_quantity,
+            'Product Category'       => [
+                'main category' => $this->whenLoaded('mainCategory', fn() => $this->mainCategory->main_category_name),
+                'sub category'  => $this->whenLoaded('subCategory', fn() => $this->subCategory->sub_category_name),
             ],
-            // 'category'       => $this->maincategory_subcategory_id,
-            'average rating' => $this->averageRating() ?? 0,
+            'Average rating' => $this->averageRating() ?? 0,
         ];
     }
 }

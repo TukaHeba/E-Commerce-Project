@@ -279,12 +279,7 @@ class Product extends Model
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param int $threshold The stock threshold (default: 10).
-     *
      * @return \Illuminate\Database\Eloquent\Builder
-     *
-     * @example
-     * Product::lowStock()->get();       // Default threshold: 10
-     * Product::lowStock(5)->get();      // Custom threshold: 5
      */
     public function scopeLowStock($query, $threshold = 10)
     {

@@ -58,7 +58,7 @@ class Controller extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public static function paginated(LengthAwarePaginator $paginator, $resourceClass = null, $message = '', $status)
+    public static function paginated( $paginator, $resourceClass = null, $message = '', $status)
     {
         $transformedItems = is_null($resourceClass) ? $paginator->items() : $resourceClass::collection($paginator->items());
 

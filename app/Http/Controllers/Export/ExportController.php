@@ -14,57 +14,54 @@ class ExportController extends Controller
     {
         $this->ExportService = $ExportService;
     }
-
+    /*
+     * Export best categories report.
+     */
     public function bestCategoriesExport()
     {
-        $this->ExportService->bestCategoriesExport();
-        return self::success(null, 'best Categories Export successfully', 201);
+        return $this->ExportService->bestCategoriesExport();
     }
-
-
-
+    /*
+     * Export best selling products report.
+     */
     public function bestSellingProductsExport()
     {
-        $this->ExportService->bestCategoriesExport();
-        return self::success(null, 'best Selling Products Export successfully', 201);
+        return $this->ExportService->bestSellingProductsExport();
     }
-
-
-
+    /*
+     * Export products low on stock report.
+     */
     public function productsLowOnStockExport()
     {
-        $this->ExportService->bestCategoriesExport();
-        return self::success(null, 'products Low On Stock Export successfully', 201);
+        return $this->ExportService->productsLowOnStockExport();
     }
-
-
+    /*
+     * Export orders late to deliver report.
+     */
     public function ordersLateToDeliverExport()
     {
-        $this->ExportService->bestCategoriesExport();
-        return self::success(null, 'orders Late To Deliver Export successfully', 201);
+        return $this->ExportService->ordersLateToDeliverExport();
     }
-
-
+    /*
+     * Export products never been sold report.
+     */
     public function productsNeverBeenSoldExport()
     {
-        $this->ExportService->bestCategoriesExport();
-        return self::success(null, 'products Never Been Sold Export successfully', 201);
+        return $this->ExportService->productsNeverBeenSoldExport();
     }
-
-
+    /*
+     * Export products remaining in cart report.
+     */
     public function productsRemainingInCartsExport()
     {
-        $this->ExportService->bestCategoriesExport();
-        return self::success(null, 'products Remaining In Carts Export successfully', 201);
+        return $this->ExportService->productsRemainingInCartsExport();
     }
-
-
-
-
+    /*
+     * Export countries with highest orders report.
+     */
     public function countriesWithHighestOrdersExport(TopCountryRequest $request, int $country = 5)
     {
-        $this->ExportService->bestCategoriesExport();
-        return self::success(null, 'countries With Highest Orders Export successfully', 201);
+        return $this->ExportService->countriesWithHighestOrdersExport($request, $country);
     }
 
 }

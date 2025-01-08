@@ -22,14 +22,13 @@ class MainCategoryController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     * @throws \Exception
+     * Index main categories
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
-        $mainCategories = $this->MainCategoryService->getMainCategorys($request);
-        //return self::paginated($mainCategorys, 'MainCategorys retrieved successfully', 200);
-        return self::success(MainCategoryResource::collection($mainCategories), 'MainCategory retrieved successfully', 200);
+        $mainCategories = $this->MainCategoryService->getMainCategories();
+        return self::paginated($mainCategories, MainCategoryResource::class, 'Main categories retrieved successfully', 200);
     }
 
     /**
@@ -57,7 +56,7 @@ class MainCategoryController extends Controller
      */
     public function update(UpdateMainCategoryRequest $request, MainCategory $maincategory): JsonResponse
     {
-        $maincategory = $this->MainCategoryService->updateMainCategory( $request->validated(),$maincategory);
+        $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $maincategory);
         return self::success(new MainCategoryResource($maincategory), 'MainCategory updated successfully');
     }
 
@@ -66,7 +65,7 @@ class MainCategoryController extends Controller
      */
     public function destroy($id): JsonResponse
     {
-        $this->MainCategoryService->destroyMainCategory($id);    
+        $this->MainCategoryService->destroyMainCategory($id);
         return self::success(null, 'MainCategory deleted successfully');
     }
 
@@ -86,7 +85,7 @@ class MainCategoryController extends Controller
      */
     public function restoreDeleted($id): JsonResponse
     {
-        $this->MainCategoryService->restorMainCategory($id);    
+        $this->MainCategoryService->restorMainCategory($id);
         return self::success(null, 'MainCategory restored successfully');
     }
 

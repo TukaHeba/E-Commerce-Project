@@ -52,23 +52,7 @@ class OrderService
 
         return $order;
     }
-
-    /**
-     * List of deleted orders related to user
-     * @param mixed $request
-     * @return mixed
-     */
-    public function getDeletedOrdersUser($request)
-    {
-        $deletedOrders = Cache::remember('deleted_orders_' . Auth::id(), 1200, function () use ($request) {
-            return Order::onlyTrashed()
-                ->byFilters($request)
-                ->where('user_id', Auth::id())
-                ->paginate(10);
-        });
-        return $deletedOrders;
-    }
-
+    
     /**
      * Fetch the tracking history associated with the specified order
      *

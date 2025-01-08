@@ -25,7 +25,7 @@ class UpdateCartItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'quantity'=>['required','integer','min:1']
+            'quantity'=> 'sometimes|integer|min:1'
         ];
     }
 
@@ -38,13 +38,8 @@ class UpdateCartItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
+            'integer' => 'The :attribute must be number.',
             'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
-            'exists' => 'The selected :attribute is invalid.',
         ];
     }
 
