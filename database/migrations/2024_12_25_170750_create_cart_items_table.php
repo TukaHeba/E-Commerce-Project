@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration {
     /**
@@ -21,6 +21,7 @@ return new class extends Migration {
             // Indexing columns to optimize performance
             $table->index(['cart_id', 'product_id'], 'index_cartItems_cart_product');
             $table->index('quantity', 'index_cartItems_quantity');
+
         });
     }
 
