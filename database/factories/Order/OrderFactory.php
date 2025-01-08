@@ -2,13 +2,12 @@
 
 namespace Database\Factories\Order;
 
-use App\Models\Address\Address;
 use App\Models\Address\Zone;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order\Order>
  */
 class OrderFactory extends Factory
 {
@@ -20,13 +19,12 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
-//            'zone_id' => Zone::factory(),
-            'zone_id' => rand(1,420),
-            'postal_code' => $this->faker->postcode(),
-            'status' => $this->faker->randomElement(['pending', 'shipped', 'delivered', 'canceled']),
-            'total_price' => $this->faker->randomFloat(2, 10, 500),
-            'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'), // تاريخ عشوائي في آخر سنة
+
+            'user_id' => User::inRandomOrder()->first(),
+            'zone_id' => Zone::inRandomOrder()->first(),
+            'postal_code' => fake()->postcode,
+            'status' => fake()->randomElement(['pending', 'shipped', 'delivered', 'canceled']),
+            'total_price' => fake()->randomFloat(2, 10, 1000),
         ];
     }
 }
