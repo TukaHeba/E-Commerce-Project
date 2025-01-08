@@ -26,6 +26,10 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
+
+            // Indexing columns to optimize performance
+            $table->unique('phone', 'index_users_phone');
+            $table->fullText('address', 'index_users_address');
         });
     }
 

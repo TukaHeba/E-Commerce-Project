@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,6 +15,9 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('country_id')->constrained('countries');
             $table->timestamps();
+
+            // Indexing column to optimize performance
+            $table->fullText('name', 'index_cities_name');
         });
     }
 
