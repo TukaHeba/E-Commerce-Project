@@ -2,20 +2,19 @@
 
 namespace App\Models\User;
 
-use App\Models\Account\Account;
 use App\Models\Cart\Cart;
-use App\Models\Favorite\Favorite;
+use App\Models\Rate\Rate;
 use App\Models\Order\Order;
 use App\Models\Photo\Photo;
 use App\Models\Product\Product;
-use App\Models\Rate\Rate;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use App\Models\Favorite\Favorite;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -151,16 +150,6 @@ class User extends Authenticatable implements JWTSubject
     public function rates()
     {
         return $this->hasMany(Rate::class);
-    }
-
-    /**
-     * Get the user accounts.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function accounts()
-    {
-        return $this->hasMany(Account::class);
     }
 
     /**

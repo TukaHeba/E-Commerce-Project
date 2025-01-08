@@ -2,8 +2,6 @@
 
 namespace App\Services\Category;
 
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use App\Models\Category\SubCategory;
 
 class SubCategoryService

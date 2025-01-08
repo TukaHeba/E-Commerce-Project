@@ -2,10 +2,7 @@
 
 namespace App\Services\Category;
 
-use App\Jobs\SendNotification;
 use App\Traits\CacheManagerTrait;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
