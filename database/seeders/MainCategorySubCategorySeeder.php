@@ -11,6 +11,7 @@ class MainCategorySubCategorySeeder extends Seeder
     /**
      * Run the database seeds.
      */
+
     public function run(): void
     {
         MainCategorySubCategory::create([

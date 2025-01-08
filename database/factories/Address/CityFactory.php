@@ -18,7 +18,7 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->city, // اسم المدينة باستخدام مكتبة Faker
+            'name' => $this->faker->city,
             'country_id' => Country::inRandomOrder()->first(),
         ];
     }

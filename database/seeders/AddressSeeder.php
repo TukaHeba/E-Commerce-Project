@@ -17,14 +17,14 @@ class AddressSeeder extends Seeder
     {
         // إنشاء دول تحتوي على مدن ومناطق
         Country::factory()
-            ->count(12) // 5 دول
+            ->count(12)
             ->has(
                 City::factory()
-                    ->count(5) // 3 مدن لكل دولة
+                    ->count(5)
                     ->has(
                         Zone::factory()->count(8),
                         'zones'
-                    ) // 4 مناطق لكل مدينة
+                    )
             )
 
             ->create();

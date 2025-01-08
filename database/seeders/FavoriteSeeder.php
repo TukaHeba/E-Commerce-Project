@@ -11,6 +11,7 @@ class FavoriteSeeder extends Seeder
     /**
      * Run the database seeds.
      */
+
     public function run(): void
     {
         Favorite::create([

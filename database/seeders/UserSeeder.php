@@ -136,8 +136,6 @@ class UserSeeder extends Seeder
         $customer->assignRole('customer');
         $customer->cart()->create();
 
-
-
         // Create 50 customer users using the factory and assign the customer role
         User::factory()->count(50)->create()->each(function ($user) {
             $user->assignRole('customer');

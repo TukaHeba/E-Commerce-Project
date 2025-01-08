@@ -19,5 +19,6 @@ class CountryFactory extends Factory
         return [
             'name' => $this->faker->country,
         ];
+
     }
 }

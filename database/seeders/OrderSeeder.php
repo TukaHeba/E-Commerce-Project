@@ -43,6 +43,7 @@ class OrderSeeder extends Seeder
 
             $order->total_price = $totalPrice;
             $order->save();
-        }); });
+        });
+     });
     }
 }

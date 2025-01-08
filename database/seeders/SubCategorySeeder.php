@@ -24,7 +24,8 @@ class SubCategorySeeder extends Seeder
              'Fitness Equipment', 'Outdoor Gear', 'Team Sports Gear', 'Athletic Clothing', 'Footwear' // for Sports
              ];
 
-        foreach ($subcategories as $category) {
+        foreach ($subcategories as $category)
+        {
             SubCategory::create(['sub_category_name'=> $category]);
         }
 

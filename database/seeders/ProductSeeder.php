@@ -10,6 +10,7 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
+
         // Products with 1st main category and 1-6 subcategories
         Product::create([
             'name' => 'iPhone 14 Pro',

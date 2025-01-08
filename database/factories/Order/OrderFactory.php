@@ -19,6 +19,7 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
+
             'user_id' => User::inRandomOrder()->first(),
             'zone_id' => Zone::inRandomOrder()->first(),
             'postal_code' => fake()->postcode,

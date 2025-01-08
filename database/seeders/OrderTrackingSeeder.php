@@ -9,6 +9,7 @@ class OrderTrackingSeeder extends Seeder
 {
     public function run(): void
     {
+
         // Get all orders
         $orders = Order::all();
 

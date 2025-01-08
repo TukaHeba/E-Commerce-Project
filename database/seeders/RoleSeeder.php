@@ -56,6 +56,7 @@ class RoleSeeder extends Seeder
         //     ])->get()
         // );
 
+
         // Customer Role
         $customer = Role::create(['name' => 'customer', 'guard_name' => 'api']);
         // $customer->syncPermissions(
