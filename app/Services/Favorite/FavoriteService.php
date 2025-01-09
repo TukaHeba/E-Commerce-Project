@@ -6,11 +6,13 @@ use auth;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use App\Models\Product\Product;
+use Illuminate\Database\Eloquent\Collection;
 
 
 class FavoriteService
 {
-    /*
+
+    /**
      * Add a new product to user favorite
      *
      * @param Product $product The validated data to add favorite product.
@@ -22,17 +24,19 @@ class FavoriteService
         $user = User::findOrFail(auth()->user()->id);
         $user->favoriteProducts()->attach($product->id);
     }
-    /*
+
+    /**
      * show user favorite products
      *
-     * @return  User with its favorite products
+     * @return  Collection user with its favorite products
      */
 
     public function showFavorites()
     {
-        $user = User::findOrFail(auth()->user()->id);
+        $user = User::findOrFail(auth()->id());
         return  $user->favoriteProducts()->get();
     }
+
       /**
      * remove product from user's favorite products
      *

@@ -26,6 +26,7 @@ class Order extends Model
         'postal_code',
         'status',
         'total_price',
+        'order_number',
     ];
 
     /**
@@ -63,8 +64,8 @@ class Order extends Model
     /**
      * Generate a unique order number.
      *
-     * The order number consists of a prefix, the current time (with microseconds), 
-     * and a random string to ensure uniqueness. It also checks the database to 
+     * The order number consists of a prefix, the current time (with microseconds),
+     * and a random string to ensure uniqueness. It also checks the database to
      * avoid duplicate order numbers.
      *
      * @return string The generated order number.
@@ -84,7 +85,7 @@ class Order extends Model
 
     /**
      * Get the order trackings associated with the order.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function orderTrackings()
@@ -124,7 +125,7 @@ class Order extends Model
 
     /**
      * Scope to filter orders by shipping_address through LIKE, status & total_price within a range.
-     * 
+     *
      * @param mixed $query
      * @param mixed $request
      * @return mixed
@@ -147,7 +148,7 @@ class Order extends Model
 
     /**
      * Scope to return latest order
-     * 
+     *
      * @param mixed $query
      * @return mixed
      */
@@ -158,7 +159,7 @@ class Order extends Model
 
     /**
      * Scope to return oldest order
-     * 
+     *
      * @param mixed $query
      * @return mixed
      */
