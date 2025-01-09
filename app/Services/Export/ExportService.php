@@ -265,9 +265,10 @@ class ExportService
      * Export countries with highest orders report.
      * return Excel sheet
      */
-    public function countriesWithHighestOrdersExport($request, $country)
+    public function countriesWithHighestOrdersExport($data=[], $country=5)
     {
-        $topCountries = $this->ReportService->getCountriesWithHighestOrders($request->validationData(), $country);
+        $topCountries = $this->ReportService->getCountriesWithHighestOrders($data,$country);
+
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -441,7 +442,6 @@ class ExportService
         return $filePath;
     }
 
-
     /*
      * Export products never been sold report and save it on storeg.
      * return filePath
@@ -528,9 +528,9 @@ class ExportService
      * Export countries with highest orders report and save it on storeg.
      * return filePath
      */
-    public function countriesWithHighestOrdersExportStorage($request, $country)
+    public function countriesWithHighestOrdersExportStorage($data=[], $country=5)
     {
-        $topCountries = $this->ReportService->getCountriesWithHighestOrders($request->validationData(), $country);
+        $topCountries = $this->ReportService->getCountriesWithHighestOrders($data,$country);
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
