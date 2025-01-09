@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
 
         //تشغيل عملية ارسال تقرير التصنيفات كل ثلاثة أشهر
         $schedule->command('app:best_category_report_command')->everyFiveSeconds();
+        $schedule->command('app:get-telegram-bot-users-command')->everyTenMinutes();
     }
 
     /**
