@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Models\User\User;
+use Illuminate\Http\Request;
+use App\Traits\CacheManagerTrait;
+use Illuminate\Http\JsonResponse;
+use App\Services\User\UserService;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Resources\OrderResource;
-use App\Http\Resources\UserResource;
-use App\Models\User\User;
-use App\Services\User\UserService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 
 class UserController extends Controller
 {
-
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'users_cache_keys';
     protected UserService $UserService;
 
     public function __construct(UserService $UserService)
@@ -86,6 +88,7 @@ class UserController extends Controller
     {
         $this->authorize( 'delete' , $user);
         $user->delete();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User deleted successfully');
     }
 
@@ -97,9 +100,8 @@ class UserController extends Controller
     public function showDeleted(): JsonResponse
     {
         $this->authorize('showDeleted', User::class);
-        $users = User::onlyTrashed()->get();
-     return self::success(UserResource::collection($users), 'Users retrieved successfully');
-
+        $users = $this->UserService->showDeletedUsers();
+        return self::paginated($users, UserResource::class, 'Users retrieved successfully', 200);
     }
      /**
      * Restore a soft-deleted user.
@@ -112,6 +114,7 @@ class UserController extends Controller
         $this->authorize('restoreDeleted', User::class);
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success( null , 'User restored successfully');
     }
      /**
@@ -123,10 +126,11 @@ class UserController extends Controller
     public function forceDeleted($id): JsonResponse
     {
         $this->authorize('forceDeleted', User::class);
-        $user = User::onlyTrashed()->findOrFail($id)->forceDelete();
+        User::onlyTrashed()->findOrFail($id)->forceDelete();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User force deleted successfully');
     }
-  
+
      /**
      * Calculate the average total price of all delivered orders for the user.
      *
