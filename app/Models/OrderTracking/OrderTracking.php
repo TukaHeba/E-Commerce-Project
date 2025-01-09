@@ -3,9 +3,9 @@
 namespace App\Models\OrderTracking;
 
 use App\Models\Order\Order;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OrderTracking extends Model
 {
@@ -17,9 +17,9 @@ class OrderTracking extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-      'order_id',
-      'old_status',
-      'new_status'
+        'order_id',
+        'old_status',
+        'new_status'
     ];
     protected $table = 'order_tracking';
 
@@ -36,10 +36,11 @@ class OrderTracking extends Model
      * @var array<string, string>
      */
     protected $casts = [
-      //
+        //
     ];
-    public function order(){
-        return $this->belongsTo(Order::class,'order_id');
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
 }

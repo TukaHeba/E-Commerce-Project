@@ -1,11 +1,11 @@
-<?
+<?php
 namespace App\Traits;
 
 use Illuminate\Support\Facades\Cache;
 
 trait CacheManagerTrait
 {
-     /**
+    /**
      * Generate a unique cache key using a base string and parameters.
      *
      * @param string $base   The base string for the cache key.
@@ -19,11 +19,12 @@ trait CacheManagerTrait
 
     /**
      * Add a cache key to the list of keys for tracking and clearing later.
-     * 
+     *
      * Ensures that the provided key is stored in a centralized list of cache keys.
      * If the key already exists in the list, it will not be added again.
      *
-     * @param string $cache_key The cache key to add.
+     * @param string $groupKey The cache key group name.
+     * @param string $cacheKey The cache key to add.
      * @return void
      */
     public static function addCacheKey(string $groupKey, string $cacheKey): void
@@ -36,9 +37,10 @@ trait CacheManagerTrait
     }
 
     /**
-     * Clear all rate cache keys.
-     * Removes all cached entries related to rates and clears the cache key list.
+     * Clear all cache keys in the given cache group.
+     * Removes all cached entries related to the group and clears the cache key list.
      *
+     * @param string $groupKey The cache key group name.
      * @return void
      */
     public static function clearCacheGroup(string $groupKey): void
