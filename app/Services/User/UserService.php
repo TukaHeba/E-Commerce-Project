@@ -50,17 +50,15 @@ class UserService
         return $user;
     }
 
-      /**
-     * Get user most expensive delivered order.
+    /**
+     * Calculate the average total price of all delivered orders for the user.
      *
      * @param string $id The ID of the user.
-     *@return Order|null The most expensive delivered order for user on success, or null on failure.
+     * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
      */
-    public function showmostExpensiveOrder($user)
+    public function userPurchasesAverage($user)
     {
-        $mostExpensiveOrder = $user->mostExpensiveOrder;
-        return   $mostExpensiveOrder;
-
+        $userPurchasesAverage = $user->userPurchasesAverage;
+        return   $userPurchasesAverage;
     }
-
 }

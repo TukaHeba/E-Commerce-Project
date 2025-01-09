@@ -110,26 +110,26 @@ class UserController extends Controller
      /**
      * Permanently delete a soft-deleted user.
      *
-     * @param User $user the user to permanently delete.
+     * @param  string $id The ID of the user the user to permanently delete.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function forceDeleted($user): JsonResponse
+    public function forceDeleted($id): JsonResponse
     {
         $user = User::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'User force deleted successfully');
     }
 
      /**
-     * Get user most expensive delivered order.
+     * Calculate the average total price of all delivered orders for the user.
      *
      * @param string $id The ID of the user.
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function showmostExpensiveOrder($user)
-    {
-        $mostExpensiveOrder = $this->UserService->showmostExpensiveOrder($user);
-        return self::success(new OrderResource($mostExpensiveOrder), 'Most Expensive Delivered Order for this User restored successfully');
-    }
+     public function userPurchasesAverage($user)
+     {
+         $userPurchasesAverage = $this->UserService->userPurchasesAverage($user);
+         return self::success($userPurchasesAverage, 'the average total price of all delivered orders for the user');
+     }
 
 }

@@ -162,17 +162,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    /**
-     * Get user most expensive delivered order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function mostExpensiveOrder()
-    {
-        return $this->hasOne(Order::class)
-            ->where('status', 'delivered')
-            ->ofMany('total_price', 'max');
-    }
+/**
+ * Calculate the average total price of all delivered orders for the user.
+ *
+ * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
+ */
+public function userPurchasesAverage()
+{
+    return $this->orders()
+        ->where('status', 'delivered')
+        ->avg('total_price');
+}
+
 
     /**
      * Get the oldest order.
