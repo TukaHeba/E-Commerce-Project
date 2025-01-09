@@ -135,16 +135,6 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the favorite products for the user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function favorites()
-    {
-        return $this->hasMany(Favorite::class);
-    }
-
-    /**
      * Get the rates of products for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -173,7 +163,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the most expensive delivered order.
+     * Get user most expensive delivered order.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */

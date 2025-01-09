@@ -4,6 +4,7 @@ namespace App\Services\User;
 
 use Exception;
 use App\Models\User\User;
+use App\Models\Order\Order;
 use Illuminate\Http\Request;
 use App\Services\Photo\PhotoService;
 use Illuminate\Support\Facades\Auth;
@@ -48,6 +49,13 @@ class UserService
         $user->update(array_filter($data));
         return $user;
     }
+
+      /**
+     * Get user most expensive delivered order.
+     *
+     * @param string $id The ID of the user.
+     *@return Order|null The most expensive delivered order for user on success, or null on failure.
+     */
     public function showmostExpensiveOrder($user)
     {
         $mostExpensiveOrder = $user->mostExpensiveOrder;
