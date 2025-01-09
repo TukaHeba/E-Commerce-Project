@@ -42,8 +42,8 @@ class UnsoldProductNotification extends Notification
         return (new MailMessage)
             ->greeting('Hello dear ')
             ->subject('The Products Has Not Been Sold report')
-            ->attach(Storage::path($this->filePath), [
-                'as' => 'products-never-been-sold.xlsx',
+            ->attach(Storage::disk('public')->path($this->filePath), [
+                'as' => 'unsold_Products.xlsx',
                 'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ])
             ->line('Here is excel sheet in the attachment for the products has not been sold ')

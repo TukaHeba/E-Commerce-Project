@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\User\User;
-use App\Services\Report\ReportService;
+use App\Services\Export\ExportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,7 +15,7 @@ use App\Notifications\ProductsRemainingNotification;
 class ProductsRemainingReportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $user;
+    protected $file, $user;
 
     /**
      * Create a new job instance.
@@ -31,9 +31,9 @@ class ProductsRemainingReportJob implements ShouldQueue
     public function handle()
     {
         Log::info('Before execution job');
-        $reportService = app()->make(ReportService::class);
-        $productsRemaining = $reportService->getProductsRemainingInCarts();
-        $this->user->notify(new ProductsRemainingNotification($productsRemaining));
+        $exportFile = app()->make(ExportService::class);
+        $file = $exportFile->productsRemainingInCartsExport();
+        $this->user->notify(new ProductsRemainingNotification($file));
         Log::info('After execution job');
     }
 }

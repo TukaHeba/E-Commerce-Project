@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\User\User;
 use Illuminate\Console\Command;
-use App\Jobs\SendUnsoldProductEmail;
+use App\Jobs\BestProductsReportJob;
 use App\Services\Export\ExportService;
 
-class UnsoldProductsEmailCommand extends Command
+class BestProductsReportCommand extends Command
 {
     protected ExportService $ExportService;
 
@@ -21,25 +21,24 @@ class UnsoldProductsEmailCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:unsold-products-email-command';
+    protected $signature = 'app:best-products-report-command';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Command to get best products sold report for leatest 3 mounth';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $users = User::role('store manager')->get();
-        $file = $this->ExportService->productsNeverBeenSoldExportStorage();
-       foreach ($users as $user) {
-        SendUnsoldProductEmail::dispatch($user , $file);
-    }
+        $file = $this->ExportService->bestSellingProductsExportStorage();
+        $users = User::role(['sales manager','store manager'])->get();
+        foreach ($users as $user) {
+            BestProductsReportJob::dispatch($user,$file);
+        }
     }
 }
-

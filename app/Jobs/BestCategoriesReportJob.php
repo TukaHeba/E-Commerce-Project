@@ -16,11 +16,11 @@ class BestCategoriesReportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $user;
-     protected $file;
+    protected $file;
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user , $file)  
+    public function __construct(User $user, $file)
     {
         $this->user = $user;
         $this->file = $file;
