@@ -2,11 +2,10 @@
 
 namespace App\Models\Cart;
 
-use App\Models\CartItem\CartItem;
 use App\Models\User\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\CartItem\CartItem;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Cart extends Model
 {

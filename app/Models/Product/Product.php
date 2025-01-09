@@ -309,7 +309,7 @@ class Product extends Model
      * generate low stock products excel sheet as report to admin
      * @return string
      */
-     static function generateLowStockReport()
+    static function generateLowStockReport()
     {
         $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
 
