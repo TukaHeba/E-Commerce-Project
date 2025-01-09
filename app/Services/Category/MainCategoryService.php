@@ -12,7 +12,7 @@ class MainCategoryService
     use CacheManagerTrait;
     private $groupe_key_cache = 'main_categories_cache_keys';
     /**
-     * method to view all main categories
+     * View all main categories
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getMainCategories(): LengthAwarePaginator
@@ -24,11 +24,11 @@ class MainCategoryService
             return MainCategory::with('subCategories')->paginate(10);
         });
     }
-
+    
     /**
-     * method to creta new main category
-     * @param   $data
-     * @return /Illuminate\Http\JsonResponse if have an error
+     * Create new main category
+     * @param mixed $data
+     * @return MainCategory
      */
     public function storeMainCategory($data)
     {

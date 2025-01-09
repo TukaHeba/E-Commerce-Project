@@ -32,8 +32,9 @@ class MainCategoryController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     * @throws \Exception
+     * Store a newly main category in storage.
+     * @param \App\Http\Requests\Category\MainCategory\StoreMainCategoryRequest $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreMainCategoryRequest $request): JsonResponse
     {
@@ -42,16 +43,17 @@ class MainCategoryController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified main category.
+     * @param \App\Models\Category\MainCategory $mainCategory
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id): JsonResponse
+    public function show(MainCategory $mainCategory): JsonResponse
     {
-        $mainCategory = MainCategory::findOrFail($id);
         return self::success(new MainCategoryResource($mainCategory), 'MainCategory retrieved successfully');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified main category in storage.
      * @throws \Exception
      */
     public function update(UpdateMainCategoryRequest $request, MainCategory $maincategory): JsonResponse
@@ -61,7 +63,7 @@ class MainCategoryController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified main category from storage.
      */
     public function destroy($id): JsonResponse
     {
@@ -71,6 +73,7 @@ class MainCategoryController extends Controller
 
     /**
      * Display soft-deleted records.
+     * @return \Illuminate\Http\JsonResponse
      */
     public function showDeleted(): JsonResponse
     {
