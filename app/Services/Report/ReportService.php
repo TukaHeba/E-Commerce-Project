@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\Product\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 
 class ReportService
 {
@@ -68,6 +70,8 @@ class ReportService
 
     /**
      * The products never been sold
+     *
+     * @return LengthAwarePaginator
      */
     public function getProductsNeverBeenSold()
     {
