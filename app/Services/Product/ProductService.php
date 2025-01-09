@@ -5,12 +5,15 @@ namespace App\Services\Product;
 use App\Models\Photo\Photo;
 use Illuminate\Http\Request;
 use App\Models\Product\Product;
+use App\Traits\CacheManagerTrait;
 use App\Services\Photo\PhotoService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ProductService
 {
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'products_cache_keys';
     protected PhotoService $photoService;
 
     /**
@@ -21,52 +24,6 @@ class ProductService
     public function __construct(PhotoService $photoService)
     {
         $this->photoService = $photoService;
-    }
-
-    /**
-     * Generate a unique cache key using a base string and parameters.
-     *
-     * @param string $base   The base string for the cache key.
-     * @param array  $params An array of parameters to include in the key.
-     * @return string The generated cache key.
-     */
-    private function generateCacheKey(string $base, array $params): string
-    {
-        return $base . ':' . http_build_query($params);
-    }
-
-    /**
-     * Add a cache key to the list of keys for tracking and clearing later.
-     *
-     * Ensures that the provided key is stored in a centralized list of cache keys.
-     * If the key already exists in the list, it will not be added again.
-     *
-     * @param string $cache_key The cache key to add.
-     * @return void
-     */
-    public function addCasheKey(string $cache_key)
-    {
-        $cache_keys = Cache::get('product_cache_keys', []);
-        if (!in_array($cache_key, $cache_keys)) {
-            $cache_keys[] = $cache_key;
-            Cache::put('product_cache_keys', $cache_keys);
-        }
-    }
-
-    /**
-     * Clear all product cache keys.
-     *
-     * Loops through the list of stored cache keys and removes them from the cache.
-     *
-     * @return void
-     */
-    public function clearProductCache()
-    {
-        $cacheKeys = Cache::get('product_cache_keys', []);
-        foreach ($cacheKeys as $cacheKey) {
-            Cache::forget($cacheKey);
-        }
-        Cache::forget('product_cache_keys');
     }
 
     /**
@@ -81,7 +38,7 @@ class ProductService
             'sub_category_id' => $request->subCategoryId,
             'main_category_id' => $request->mainCategoryId,
         ]));
-        $this->addCasheKey($cache_key);
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
             return Product::with(['mainCategory', 'subCategory'])
@@ -99,7 +56,7 @@ class ProductService
     public function getLatestProducts()
     {
         $cache_key = 'latest_products';
-        $this->addCasheKey($cache_key);
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
         return Cache::remember($cache_key, now()->addHour(), function () {
             return Product::latestProducts()->available()->with(['mainCategory', 'subCategory'])->paginate(10);
         });
@@ -115,7 +72,7 @@ class ProductService
     {
         $request->merge(['user_id' => auth()->check() ? auth()->id() : null]);
         $cache_key = $this->generateCacheKey('products_filter', $request->all());
-        $this->addCasheKey($cache_key);
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
         return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
             return Product::filterProducts($request)->paginate(10);
         });
@@ -130,7 +87,7 @@ class ProductService
     public function getBestSellingProducts()
     {
         $cache_key = 'best_selling_products';
-        $this->addCasheKey($cache_key);
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
         return Cache::remember($cache_key, now()->addHour(), function () {
             return Product::bestSelling('product_with_total_sold')
                 ->available()
@@ -148,7 +105,7 @@ class ProductService
     {
         $user_id = auth()->id();
         $cache_key = $this->generateCacheKey('products_may_like_by:', ['user' => $user_id]);
-        $this->addCasheKey($cache_key);
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
         return Cache::remember($cache_key, now()->addHour(), function () use ($user_id) {
             return Product::mayLikeProducts($user_id)->available()->paginate(10);
         });
@@ -163,7 +120,7 @@ class ProductService
     public function getTopRatedProducts(int $limit = 10)
     {
         $cache_key = 'top_rating_products';
-        $this->addCasheKey($cache_key);
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
         return Cache::remember($cache_key, now()->addHour(), function () use ($limit) {
             return Product::topRated($limit)->with(['mainCategory', 'subCategory'])->available()->paginate(30);
         });
@@ -180,7 +137,7 @@ class ProductService
     {
         $product = Product::create($data);
         $this->photoService->storeMultiplePhotos($photos, $product);  // Store product photos.
-        $this->clearProductCache();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return $product;
     }
 
@@ -202,7 +159,7 @@ class ProductService
                 $photo->delete();
             }
         }
-        $this->clearProductCache();
+        $this->clearCacheGroup($this->groupe_key_cache);
         $product->save();
 
         return $product;
@@ -216,15 +173,19 @@ class ProductService
      */
     public function showLargestQuantitySold($name)
     {
+        $cache_key = "Largest_Quantity_Sold";
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
         $product = Product::where('name', 'like', '%' . $name . '%')->first();
         if ($product) {
             $largestOrderItem = $product->largestQuantitySoldByName($name)->first();
             if ($largestOrderItem) {
-                return [
-                    'Order Id' => $largestOrderItem->order_id,
-                    'Product Id' => $largestOrderItem->product_id,
-                    'Quantity' => $largestOrderItem->quantity
-                ];
+                return Cache::remember($cache_key, now()->addWeek(), function () use ($largestOrderItem) {
+                    return [
+                        'Order Id' => $largestOrderItem->order_id,
+                        'Product Id' => $largestOrderItem->product_id,
+                        'Quantity' => $largestOrderItem->quantity
+                    ];
+                });
             }
         }
     }

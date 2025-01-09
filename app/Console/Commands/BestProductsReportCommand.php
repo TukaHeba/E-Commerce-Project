@@ -35,10 +35,8 @@ class BestProductsReportCommand extends Command
      */
     public function handle()
     {
-        $file = $this->ExportService->bestSellingProductsExportStorage();
-        $users = User::role(['sales manager','store manager'])->get();
-        foreach ($users as $user) {
-            BestProductsReportJob::dispatch($user,$file);
-        }
+
+            BestProductsReportJob::dispatch();
+            $this->info('The command products-with-highest-sellings-command is done');
     }
 }

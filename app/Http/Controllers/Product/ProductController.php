@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Product;
 
 use Illuminate\Http\Request;
 use App\Models\Product\Product;
+use App\Traits\CacheManagerTrait;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Photo\PhotoService;
@@ -15,6 +16,8 @@ use App\Http\Requests\Photo\StoreMultiplePhotosRequest;
 
 class ProductController extends Controller
 {
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'products_cache_keys';
     protected ProductService $ProductService;
     protected PhotoService $photoService;
 
@@ -93,7 +96,7 @@ class ProductController extends Controller
     {
         $this->authorize('delete', Product::class);
         $product->delete();
-        $this->ProductService->clearProductCache();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'Product deleted successfully');
     }
 
@@ -120,7 +123,7 @@ class ProductController extends Controller
         $this->authorize('restoreDeleted', Product::class);
         $product = Product::onlyTrashed()->findOrFail($id);
         $product->restore();
-        $this->ProductService->clearProductCache();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success($product, 'Product restored successfully');
     }
 
@@ -134,7 +137,7 @@ class ProductController extends Controller
     {
         $this->authorize('forceDeleted', Product::class);
         Product::onlyTrashed()->findOrFail($id)->forceDelete();
-        $this->ProductService->clearProductCache();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'Product force deleted successfully');
     }
 

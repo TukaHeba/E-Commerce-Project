@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Http\Requests\Order\UpdateOrderRequest;
-use App\Http\Resources\OrderResource;
 use App\Models\Order\Order;
-use App\Services\Order\OrderService;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Services\Order\OrderService;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\OrderResource;
+use App\Http\Requests\Order\UpdateOrderRequest;
 
 class OrderController extends Controller
 {
