@@ -3,6 +3,7 @@
 namespace App\Policies\Favorite;
 
 use App\Models\User\User;
+use App\Models\Product\Product;
 use App\Models\Favorite\Favorite;
 
 /**
@@ -16,9 +17,10 @@ use App\Models\Favorite\Favorite;
 class FavoritePolicy
 {
     /**
-     * Create a new policy instance.
+     * Class FavoritePolicy
      *
-     * The constructor initializes the policy instance.
+     * This policy defines the authorization rules for actions on the Favorite model.
+     * It ensures that users can only view or delete their own favorite products.
      */
     public function __construct()
     {
@@ -26,26 +28,14 @@ class FavoritePolicy
     }
 
     /**
-     * Determine if the user can view a specific favorite.
+     * Determine if the user can delete a product from their favorites.
      *
      * @param User $user The authenticated user.
-     * @param Favorite $favorite The favorite being viewed.
-     * @return bool True if the favorite belongs to the authenticated user; otherwise, false.
+     * @param Product $product The product being removed from favorites.
+     * @return bool True if the product belongs to the user's favorites.
      */
-    public function show(User $user, Favorite $favorite): bool
+    public function destroy(User $user, Product $product): bool
     {
-        return $user->id === $favorite->user_id;
-    }
-
-    /**
-     * Determine if the user can delete a specific favorite.
-     *
-     * @param User $user The authenticated user.
-     * @param Favorite $favorite The favorite being deleted.
-     * @return bool True if the favorite belongs to the authenticated user; otherwise, false.
-     */
-    public function destroy(User $user, Favorite $favorite): bool
-    {
-        return $user->id === $favorite->user_id;
+        return $user->favoriteProducts()->where('product_id', $product->id)->exists();
     }
 }

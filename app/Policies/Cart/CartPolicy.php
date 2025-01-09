@@ -2,7 +2,6 @@
 
 namespace App\Policies\Cart;
 
-use App\Models\Cart\Cart;
 use App\Models\User\User;
 
 /**
@@ -36,18 +35,6 @@ class CartPolicy
     }
 
     /**
-     * Determine if the user can store (create) a cart.
-     *
-     * @param User $user The authenticated user.
-     * @param Cart $cart The cart being checked.
-     * @return bool True if the user is the owner of the cart.
-     */
-    public function store(User $user, Cart $cart)
-    {
-        return $user->id == $cart->user_id;
-    }
-
-    /**
      * Determine if the user can view a specific cart.
      *
      * @param User $user The authenticated user.
@@ -58,63 +45,6 @@ class CartPolicy
         return $user->hasRole('admin');
     }
 
-    /**
-     * Determine if the user can update the cart.
-     *
-     * @param User $user The authenticated user.
-     * @param Cart $cart The cart being checked.
-     * @return bool True if the user is the owner of the cart.
-     */
-    public function update(User $user, Cart $cart)
-    {
-        return $user->id == $cart->user_id;
-    }
-
-    /**
-     * Determine if the user can delete the cart.
-     *
-     * @param User $user The authenticated user.
-     * @param Cart $cart The cart being checked.
-     * @return bool True if the user is the owner of the cart.
-     */
-    public function delete(User $user, Cart $cart)
-    {
-        return $user->id == $cart->user_id;
-    }
-
-    /**
-     * Determine if the user can view their own cart.
-     *
-     * @param User $user The authenticated user.
-     * @param Cart $cart The cart being checked.
-     * @return bool True if the user is the owner of the cart.
-     */
-    public function userCart(User $user, Cart $cart)
-    {
-        return $user->id == $cart->user_id;
-    }
-
-    /**
-     * Determine if the user can perform checkout with their cart.
-     *
-     * @param User $user The authenticated user.
-     * @param Cart $cart The cart being checked.
-     * @return bool True if the user is the owner of the cart.
-     */
-    public function checkout(User $user, Cart $cart)
-    {
-        return $user->id == $cart->user_id;
-    }
-
-    /**
-     * Determine if the user can place an order using their cart.
-     *
-     * @param User $user The authenticated user.
-     * @param Cart $cart The cart being checked.
-     * @return bool True if the user is the owner of the cart.
-     */
-    public function placeOrder(User $user, Cart $cart)
-    {
-        return $user->id == $cart->user_id;
-    }
+  
+   
 }

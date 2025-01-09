@@ -9,7 +9,7 @@ use App\Models\Rate\Rate;
 use App\Models\User\User;
 use App\Models\Order\Order;
 use App\Models\Photo\Photo;
-use App\Policies\OrderPolicy;
+use App\Policies\Order\OrderPolicy;
 use App\Models\Product\Product;
 use App\Models\Favorite\Favorite;
 use App\Policies\Cart\CartPolicy;

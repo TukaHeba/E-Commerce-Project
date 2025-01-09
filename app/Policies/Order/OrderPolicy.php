@@ -16,6 +16,26 @@ use App\Models\Order\Order;
 class OrderPolicy
 {
     /**
+     * Determine if the user can view the orders.
+     * @param \App\Models\User\User $user
+     * @return bool
+     */
+    public function viewOrdersUser(User $user)
+    {
+        return $user->hasRole('customer');
+    }
+
+    /**
+     * Determine if the admin can view the orders.
+     * @param \App\Models\User\User $user
+     * @return bool
+     */
+    public function viewOrdersAdmin(User $user)
+    {
+        return $user->hasRole('admin');
+    }
+
+    /**
      * Determine if the user can view the order.
      *
      * @param User $user The authenticated user.
@@ -80,5 +100,16 @@ class OrderPolicy
     public function forceDeleted(User $user): bool
     {
         return $user->hasRole('admin');
+    }
+
+     /**
+     * Determine if the user can view 'order tracking' or 'oldest order' or 'latest order'.
+     *
+     * @param User $user The authenticated user.
+     * @return bool True if the user has the 'admin' or 'sales manager' or 'store manager' role.
+     */
+    public function OrderTracking_oldest_lastest(User $user): bool
+    {
+        return $user->hasRole(['admin', 'sales manager','store manager']);
     }
 }

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Order;
 use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order\Order;
-use App\Models\User\User;
 use App\Services\Order\OrderService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -65,6 +64,7 @@ class OrderController extends Controller
      */
     public function update(UpdateOrderRequest $request, Order $order): JsonResponse
     {
+        $this->authorize('update' , Order::class);
         $updatedOrder = $this->OrderService->updateOrder($order, $request->validated());
         return self::success($updatedOrder, 'Order updated successfully');
     }
@@ -76,22 +76,10 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
-        $this->authorize('destroy', $order);
+        $this->authorize('delete' , Order::class);
         $order->delete();
         return self::success(null, 'Order deleted successfully');
 
-    }
-
-    /**
-     * Display soft-deleted records related to user.
-     * @param \Illuminate\Support\Facades\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function showDeletedUser(Request $request): JsonResponse
-    {
-        $this->authorize('viewOrdersUser', Order::class);
-        $deletedOrders = $this->OrderService->getDeletedOrdersUser($request);
-        return self::paginated($deletedOrders, OrderResource::class, 'Orders retrieved successfully', 200);
     }
 
     /**
@@ -99,9 +87,9 @@ class OrderController extends Controller
      * @param \Illuminate\Support\Facades\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showDeletedAdmin(Request $request): JsonResponse
+    public function showDeleted(Request $request): JsonResponse
     {
-        $this->authorize('viewOrdersAdmin', Order::class);
+        $this->authorize('showDeleted', arguments: Order::class);
         $deletedOrders = $this->OrderService->getDeletedOrdersAdmin($request);
         return self::paginated($deletedOrders, OrderResource::class, 'Orders retrieved successfully', 200);
     }
@@ -113,6 +101,7 @@ class OrderController extends Controller
      */
     public function restoreDeleted(string $id): JsonResponse
     {
+        $this->authorize('restoreDeleted', arguments: Order::class);
         $order = Order::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
         $order->restore();
         return self::success($order, 'Order restored successfully');
@@ -125,7 +114,9 @@ class OrderController extends Controller
      */
     public function forceDeleted(string $id): JsonResponse
     {
-        $order = Order::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id)->forceDelete();
+        $this->authorize('forceDeleted', arguments: Order::class);
+        $order = Order::onlyTrashed()->findOrFail($id);
+        $order->forceDelete();
         return self::success(null, 'Order force deleted successfully');
     }
 
@@ -137,6 +128,7 @@ class OrderController extends Controller
      */
     public function orderTracking(Order $order): JsonResponse
     {
+        $this->authorize('OrderTracking_oldest_lastest', Order::class);
         $order = $this->OrderService->getOrderTracking($order);
         return self::success(new OrderResource($order), 'Order tracking data retrieved successfully.');
     }
@@ -147,6 +139,7 @@ class OrderController extends Controller
      */
     public function showOldestOrder(): JsonResponse
     {
+        $this->authorize('OrderTracking_oldest_lastest', Order::class);
         $order = $this->OrderService->getOldestOrder();
         return self::success(new OrderResource($order->load('orderItems')), 'Oldest order retrieved successfully');
     }
@@ -157,6 +150,7 @@ class OrderController extends Controller
      */
     public function showLatestOrder(): JsonResponse
     {
+        $this->authorize('OrderTracking_oldest_lastest', Order::class);
         $order = $this->OrderService->getLatestOrder();
         return self::success(new OrderResource($order->load('orderItems')), 'Latest order retrieved successfully');
     }

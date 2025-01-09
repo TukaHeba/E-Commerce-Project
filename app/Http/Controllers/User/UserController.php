@@ -108,11 +108,11 @@ class UserController extends Controller
         $user = User::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'User force deleted successfully');
     }
-    #FIXME add the needed policy for it
+    #FIXME add the needed policy
     public function showmostExpensiveOrder($user)
     {
         $mostExpensiveOrder = $this->UserService->showmostExpensiveOrder($user);
-        return self::success(new OrderResource($mostExpensiveOrder), 'Most Expensive Order for this Product restored successfully');
+        return self::success(new OrderResource($mostExpensiveOrder), 'Most Expensive Order restored successfully');
     }
 
 }
