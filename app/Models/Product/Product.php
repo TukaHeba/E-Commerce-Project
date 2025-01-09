@@ -9,7 +9,6 @@ use App\Exports\UnsoldExport;
 use InvalidArgumentException;
 use App\Exports\LowStockExport;
 use App\Models\CartItem\CartItem;
-use App\Models\Category\Category;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use App\Models\Category\SubCategory;
@@ -304,7 +303,7 @@ class Product extends Model
      * generate low stock products excel sheet as report to admin
      * @return string
      */
-     static function generateLowStockReport()
+    static function generateLowStockReport()
     {
         $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
 

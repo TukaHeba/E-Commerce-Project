@@ -2,10 +2,7 @@
 
 namespace App\Services\Category;
 
-use App\Jobs\SendNotification;
 use App\Traits\CacheManagerTrait;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,7 +12,7 @@ class MainCategoryService
     use CacheManagerTrait;
     private $groupe_key_cache = 'main_categories_cache_keys';
     /**
-     * method to view all main categories
+     * View all main categories
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getMainCategories(): LengthAwarePaginator
@@ -29,9 +26,9 @@ class MainCategoryService
     }
 
     /**
-     * method to creta new main category
-     * @param   $data
-     * @return /Illuminate\Http\JsonResponse if have an error
+     * Create new main category
+     * @param mixed $data
+     * @return MainCategory
      */
     public function storeMainCategory($data)
     {
@@ -89,6 +86,7 @@ class MainCategoryService
         $mainCategory = MainCategory::onlyTrashed()->findOrFail($id);
         $mainCategory->subCategories()->withTrashed()->updateExistingPivot($mainCategory->subCategories->pluck('id'), ['deleted_at' => null]);
         $mainCategory->restore();
-        return $mainCategory;
+        $this->clearCacheGroup($this->groupe_key_cache);
+        return true;
     }
 }
