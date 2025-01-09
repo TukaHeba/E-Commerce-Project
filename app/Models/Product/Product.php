@@ -311,18 +311,6 @@ class Product extends Model
 
         return $fileName;
     }
-    /**
-     * generate  products has never been sold excel sheet as report
-     * @return string
-     */
-    static function generateProductsNeverBeenSoldReport()
-    {
-        $fileName = 'reports/products-never-been-sold-report' . now()->format('Y-m-d') . '.xlsx';
-
-        Excel::store(new UnsoldExport, $fileName, 'local'); // Save to storage/app
-
-        return $fileName;
-    }
 
     public function scopeJoinRelatedTables($query)
     {

@@ -133,16 +133,6 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the favorite products for the user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function favorites()
-    {
-        return $this->hasMany(Favorite::class);
-    }
-
-    /**
      * Get the rates of products for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -170,17 +160,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    /**
-     * Get the most expensive delivered order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function mostExpensiveOrder()
-    {
-        return $this->hasOne(Order::class)
-            ->where('status', 'delivered')
-            ->ofMany('total_price', 'max');
-    }
+/**
+ * Calculate the average total price of all delivered orders for the user.
+ *
+ * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
+ */
+public function userPurchasesAverage()
+{
+    return $this->orders()
+        ->where('status', 'delivered')
+        ->avg('total_price');
+}
+
 
     /**
      * Get the oldest order.

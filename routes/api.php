@@ -59,15 +59,16 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('users/show-deleted', 'showDeleted');
         Route::delete('users/{user}/force-deleted', 'forceDeleted');
         Route::post('users/{user}/restore-deleted', 'restoreDeleted');
-        Route::get('users/{user}/most-expensive-order', 'showmostExpensiveOrder');
+        Route::get('users/{user}/user-purchases-average', 'userPurchasesAverage');
         Route::apiResource('users', UserController::class);
     });
 
 
     // ---------------------------------- Roles & Permissuin Routes ---------------------------------- //
+    Route::middleware(['throttle:60,1', 'security', 'auth:api', 'role:admin'])->group(function () {
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('permissions', PermissionController::class);
-
+    });
 
     // ------------------------------------ Main Category Routes ------------------------------------ //
     Route::controller(MainCategoryController::class)->middleware('auth:api')->group(function () {

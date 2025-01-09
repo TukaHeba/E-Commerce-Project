@@ -37,6 +37,7 @@ class MainCategoryController extends Controller
      */
     public function store(StoreMainCategoryRequest $request): JsonResponse
     {
+        $this->authorize( 'store', MainCategory::class);
         $mainCategory = $this->MainCategoryService->storeMainCategory($request->validated());
         return self::success(new MainCategoryResource($mainCategory), 'MainCategory created successfully', 201);
     }
@@ -66,6 +67,7 @@ class MainCategoryController extends Controller
      */
     public function destroy($id): JsonResponse
     {
+        $this->authorize('delete', MainCategory::class);
         $this->MainCategoryService->destroyMainCategory($id);
         return self::success(null, 'MainCategory deleted successfully');
     }
@@ -76,6 +78,7 @@ class MainCategoryController extends Controller
      */
     public function showDeleted(): JsonResponse
     {
+        $this->authorize('showDeleted', MainCategory::class);
         $mainCategories = MainCategory::onlyTrashed()->paginate();
         return self::paginated($mainCategories, MainCategoryResource::class, 'Main categories retrieved successfully', 200);
     }
@@ -87,8 +90,9 @@ class MainCategoryController extends Controller
      */
     public function restoreDeleted($id): JsonResponse
     {
-        $this->MainCategoryService->restorMainCategory($id);
-        return self::success(null, 'MainCategory restored successfully');
+        $this->authorize('restoreDeleted',MainCategory::class);
+        $restoredMainCategory = $this->MainCategoryService->restorMainCategory($id);
+        return self::success(new MainCategoryResource($restoredMainCategory), 'MainCategory restored successfully');
     }
 
     /**
@@ -98,7 +102,8 @@ class MainCategoryController extends Controller
      */
     public function forceDeleted(string $id): JsonResponse
     {
-        $mainCategory = MainCategory::onlyTrashed()->findOrFail($id)->forceDelete();
+        $this->authorize('forceDeleted',MainCategory::class);
+        MainCategory::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'MainCategory force deleted successfully');
     }
 }

@@ -38,6 +38,7 @@ class SubCategoryController extends Controller
      */
     public function store(StoreSubCategoryRequest $request): JsonResponse
     {
+        $this->authorize('store', SubCategory::class);
         $subCategory = $this->SubCategoryService->storeSubCategory($request->validated());
         return self::success(new SubCategoryResource($subCategory), 'SubCategory created successfully', 201);
     }
@@ -60,6 +61,7 @@ class SubCategoryController extends Controller
      */
     public function update(UpdateSubCategoryRequest $request, SubCategory $subCategory): JsonResponse
     {
+        $this->authorize('update', SubCategory::class);
         $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(),$subCategory);
         return self::success(new SubCategoryResource($updatedSubCategory), 'SubCategory updated successfully');
     }
@@ -103,6 +105,7 @@ class SubCategoryController extends Controller
      */
     public function forceDeleted($id): JsonResponse
     {
+        $this->authorize('forceDeleted', SubCategory::class);
         SubCategory::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'SubCategory force deleted successfully');
     }

@@ -26,6 +26,7 @@ class Order extends Model
         'postal_code',
         'status',
         'total_price',
+        'order_number',
     ];
 
     /**

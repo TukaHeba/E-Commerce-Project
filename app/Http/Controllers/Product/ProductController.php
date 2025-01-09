@@ -61,6 +61,7 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request, StoreMultiplePhotosRequest $storeMultiplePhotosRequest): JsonResponse
     {
+        $this->authorize('store', Product::class);
         $photos = $storeMultiplePhotosRequest->file('photos');
         $product = $this->ProductService->storeProduct($request->validated(), $photos);
         return self::success($product, 'Product created successfully', 201);
@@ -76,6 +77,7 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
+        $this->authorize('update', Product::class);
         $deletedPhotos = $request->input('photosDeleted');
         $updatedProduct = $this->ProductService->updateProduct($product, $request->validated(), $deletedPhotos);
         return self::success($updatedProduct, 'Product updated successfully');
@@ -89,6 +91,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): JsonResponse
     {
+        $this->authorize('delete', Product::class);
         $product->delete();
         $this->ProductService->clearProductCache();
         return self::success(null, 'Product deleted successfully');
@@ -101,6 +104,7 @@ class ProductController extends Controller
      */
     public function showDeleted(): JsonResponse
     {
+        $this->authorize('showDeleted', Product::class);
         $products = Product::onlyTrashed()->get();
         return self::success($products, 'Products retrieved successfully');
     }
@@ -113,6 +117,7 @@ class ProductController extends Controller
      */
     public function restoreDeleted(string $id): JsonResponse
     {
+        $this->authorize('restoreDeleted', Product::class);
         $product = Product::onlyTrashed()->findOrFail($id);
         $product->restore();
         $this->ProductService->clearProductCache();
@@ -127,6 +132,7 @@ class ProductController extends Controller
      */
     public function forceDeleted(string $id): JsonResponse
     {
+        $this->authorize('forceDeleted', Product::class);
         Product::onlyTrashed()->findOrFail($id)->forceDelete();
         $this->ProductService->clearProductCache();
         return self::success(null, 'Product force deleted successfully');
@@ -195,6 +201,7 @@ class ProductController extends Controller
     }
     public function showLargestQuantitySold($name)
     {
+        $this->authorize('largestQuantitySold', Product::class);
         $largestOrderItem = $this->ProductService->showLargestQuantitySold($name);
         return self::success($largestOrderItem, 'Largest Quantity Sold for this Product restored successfully');
     }

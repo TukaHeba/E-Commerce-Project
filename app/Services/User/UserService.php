@@ -4,6 +4,7 @@ namespace App\Services\User;
 
 use Exception;
 use App\Models\User\User;
+use App\Models\Order\Order;
 use Illuminate\Http\Request;
 use App\Services\Photo\PhotoService;
 use Illuminate\Support\Facades\Auth;
@@ -48,11 +49,16 @@ class UserService
         $user->update(array_filter($data));
         return $user;
     }
-    public function showmostExpensiveOrder($user)
+
+    /**
+     * Calculate the average total price of all delivered orders for the user.
+     *
+     * @param string $id The ID of the user.
+     * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
+     */
+    public function userPurchasesAverage($user)
     {
-        $mostExpensiveOrder = $user->mostExpensiveOrder;
-        return   $mostExpensiveOrder;
-
+        $userPurchasesAverage = $user->userPurchasesAverage;
+        return   $userPurchasesAverage;
     }
-
 }
