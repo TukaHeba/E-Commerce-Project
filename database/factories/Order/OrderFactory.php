@@ -4,7 +4,9 @@ namespace Database\Factories\Order;
 
 use App\Models\Address\Zone;
 use App\Models\User\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order\Order>
