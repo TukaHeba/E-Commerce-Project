@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\User;
 
 use App\Models\User\User;
-use Illuminate\Http\Request;
 use App\Traits\CacheManagerTrait;
 use Illuminate\Http\JsonResponse;
 use App\Services\User\UserService;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 
@@ -29,10 +27,10 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
         $this->authorize('index', User::class);
-        $users = $this->UserService->getUsers($request);
+        $users = $this->UserService->getUsers();
         return self::paginated($users, UserResource::class, 'Users retrieved successfully', 200);
 
     }
@@ -51,7 +49,7 @@ class UserController extends Controller
         return self::success(new UserResource($user), 'User created successfully', 201);
     }
 
-     /**
+    /**
      * Display details of a specific user.
      *
      * @param \App\Models\User\User $user
@@ -63,7 +61,7 @@ class UserController extends Controller
         return self::success(new UserResource($user), 'User retrieved successfully');
     }
 
-     /**
+    /**
      * Update the details of an existing user.
      *
      * @param \App\Http\Requests\User\UpdateUserRequest $request
@@ -73,12 +71,12 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        $this->authorize( 'update' , $user);
+        $this->authorize('update', $user);
         $updatedUser = $this->UserService->updateUser($user, $request->validated());
         return self::success(new UserResource($updatedUser), 'User updated successfully');
     }
 
-     /**
+    /**
      * Remove  user from the database (soft delete).
      *
      * @param \App\Models\User\User $user
@@ -86,7 +84,7 @@ class UserController extends Controller
      */
     public function destroy(User $user): JsonResponse
     {
-        $this->authorize( 'delete' , $user);
+        $this->authorize('delete', $user);
         $user->delete();
         $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User deleted successfully');
@@ -103,7 +101,7 @@ class UserController extends Controller
         $users = $this->UserService->showDeletedUsers();
         return self::paginated($users, UserResource::class, 'Users retrieved successfully', 200);
     }
-     /**
+    /**
      * Restore a soft-deleted user.
      *
      * @param string $id The ID of the user to restore.
@@ -115,9 +113,9 @@ class UserController extends Controller
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
         $this->clearCacheGroup($this->groupe_key_cache);
-        return self::success( null , 'User restored successfully');
+        return self::success(null, 'User restored successfully');
     }
-     /**
+    /**
      * Permanently delete a soft-deleted user.
      *
      * @param  string $id The ID of the user the user to permanently delete.
@@ -131,17 +129,17 @@ class UserController extends Controller
         return self::success(null, 'User force deleted successfully');
     }
 
-     /**
+    /**
      * Calculate the average total price of all delivered orders for the user.
      *
      * @param string $id The ID of the user.
      * @return \Illuminate\Http\JsonResponse
      */
 
-     public function userPurchasesAverage($user)
-     {
-         $userPurchasesAverage = $this->UserService->userPurchasesAverage($user);
-         return self::success($userPurchasesAverage, 'the average total price of all delivered orders for the user');
-     }
+    public function userPurchasesAverage($user)
+    {
+        $userPurchasesAverage = $this->UserService->userPurchasesAverage($user);
+        return self::success($userPurchasesAverage, 'the average total price of all delivered orders for the user');
+    }
 
 }

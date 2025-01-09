@@ -19,13 +19,13 @@ class UserService
      * Log the exception and throw it
      * @return LengthAwarePaginator
      */
-    public function getUsers($request)
+    public function getUsers()
     {
         $cache_key = 'users';
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         return Cache::remember($cache_key, now()->addDay(), function () {
-                 return User::paginate(10);
+            return User::paginate(10);
         });
     }
 
@@ -65,21 +65,22 @@ class UserService
     public function userPurchasesAverage($user)
     {
         $userPurchasesAverage = $user->userPurchasesAverage;
-        return   $userPurchasesAverage;
+        return $userPurchasesAverage;
     }
 
     /**
      * Show deleted users
      * @return mixed
      */
-    public function showDeletedUsers() {
+    public function showDeletedUsers()
+    {
         $cache_key = 'deleted_users';
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         $users = User::onlyTrashed()->paginate();
 
-        return Cache::remember($cache_key, now()->addWeek(), function () use($users) {
-              return $users;
+        return Cache::remember($cache_key, now()->addWeek(), function () use ($users) {
+            return $users;
         });
     }
 }
