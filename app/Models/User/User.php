@@ -52,6 +52,13 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    /**
+     * List of attributes that should be appended to the model's array and JSON representation.
+     * These attributes are dynamically generated using accessor methods.
+     * 
+     * @var array
+     */
     public $appends = [
         'full_name',
     ];
@@ -152,26 +159,28 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Product::class, 'favorites')->withTimestamps();
     }
 
-
-
-
+    /**
+     * Accessor to get the full name of the user by concatenating the first and last names.
+     * This method is used to create a dynamic attribute 'full_name' when accessing the model.
+     * 
+     * @return string The full name of the user.
+     */
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
     }
 
-/**
- * Calculate the average total price of all delivered orders for the user.
- *
- * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
- */
-public function userPurchasesAverage()
-{
-    return $this->orders()
-        ->where('status', 'delivered')
-        ->avg('total_price');
-}
-
+    /**
+     * Calculate the average total price of all delivered orders for the user.
+     *
+     * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
+     */
+    public function userPurchasesAverage()
+    {
+        return $this->orders()
+                    ->where('status', 'delivered')
+                    ->avg('total_price');
+    }
 
     /**
      * Get the oldest order.
