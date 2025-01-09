@@ -30,36 +30,15 @@ class ReportService
      */
     public function getProductsRemainingInCarts(): array
     {
-        $products_remaining = Cart::whereHas(
-            'cartItems',
-            function ($query) {
-                $query->where('created_at', '<=', Carbon::now()->subMonths(2));
+        $products_remaining = Cart::withWhereHas('cartItems', function ($query) {
+                $query->where('created_at', '<=', Carbon::now()->subMonths(2))
+                    ->with(['product:id,name'])
+                    ->select('cart_id', 'product_id', 'created_at');
             }
-        )
-            ->with([
-                'cartItems' => function ($query) {
-                    $query->select('cart_id', 'product_id', 'created_at')
-                        ->where('created_at', '<=', Carbon::now()->subMonths(2))
-                        ->with([
-                            'product' => function ($q) {
-                                $q->select('id', 'name');
-                            }
-                        ]);
-                }
-            ])
-            ->select('id', 'user_id')
-            ->get();
+        )->select('id', 'user_id')
+         ->get();
 
-        return $products_remaining->map(function ($cart) {
-            $cart->cart_items = $cart->cartItems->map(function ($item) {
-                return [
-                    'product' => $item->product,
-                    'created_at' => Carbon::parse($item->created_at)->toDateString(),
-                ];
-            });
-            unset($cart->cartItems);
-            return $cart;
-        })->toArray();
+        return $products_remaining->toArray();
     }
 
     /**
@@ -76,9 +55,7 @@ class ReportService
      */
     public function getBestSellingProducts()
     {
-        return Cache::remember("best_selling_products_report", now()->addDay(), function ()  {
-            return Product::bestSelling('product_with_total_sold')->paginate(10);
-        });
+        return Product::bestSelling('product_with_total_sold')->paginate(10);
     }
 
     /**
@@ -86,7 +63,7 @@ class ReportService
      */
     public function getBestSellingCategories()
     {
-        return $BestCategories = Product::bestSelling('category_with_total_sold')->paginate(10);
+        return Product::bestSelling('category_with_total_sold')->paginate(10);
     }
 
     /**
@@ -106,7 +83,7 @@ class ReportService
      * @return mixed
      */
 
-    public function getCountriesWithHighestOrders(array $data,int $country)
+    public function getCountriesWithHighestOrders(array $data, int $country)
     {
         $topCountries = Order::with('zone.city.country')
             ->when(isset($data['start_date']), function ($q) use ($data) {
@@ -121,8 +98,8 @@ class ReportService
                 'country_name' => $countryName,
                 'total_orders' => $orders->count(),
             ])
-            ->sortByDesc('total_orders') // ترتيب تنازلي حسب عدد الطلبات
-            ->take($country) // إرجاع أفضل 5 دول
+            ->sortByDesc('total_orders')
+            ->take($country)
             ->values();
         return $topCountries;
     }

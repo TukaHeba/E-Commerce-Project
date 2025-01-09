@@ -15,9 +15,9 @@ class CartItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'product_id'=>$this->product_id,
-            'product'=>new ProductResource($this->whenLoaded('product')) ,
-            'quantity'=>$this->quantity
+            'Product Id'       => $this->product_id,
+            'Product Name'     => $this->product->name,
+            'Product Quantity' => $this->quantity
         ];
     }
 }

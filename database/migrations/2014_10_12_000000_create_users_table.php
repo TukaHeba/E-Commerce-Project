@@ -22,10 +22,14 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->boolean('is_male')->nullable();     //1=male , 0=female
             $table->date('birthdate')->nullable();
-            $table->string('telegram_user_id')->nullable();
+            $table->string('telegram_user_id')->nullable()->unique();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
+
+            // Indexing columns to optimize performance
+            $table->unique('phone', 'index_users_phone');
+            $table->fullText('address', 'index_users_address');
         });
     }
 

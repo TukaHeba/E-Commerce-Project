@@ -16,15 +16,15 @@ class SendUnsoldProductEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $user;
-    protected $filePath;
+    protected $file;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user,$filePath)
+    public function __construct(User $user,$file)
     {
         $this->user = $user;
-        $this->filePath = $filePath;
+        $this->file = $file;
 
     }
 
@@ -32,7 +32,7 @@ class SendUnsoldProductEmail implements ShouldQueue
      * Execute the job.
      */public function handle(): void
     {
-        $this->user->notify(new UnsoldProductNotification($this->filePath));
+        $this->user->notify(new UnsoldProductNotification($this->file));
 
     }
 
