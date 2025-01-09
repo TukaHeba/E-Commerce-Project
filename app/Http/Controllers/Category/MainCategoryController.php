@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Category;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Category\MainCategory;
@@ -77,8 +76,8 @@ class MainCategoryController extends Controller
      */
     public function showDeleted(): JsonResponse
     {
-        $mainCategorys = MainCategory::onlyTrashed()->get();
-        return self::success(MainCategoryResource::collection($mainCategorys), 'MainCategorys retrieved successfully');
+        $mainCategories = MainCategory::onlyTrashed()->paginate();
+        return self::paginated($mainCategories, MainCategoryResource::class, 'Main categories retrieved successfully', 200);
     }
 
     /**

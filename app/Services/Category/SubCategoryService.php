@@ -16,7 +16,7 @@ class SubCategoryService
      * View all sub categories
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getSubCategorys(): LengthAwarePaginator
+    public function getSubCategories(): LengthAwarePaginator
     {
         $cache_key = 'sub_categories';
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
@@ -71,6 +71,7 @@ class SubCategoryService
         $subCategory = SubCategory::findOrFail($id);
         $subCategory->delete();
         $subCategory->mainCategories()->updateExistingPivot($subCategory->mainCategories->pluck('id'), ['deleted_at' => now()]);
+        $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
     /**
@@ -83,6 +84,7 @@ class SubCategoryService
         $subCategory = SubCategory::onlyTrashed()->findOrFail($id);
         $subCategory->mainCategories()->withTrashed()->updateExistingPivot($subCategory->mainCategories->pluck('id'), ['deleted_at' => null]);
         $subCategory->restore();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
 }

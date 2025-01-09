@@ -27,7 +27,7 @@ class SubCategoryController extends Controller
      */
     public function index(): JsonResponse
     {
-        $subCategories = $this->SubCategoryService->getSubCategorys();
+        $subCategories = $this->SubCategoryService->getSubCategories();
         return self::paginated($subCategories, SubCategoryResource::class,'SubCategories retrieved successfully',200);
     }
 
@@ -81,8 +81,8 @@ class SubCategoryController extends Controller
      */
     public function showDeleted(): JsonResponse
     {
-        $subCategorys = SubCategory::onlyTrashed()->get();
-        return self::success(SubCategoryResource::collection($subCategorys), 'SubCategorys retrieved successfully');
+        $subCategories = SubCategory::onlyTrashed()->paginate();
+        return self::paginated($subCategories, SubCategoryResource::class,'SubCategories retrieved successfully',200);
     }
 
     /**
@@ -103,7 +103,7 @@ class SubCategoryController extends Controller
      */
     public function forceDeleted($id): JsonResponse
     {
-        $subCategory = SubCategory::onlyTrashed()->findOrFail($id)->forceDelete();
+        SubCategory::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'SubCategory force deleted successfully');
     }
 }

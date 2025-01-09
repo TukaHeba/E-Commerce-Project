@@ -24,7 +24,7 @@ class MainCategoryService
             return MainCategory::with('subCategories')->paginate(10);
         });
     }
-    
+
     /**
      * Create new main category
      * @param mixed $data
@@ -86,6 +86,7 @@ class MainCategoryService
         $mainCategory = MainCategory::onlyTrashed()->findOrFail($id);
         $mainCategory->subCategories()->withTrashed()->updateExistingPivot($mainCategory->subCategories->pluck('id'), ['deleted_at' => null]);
         $mainCategory->restore();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
 }

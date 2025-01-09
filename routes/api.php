@@ -71,9 +71,9 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // ------------------------------------ Main Category Routes ------------------------------------ //
     Route::controller(MainCategoryController::class)->middleware('auth:api')->group(function () {
-        Route::get('main-categories/{main-category}/show-deleted', 'showDeleted');
-        Route::delete('main-categories/{main-category}/force-deleted', 'forceDeleted');
-        Route::post('main-categories/{main-category}/restore-deleted', 'restoreDeleted');
+        Route::get('main-categories//show-deleted', 'showDeleted');
+        Route::delete('main-categories/{id}/force-deleted', 'forceDeleted');
+        Route::post('main-categories/{id}/restore-deleted', 'restoreDeleted');
         Route::apiResource('main-categories', MainCategoryController::class)->except(['index', 'show']);
     });
     Route::apiResource('main-categories', MainCategoryController::class)->only(['index', 'show']);
@@ -81,9 +81,9 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // ------------------------------------ Sub Category Routes ------------------------------------ //
     Route::controller(SubCategoryController::class)->middleware('auth:api')->group(function () {
-        Route::get('sub-categories/{sub-category}/show-deleted', 'showDeleted');
-        Route::delete('sub-categories/{sub-category}/force-deleted', 'forceDeleted');
-        Route::post('sub-categories/{sub-category}/restore-deleted', 'restoreDeleted');
+        Route::get('sub-categories/show-deleted', 'showDeleted');
+        Route::delete('sub-categories/{id}/force-deleted', 'forceDeleted');
+        Route::post('sub-categories/{id}/restore-deleted', 'restoreDeleted');
         Route::apiResource('sub-categories', SubCategoryController::class)->except(['index', 'show']);
     });
     Route::apiResource('sub-categories', SubCategoryController::class)->only(['index', 'show']);

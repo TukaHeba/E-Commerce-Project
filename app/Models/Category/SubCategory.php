@@ -47,17 +47,4 @@ class SubCategory extends Model
   {
     return $this->morphMany(Photo::class, 'photoable');
   }
-   /**
-     * Resolve route model binding with soft-deleted models.
-     * Overrides the default route model binding to include soft-deleted models.
-     *
-     * @param mixed  $value The value of the binding (e.g., ID).
-     * @param string|null $field The field to search for (defaults to 'id').
-     * @return \Illuminate\Database\Eloquent\Model The resolved model instance.
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the model is not found.
-     */
-    public function resolveRouteBinding($value, $field = null)
-    {
-        return $this->where($field ?? 'id', $value)->withTrashed()->firstOrFail();
-    }
 }
