@@ -7,7 +7,6 @@ use Illuminate\Support\Str;
 use App\Models\Address\Zone;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order\Order>
