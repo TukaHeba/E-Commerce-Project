@@ -33,6 +33,7 @@ class RateController extends Controller
         return self::paginated($rates, RateResource::class, 'Rates retrieved successfully', 200);
     }
 
+    #FIXME check $data['user_id] = auth()->id() to join it inside form request
     /**
      * Store a newly created rate in the database.
      * @param StoreRateRequest $request The HTTP request object containing validated rate data.
@@ -67,6 +68,7 @@ class RateController extends Controller
      */
     public function update(UpdateRateRequest $request, Rate $rate): JsonResponse
     {
+        $this->authorize('update', $rate);
         $updatedRate = $this->RateService->updateRate($rate, $request->validated());
         return self::success(new RateResource($updatedRate), 'Rate updated successfully', 201);
     }
@@ -78,11 +80,8 @@ class RateController extends Controller
      */
     public function destroy(Rate $rate): JsonResponse
     {
-        if ($rate->user_id === auth()->id()) {
-            $this->RateService->destroy($rate);
-            return self::success(null, 'Rate deleted successfully', 200);
-        } else {
-            return self::error(null, "You're not authorized to delete this rate.", 403);
-        }
+        $this->authorize('delete', $rate);
+        $this->RateService->destroy($rate);
+        return self::success(null, 'Rate deleted successfully', 200);
     }
 }

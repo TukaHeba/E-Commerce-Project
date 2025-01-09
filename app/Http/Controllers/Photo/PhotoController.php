@@ -38,6 +38,7 @@ class PhotoController extends Controller
      */
     public function storePhoto(StorePhotoRequest $request, Model $model): JsonResponse
     {
+        $this->authorize('create' , $model);
         // Store the photo using the PhotoService
         $photo = $this->PhotoService->storePhoto($request->file('photo'), $model);
 
@@ -53,6 +54,7 @@ class PhotoController extends Controller
      */
     public function storeMultiplePhotos(StoreMultiplePhotosRequest $request, Model $model): JsonResponse
     {
+        $this->authorize('create' , $model);
         // Store multiple photos using the PhotoService
         $photos = $this->PhotoService->storeMultiplePhotos($request->file('photos'), $model);
 
@@ -68,6 +70,7 @@ class PhotoController extends Controller
      */
     public function destroy(Photo $photo): JsonResponse
     {
+        $this->authorize('delete' , $photo);
         // Delete the photo from storage and database
         $this->PhotoService->deletePhoto($photo->photo_path);
         $photo->delete();

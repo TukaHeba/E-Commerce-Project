@@ -28,7 +28,6 @@ class SubCategoryController extends Controller
     public function index(Request $request): JsonResponse
     {
         $subCategories = $this->SubCategoryService->getSubCategorys($request);
-        //return self::paginated($subCategorys, 'SubCategorys retrieved successfully', 200);
         return self::success(SubCategoryResource::collection($subCategories), 'SubCategory retrieved successfully', 200);
     }
 
@@ -38,6 +37,7 @@ class SubCategoryController extends Controller
      */
     public function store(StoreSubCategoryRequest $request): JsonResponse
     {
+        $this->authorize('store', SubCategory::class);
         $subCategory = $this->SubCategoryService->storeSubCategory($request->validated());
         return self::success(new SubCategoryResource($subCategory), 'SubCategory created successfully', 201);
     }
@@ -57,6 +57,7 @@ class SubCategoryController extends Controller
      */
     public function update(UpdateSubCategoryRequest $request, $id): JsonResponse
     {
+        $this->authorize('update', SubCategory::class);
         $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(),$id);
         return self::success(new SubCategoryResource($updatedSubCategory), 'SubCategory updated successfully');
     }
@@ -66,6 +67,7 @@ class SubCategoryController extends Controller
      */
     public function destroy($id): JsonResponse
     {
+        $this->authorize('delete', SubCategory::class);
         $this->SubCategoryService->destroySubCategory($id);    
         return self::success(null, 'SubCategory deleted successfully');
     }
@@ -75,6 +77,7 @@ class SubCategoryController extends Controller
      */
     public function showDeleted(): JsonResponse
     {
+        $this->authorize('showDeleted', SubCategory::class);
         $subCategorys = SubCategory::onlyTrashed()->get();
         return self::success(SubCategoryResource::collection($subCategorys), 'SubCategorys retrieved successfully');
     }
@@ -86,6 +89,7 @@ class SubCategoryController extends Controller
      */
     public function restoreDeleted($id): JsonResponse
     {
+        $this->authorize('restoreDeleted', SubCategory::class);
         $this->SubCategoryService->restorSubCategory($id);    
         return self::success(null, 'SubCategory restored successfully');
     }
@@ -97,6 +101,7 @@ class SubCategoryController extends Controller
      */
     public function forceDeleted($id): JsonResponse
     {
+        $this->authorize('forceDeleted', SubCategory::class);
         $subCategory = SubCategory::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'SubCategory force deleted successfully');
     }
