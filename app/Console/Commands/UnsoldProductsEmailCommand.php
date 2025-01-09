@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User\User;
 use Illuminate\Console\Command;
 use App\Jobs\SendUnsoldProductEmail;
 use App\Services\Export\ExportService;
@@ -16,6 +15,7 @@ class UnsoldProductsEmailCommand extends Command
         parent::__construct();
         $this->ExportService = $ExportService;
     }
+
     /**
      * The name and signature of the console command.
      *
@@ -35,11 +35,8 @@ class UnsoldProductsEmailCommand extends Command
      */
     public function handle()
     {
-        $users = User::role('store manager')->get();
-        $file = $this->ExportService->productsNeverBeenSoldExportStorage();
-       foreach ($users as $user) {
-        SendUnsoldProductEmail::dispatch($user , $file);
-    }
+
+        SendUnsoldProductEmail::dispatch();
     }
 }
 
