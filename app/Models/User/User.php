@@ -2,7 +2,7 @@
 
 namespace App\Models\User;
 
-use App\Models\Account\Account;
+
 use App\Models\Cart\Cart;
 use App\Models\Favorite\Favorite;
 use App\Models\Order\Order;
@@ -34,7 +34,8 @@ class User extends Authenticatable implements JWTSubject
         'phone',
         'address',
         'is_male',
-        'birthdate'
+        'birthdate',
+        'telegram_user_id'
     ];
 
     /**
@@ -150,16 +151,6 @@ class User extends Authenticatable implements JWTSubject
     public function rates()
     {
         return $this->hasMany(Rate::class);
-    }
-
-    /**
-     * Get the user accounts.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function accounts()
-    {
-        return $this->hasMany(Account::class);
     }
 
     /**
