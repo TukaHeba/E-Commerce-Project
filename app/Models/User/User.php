@@ -54,7 +54,6 @@ class User extends Authenticatable implements JWTSubject
     ];
     public $appends = [
         'full_name',
-        'avatar'
     ];
 
     /**
