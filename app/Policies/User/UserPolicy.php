@@ -92,6 +92,17 @@ class UserPolicy
         return $user->hasRole(roles: 'admin');
     }
 
+     /**
+     * Determine if the user can restore deleted users.
+     *
+     * @param User $user The authenticated user.
+     * @return bool True if the user has the 'admin' role; otherwise, false.
+     */
+    public function restoreDeleted(User $user)
+    {
+        return $user->hasRole(roles: 'admin');
+    }
+
     /**
      * Determine if the user can permanently delete a user.
      *

@@ -68,6 +68,17 @@ class MainCategoryPolicy
         return  $user->hasRole(['admin', 'store manager']);
     }
 
+     /**
+     * Determine if the user can restore deleted MainCategories.
+     *
+     * @param User $user The authenticated user.
+     * @return bool True if the user has the role of 'admin' or 'store manager'; otherwise, false.
+     */
+    public function restoreDeleted(User $user)
+    {
+        return  $user->hasRole(['admin', 'store manager']);
+    }
+
     /**
      * Determine if the user can permanently delete a MainCategory.
      *

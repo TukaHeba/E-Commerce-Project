@@ -89,6 +89,6 @@ class MainCategoryService
         $mainCategory = MainCategory::onlyTrashed()->findOrFail($id);
         $mainCategory->subCategories()->withTrashed()->updateExistingPivot($mainCategory->subCategories->pluck('id'), ['deleted_at' => null]);
         $mainCategory->restore();
-        return true;
+        return $mainCategory;
     }
 }

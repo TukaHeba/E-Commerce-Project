@@ -28,6 +28,7 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $this->authorize('index', User::class);
         $users = $this->UserService->getUsers($request);
         return self::success($users, 'Users retrieved successfully', 200);
     }
@@ -38,6 +39,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
+        $this->authorize('store', User::class);
         $user = $this->UserService->storeUser($request->validated());
         return self::success($user, 'User created successfully', 201);
     }
@@ -47,6 +49,7 @@ class UserController extends Controller
      */
     public function show(User $user): JsonResponse
     {
+        $this->authorize('show', $user);
         return self::success($user, 'User retrieved successfully');
     }
 
@@ -56,6 +59,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
+        $this->authorize( 'update' , $user);
         $updatedUser = $this->UserService->updateUser($user, $request->validated());
         return self::success($updatedUser, 'User updated successfully');
     }
@@ -65,6 +69,7 @@ class UserController extends Controller
      */
     public function destroy(User $user): JsonResponse
     {
+        $this->authorize( 'delete' , $user);
         $user->delete();
         return self::success(null, 'User deleted successfully');
     }
@@ -74,6 +79,7 @@ class UserController extends Controller
      */
     public function showDeleted(): JsonResponse
     {
+        $this->authorize('showDeleted', User::class);
         $users = User::onlyTrashed()->get();
         return self::success($users, 'Users retrieved successfully');
     }
@@ -85,6 +91,7 @@ class UserController extends Controller
      */
     public function restoreDeleted(string $id): JsonResponse
     {
+        $this->authorize('restoreDeleted', User::class);
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
         return self::success($user, 'User restored successfully');
@@ -97,10 +104,11 @@ class UserController extends Controller
      */
     public function forceDeleted(string $id): JsonResponse
     {
+        $this->authorize('forceDeleted', User::class);
         $user = User::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'User force deleted successfully');
     }
-
+    #FIXME add the needed policy for it
     public function showmostExpensiveOrder($user)
     {
         $mostExpensiveOrder = $this->UserService->showmostExpensiveOrder($user);
