@@ -33,7 +33,8 @@ class User extends Authenticatable implements JWTSubject
         'phone',
         'address',
         'is_male',
-        'birthdate'
+        'birthdate',
+        'telegram_user_id'
     ];
 
     /**
@@ -53,7 +54,6 @@ class User extends Authenticatable implements JWTSubject
     ];
     public $appends = [
         'full_name',
-        'avatar'
     ];
 
     /**
