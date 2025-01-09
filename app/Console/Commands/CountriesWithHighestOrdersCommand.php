@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Jobs\SendUnsoldProductEmail;
+use App\Jobs\CountriesWithHighestOrdersJob;
+use App\Models\User\User;
 use App\Services\Export\ExportService;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
-class UnsoldProductsEmailCommand extends Command
+class CountriesWithHighestOrdersCommand extends Command
 {
     protected ExportService $ExportService;
 
@@ -15,13 +17,12 @@ class UnsoldProductsEmailCommand extends Command
         parent::__construct();
         $this->ExportService = $ExportService;
     }
-
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:unsold-products-email-command';
+    protected $signature = 'app:countries-with-highest-orders-command';
 
     /**
      * The console command description.
@@ -35,8 +36,7 @@ class UnsoldProductsEmailCommand extends Command
      */
     public function handle()
     {
-
-        SendUnsoldProductEmail::dispatch();
+        CountriesWithHighestOrdersJob::dispatch();
+        $this->info('The command countries-with-highest-orders-command is done');
     }
 }
-

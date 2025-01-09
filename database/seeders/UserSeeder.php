@@ -5,8 +5,6 @@ namespace Database\Seeders;
 use App\Models\User\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-
 
 
 class UserSeeder extends Seeder
@@ -19,7 +17,7 @@ class UserSeeder extends Seeder
         $admin = User::create([
             'first_name' => 'Admin',
             'last_name' => 'User',
-            'email' => 'admin@example.com',
+            'email' => 'Admin@example.com',
             'email_verified_at' => now(),
             'password' => Hash::make('Adminnn@12345678'),
             'phone' => fake()->phoneNumber,
@@ -63,7 +61,7 @@ class UserSeeder extends Seeder
             'last_name' => 'User',
             'email' => 'customer1@example.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('customer1@12345678'),
+            'password' => Hash::make('Customer1@12345678'),
             'phone' => fake()->phoneNumber,
             'address' => fake()->address,
             'is_male' => fake()->boolean,
@@ -78,7 +76,7 @@ class UserSeeder extends Seeder
             'last_name' => 'User',
             'email' => 'customer2@example.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('customer2@12345678'),
+            'password' => Hash::make('Customer2@12345678'),
             'phone' => fake()->phoneNumber,
             'address' => fake()->address,
             'is_male' => fake()->boolean,
@@ -94,7 +92,7 @@ class UserSeeder extends Seeder
             'last_name' => 'User',
             'email' => 'customer3@example.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('customer3@12345678'),
+            'password' => Hash::make('Customer3@12345678'),
             'phone' => fake()->phoneNumber,
             'address' => fake()->address,
             'is_male' => fake()->boolean,
@@ -110,7 +108,7 @@ class UserSeeder extends Seeder
             'last_name' => 'User',
             'email' => 'customer4@example.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('customer4@12345678'),
+            'password' => Hash::make('Customer4@12345678'),
             'phone' => fake()->phoneNumber,
             'address' => fake()->address,
             'is_male' => fake()->boolean,
@@ -125,7 +123,7 @@ class UserSeeder extends Seeder
             'last_name' => 'Almohammed',
             'email' => 'gnourhhaan1994@gmail.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('customer5@12345678'),
+            'password' => Hash::make('Customer5@12345678'),
             'phone' => fake()->phoneNumber,
             'address' => fake()->address,
             'is_male' => fake()->boolean,

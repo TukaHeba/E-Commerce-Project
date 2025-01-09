@@ -175,7 +175,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport');
         Route::get('reports/products-never-been-sold',  'productsNeverBeenSoldReport');
         Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
-        Route::get('reports/countries-with-highest-orders',  'countriesWithHighestOrdersReport');
+        Route::get('reports/countries-with-highest-orders/{country?}',  'countriesWithHighestOrdersReport');
     });
     // -------------------------------------- Export Routes -------------------------------------- //
     Route::controller(ExportController::class)->middleware('auth:api')->group(function () {

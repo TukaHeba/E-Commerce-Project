@@ -16,7 +16,7 @@ class OrderSeeder extends Seeder
     {
         // Create orders with associated products
         Order::withoutEvents(function () {
-            Order::factory(30)->create()->each(function ($order) {
+            Order::factory(50)->create()->each(function ($order) {
             $products = Product::inRandomOrder()->take(rand(1, 5))->get();
             $totalPrice = 0;
 

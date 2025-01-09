@@ -34,7 +34,7 @@ class AuthService
             $user = DB::transaction(function () use ($data) {
                 $user = User::create($data);
                 $user->assignRole('customer');
-                Cart::firstOrCreate(['user_id' => $user->id]);
+                Cart::create(['user_id' => $user->id]);
                 if(isset($data['avatar'])){
                     $result = $this->photoService->storePhoto($data['avatar'],$user);
                 }
