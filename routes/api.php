@@ -59,7 +59,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('users/show-deleted', 'showDeleted');
         Route::delete('users/{user}/force-deleted', 'forceDeleted');
         Route::post('users/{user}/restore-deleted', 'restoreDeleted');
-        Route::get('users/{user}/most-expensive-order', 'showmostExpensiveOrder');
+        Route::get('users/{user}/user-purchases-average', 'userPurchasesAverage');
         Route::apiResource('users', UserController::class);
     });
 
