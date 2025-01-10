@@ -10,10 +10,17 @@ use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\SendOrderConfirmationEmail;
+use App\Services\Payment\PaymentService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CartService
 {
+    protected $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
     /**
      * Checks out the cart by retrieving the cart items and calculating the total price.
      *
@@ -65,7 +72,7 @@ class CartService
      * 9- Dispatch the email notification job
      * 
      * @param string $shipping_address The address where the order will be shipped.
-     * @return \App\Models\Order\Order The created order with its details.
+     * @return array 
      */
     public function placeOrder(array $data)
     {
@@ -75,6 +82,9 @@ class CartService
         try {
             // Step 2
             $cartData = $this->cartCheckout();
+
+            //strip payment 
+            $paymentResponse = $this->paymentService->stripePayment($cartData);
 
             // Step 3
             $zoneId = $this->validateAddress($data['country_id'], $data['city_id'], $data['zone_id']);
@@ -114,7 +124,7 @@ class CartService
             $user = Auth::user();
             SendOrderConfirmationEmail::dispatch($user, $order);
 
-            return $order;
+            return ['order' => $order , 'payment' => $paymentResponse];
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

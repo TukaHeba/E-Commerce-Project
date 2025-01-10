@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\Role\RoleController;
@@ -9,7 +8,9 @@ use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Photo\PhotoController;
+use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Report\ReportController;
+use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\CartItem\CartItemController;
 use App\Http\Controllers\Favorite\FavoriteController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Permission\PermissionController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::post('/create-payment-method', [PaymentController::class, 'createPaymentMethod']);
 
 // 1- Apply throttling (10 requests per minute) for authentication-related routes.
 Route::middleware(['throttle:auth', 'security'])->group(function () {
