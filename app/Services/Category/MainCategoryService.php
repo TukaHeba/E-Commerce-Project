@@ -47,11 +47,12 @@ class MainCategoryService
     /**
      * method to update main category alraedy exist
      * @param   $data
-     * @param   MainCategory $maincategory
+     * @param   $id
      * @return /Illuminate\Http\JsonResponse if have an error
      */
-    public function updateMainCategory($data, MainCategory $maincategory)
+    public function updateMainCategory($data, $id)
     {
+        $maincategory = MainCategory::findOrFail($id);
         $maincategory->main_category_name = $data['main_category_name'] ?? $maincategory->main_category_name;
         $maincategory->save();
 
@@ -59,6 +60,7 @@ class MainCategoryService
             $maincategory->subCategories()->sync($data['sub_category_name']);
             $maincategory->save();
         }
+        
         $this->clearCacheGroup($this->groupe_key_cache);
         return $maincategory;
     }
@@ -70,9 +72,9 @@ class MainCategoryService
      */
     public function destroyMainCategory($id)
     {
-        $mainCategory = MainCategory::findOrFail($id);
-        $mainCategory->delete();
-        $mainCategory->subCategories()->updateExistingPivot($mainCategory->subCategories->pluck('id'), ['deleted_at' => now()]);
+        $maincategory = MainCategory::findOrFail($id);
+        $maincategory->delete();
+        $maincategory->subCategories()->updateExistingPivot($maincategory->subCategories->pluck('id'), ['deleted_at' => now()]);
         $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }

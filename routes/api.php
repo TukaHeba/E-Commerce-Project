@@ -74,7 +74,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
     Route::controller(MainCategoryController::class)->middleware('auth:api')->group(function () {
         Route::get('main-categories//show-deleted', 'showDeleted');
         Route::delete('main-categories/{id}/force-deleted', 'forceDeleted');
-        Route::post('main-categories/{id}/restore-deleted', 'restoreDeleted');
+        Route::get('main-categories/{id}/restore-deleted', 'restoreDeleted');
         Route::apiResource('main-categories', MainCategoryController::class)->except(['index', 'show']);
     });
     Route::apiResource('main-categories', MainCategoryController::class)->only(['index', 'show']);

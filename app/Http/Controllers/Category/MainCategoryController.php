@@ -56,9 +56,9 @@ class MainCategoryController extends Controller
      * Update the specified main category in storage.
      * @throws \Exception
      */
-    public function update(UpdateMainCategoryRequest $request, MainCategory $maincategory): JsonResponse
+    public function update(UpdateMainCategoryRequest $request, $id): JsonResponse
     {
-        $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $maincategory);
+        $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $id);
         return self::success(new MainCategoryResource($maincategory), 'MainCategory updated successfully');
     }
 
@@ -92,7 +92,7 @@ class MainCategoryController extends Controller
     {
         $this->authorize('restoreDeleted',MainCategory::class);
         $restoredMainCategory = $this->MainCategoryService->restorMainCategory($id);
-        return self::success(new MainCategoryResource($restoredMainCategory), 'MainCategory restored successfully');
+        return self::success(null, 'MainCategory restored successfully');
     }
 
     /**
@@ -102,6 +102,7 @@ class MainCategoryController extends Controller
      */
     public function forceDeleted(string $id): JsonResponse
     {
+
         $this->authorize('forceDeleted',MainCategory::class);
         MainCategory::onlyTrashed()->findOrFail($id)->forceDelete();
         return self::success(null, 'MainCategory force deleted successfully');
