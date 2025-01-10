@@ -5,7 +5,6 @@ namespace App\Models\Product;
 use App\Models\Rate\Rate;
 use App\Models\User\User;
 use App\Models\Photo\Photo;
-use App\Exports\UnsoldExport;
 use InvalidArgumentException;
 use App\Exports\LowStockExport;
 use App\Models\CartItem\CartItem;
@@ -37,7 +36,14 @@ class Product extends Model
         'maincategory_subcategory_id'
     ];
 
-    protected $hidden = ['product_quantity'];
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'product_quantity'
+    ];
     /**
      * The attributes that are not mass assignable.
      *
@@ -172,8 +178,8 @@ class Product extends Model
     public function scopeTopRated($query, int $limit = 10)
     {
         return $query->withAvg('ratings', 'rating')
-            ->orderByDesc('ratings_avg_rating')
-            ->take($limit);
+                     ->orderByDesc('ratings_avg_rating')
+                     ->take($limit);
     }
 
     /**
@@ -202,10 +208,10 @@ class Product extends Model
         $query = $this->applyFilters($query, $request);
         $query = $this->applyJoins($query);
         return $query
-            ->select($this->getColumns($type))
-            ->groupBy($this->getGroupByColumns($type))
-            ->orderByDesc('total_sold')
-            ->take(100);
+                    ->select($this->getColumns($type))
+                    ->groupBy($this->getGroupByColumns($type))
+                    ->orderByDesc('total_sold')
+                    ->take(100);
     }
 
     /**
@@ -218,7 +224,7 @@ class Product extends Model
     {
         return $query->whereHas('category.mainCategory', function ($query) use ($request) {
             $query->when($request->mainCategoryId, fn($q) => $q->where('main_categories.id', $request->mainCategoryId))
-                ->when($request->subCategoryId, fn($q) => $q->where('sub_categories.id', $request->subCategoryId));
+                  ->when($request->subCategoryId, fn($q) => $q->where('sub_categories.id', $request->subCategoryId));
         });
     }
     /**
@@ -234,23 +240,23 @@ class Product extends Model
     {
         $columns = $this->getColumns('product');
         return $query
-            ->when($user_id, function ($q) use ($user_id) {               // Get categories of products that the user likes.
+            ->when($user_id, function ($q) use ($user_id) {                                                    // Get categories of products that the user likes.
                 $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($user_id) {
                     $subQuery->select('products.maincategory_subcategory_id')
-                        ->from('favorites')
-                        ->join('products', 'favorites.product_id', '=', 'products.id')     // Using join for better performance compared to relations.
-                        ->where('favorites.user_id', $user_id);
+                             ->from('favorites')
+                             ->join('products', 'favorites.product_id', '=', 'products.id')                          // Using join for better performance compared to relations.
+                             ->where('favorites.user_id', $user_id);
                 })
-                    ->whereNotExists(function ($subQuery) use ($user_id) {     // Avoid showing products that the user has already liked.
+                    ->whereNotExists(function ($subQuery) use ($user_id) {                                     // Avoid showing products that the user has already liked.
                     $subQuery->select(DB::raw(1))
-                        ->from('favorites')
-                        ->whereRaw('favorites.product_id = products.id')
-                        ->where('favorites.user_id', $user_id);
+                             ->from('favorites')
+                             ->whereRaw('favorites.product_id = products.id')
+                             ->where('favorites.user_id', $user_id);
                 });
             })
             ->select($columns)
             ->joinRelatedTables()
-            ->distinct();      // Avoid repeating products if the user likes multiple products from the same category.
+            ->distinct();                                                                                             // Avoid repeating products if the user likes multiple products from the same category.
     }
 
     /**
@@ -312,6 +318,14 @@ class Product extends Model
         return $fileName;
     }
 
+    /**
+     * Scope to join related tables with the products table.
+     * This method performs left joins with the maincategory_subcategory, sub_categories, 
+     * and main_categories tables to retrieve related data for products.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
+     * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with joined tables.
+     */
     public function scopeJoinRelatedTables($query)
     {
         return $query
@@ -320,6 +334,15 @@ class Product extends Model
             ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id');
     }
 
+
+    /**
+     * Apply a series of left joins to the query for retrieving related data.
+     * This method joins the products table with order_items, sub_categories, 
+     * main_categories, and rates tables to include additional information in the query results.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
+     * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with applied joins.
+     */
     private function applyJoins($query)
     {
         return $query
@@ -328,6 +351,20 @@ class Product extends Model
             ->leftJoin('main_categories', 'products.maincategory_subcategory_id', '=', 'main_categories.id')
             ->leftJoin('rates', 'products.id', '=', 'rates.product_id');
     }
+
+    /**
+     * Apply dynamic filters to the query based on the request parameters.
+     * This method filters products based on the following criteria:
+     * - Product name (partial match using LIKE).
+     * - User's favorite products.
+     * - Main category ID.
+     * - Subcategory ID.
+     * Additionally, it filters out products with zero or negative quantity.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
+     * @param \Illuminate\Http\Request $request The request object containing filter parameters.
+     * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with applied filters.
+     */
     private function applyFilters($query, $request)
     {
         return $query
@@ -420,4 +457,15 @@ class Product extends Model
             });
     }
 
+    /**
+     * Get the count of favorites for the product.
+     *
+     * This is an accessor that retrieves the number of users who favorited the product.
+     *
+     * @return int
+     */
+    public function getFavoritesCountAttribute()
+    {
+        return $this->favoredBy()->count();
+    }
 }

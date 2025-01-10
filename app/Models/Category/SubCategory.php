@@ -43,8 +43,4 @@ class SubCategory extends Model
     return $this->belongsToMany(MainCategory::class, 'maincategory_subcategory');
   }
 
-  public function photos()
-  {
-    return $this->morphMany(Photo::class, 'photoable');
-  }
 }
