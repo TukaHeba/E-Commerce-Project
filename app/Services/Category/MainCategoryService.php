@@ -68,7 +68,7 @@ class MainCategoryService
 
     /**
      * method to soft delete main category alraedy exist
-     * @param  $mainCategory
+     * @param  $id
      * @return /Illuminate\Http\JsonResponse if have an error
      */
     public function destroyMainCategory($id)
