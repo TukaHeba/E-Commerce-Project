@@ -282,9 +282,10 @@ class Product extends Model
         return $query
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->applyJoins('best_selling')
-            ->when($type === "offer", function ($q) {
-                $q->whereMonth('order_items.created_at', now()->subYear()->month)
-                    ->whereYear('order_items.created_at', now()->subYear()->year);
+            ->when($type == "offer", function ($q) {
+                  $q->leftJoin('orders', 'orders.id', '=', 'order_items.order_id')
+                    ->whereMonth('orders.created_at', now()->subYear()->month)
+                    ->whereYear('orders.created_at', now()->subYear()->year);
             })
             ->select($columns)
             ->groupBy(...$this->getGroupByColumns($type))
@@ -418,7 +419,7 @@ class Product extends Model
             'product' => array_merge($productColumns, $categoryColumns),
             'category' => $categoryColumns,
             'category_with_total_sold' => array_merge($categoryColumns, $totalSoldColumn),
-            'offer' => array_merge($productColumns, $categoryColumns, $totalSoldColumn, $averageRate),
+            'offer' => array_merge($productColumns, $categoryColumns, $totalSoldColumn),
             'product_with_total_sold' => array_merge($productColumns, $categoryColumns, $totalSoldColumn),
             'product_with_total_sold_and_rating' => array_merge($productColumns, $categoryColumns, $totalSoldColumn, $averageRate),
 
