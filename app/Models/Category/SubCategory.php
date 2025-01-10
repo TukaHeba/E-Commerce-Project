@@ -25,7 +25,16 @@ class SubCategory extends Model
    * @var array
    */
   protected $guarded = [];
-
+ /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
   /**
    * The attributes that should be cast.
    *
@@ -40,7 +49,7 @@ class SubCategory extends Model
    */
   public function mainCategories()
   {
-    return $this->belongsToMany(MainCategory::class, 'maincategory_subcategory');
+    return $this->belongsToMany(MainCategory::class, 'maincategory_subcategory')->withTimestamps();
   }
 
 }

@@ -37,7 +37,7 @@ class UpdateSubCategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route( 'subcategory');
+        $id = $this->route( 'sub_category');
 
         return [
             'sub_category_name' => ['sometimes','nullable','string','min:4','max:50',Rule::unique('sub_categories', 'sub_category_name')->ignore($id)],

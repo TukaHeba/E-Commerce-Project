@@ -15,15 +15,6 @@ use App\Notifications\ProductsRemainingNotification;
 class ProductsRemainingReportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $file, $user;
-
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(User $user)
-    {
-        $this->user = $user;
-    }
 
     /**
      * Execute the job.
@@ -32,8 +23,10 @@ class ProductsRemainingReportJob implements ShouldQueue
     {
         Log::info('Before execution job');
         $exportFile = app()->make(ExportService::class);
-        $file = $exportFile->productsRemainingInCartsExport();
-        $this->user->notify(new ProductsRemainingNotification($file));
+        $admins = User::role(['admin', 'store manager'])->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new ProductsRemainingNotification($exportFile->productsRemainingInCartsExport()));
+        }
         Log::info('After execution job');
     }
 }

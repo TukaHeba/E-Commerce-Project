@@ -17,7 +17,9 @@ class Kernel extends ConsoleKernel
 
          $schedule->command('app:low-on-stock-report-command')->daily();
 
-         $schedule->command('app:unsold-products-email-command')->monthly();
+        $schedule->command('app:unsold-products-email-command')->monthly();
+
+        $schedule->command('app:update-offer-products-command')->monthly();
 
         // Run command daily
          $schedule->command('app:late-products-report-command')->daily();
