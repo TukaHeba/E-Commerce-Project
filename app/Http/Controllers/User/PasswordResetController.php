@@ -35,7 +35,7 @@ class PasswordResetController extends Controller
     {
         $data = $request->validationData();
         $this->passwordResetService->sendResetLink($data);
-        return self::success(null, 'Reset password link sent.');
+        return self::success(null, 'A reset password link has been sent to your email address.');
     }
 
     /**
@@ -49,7 +49,7 @@ class PasswordResetController extends Controller
     {
         $data = $request->validationData();
         $this->passwordResetService->resetPassword($data);
-        return self::success('Password has been reset.');
+        return self::success(null, 'Your password has been successfully reset.');
     }
 
 }

@@ -47,8 +47,8 @@ Route::middleware(['throttle:auth', 'security'])->group(function () {
 
     // ----------------------------------- Reset Password Routes ----------------------------------- //
     Route::controller(PasswordResetController::class)->group(function () {
+        Route::post('password/send-email', 'sendResetLink');
         Route::post('password/reset', 'resetPassword');
-        Route::post('password/forgot', 'sendResetLink');
     });
 });
 
