@@ -23,7 +23,6 @@ class ProductResource extends JsonResource
             'sub_category' => new SubCategoryResource($this->whenLoaded('subCategory')),
             'main_category' => new MainCategoryResource($this->whenLoaded('mainCategory')),
             'average_rating' => $this->averageRating() ?? 0,
-            'favorites_count' => $this->favorites_count ?? 0,
             'photos' => PhotoResource::collection($this->whenLoaded('photos')),
             'ratings' => RateResource::collection($this->whenLoaded('rates')),
 

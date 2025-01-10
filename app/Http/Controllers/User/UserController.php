@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\User;
 
 use App\Models\User\User;
-use App\Traits\CacheManagerTrait;
 use Illuminate\Http\JsonResponse;
 use App\Services\User\UserService;
 use App\Http\Controllers\Controller;
@@ -14,8 +13,6 @@ use App\Http\Requests\User\UpdateUserRequest;
 
 class UserController extends Controller
 {
-    use CacheManagerTrait;
-    private $groupe_key_cache = 'users_cache_keys';
     protected UserService $UserService;
 
     public function __construct(UserService $UserService)
@@ -86,7 +83,6 @@ class UserController extends Controller
     {
         $this->authorize('delete', $user);
         $user->delete();
-        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User deleted successfully');
     }
 
@@ -104,36 +100,35 @@ class UserController extends Controller
     /**
      * Restore a soft-deleted user.
      *
-     * @param string $id The ID of the user to restore.
+     * @param User $user  the user to restore.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function restoreDeleted($id): JsonResponse
+    public function restoreDeleted($user): JsonResponse
     {
         $this->authorize('restoreDeleted', User::class);
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
-        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User restored successfully');
     }
     /**
      * Permanently delete a soft-deleted user.
      *
-     * @param  string $id The ID of the user the user to permanently delete.
+     * @param  User $user   the user to permanently delete.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function forceDeleted($id): JsonResponse
+    public function forceDeleted($user): JsonResponse
     {
         $this->authorize('forceDeleted', User::class);
         User::onlyTrashed()->findOrFail($id)->forceDelete();
-        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User force deleted successfully');
     }
 
     /**
      * Calculate the average total price of all delivered orders for the user.
      *
-     * @param string $id The ID of the user.
+     * @param User $user
      * @return \Illuminate\Http\JsonResponse
+     *
      */
 
     public function userPurchasesAverage($user)

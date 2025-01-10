@@ -27,6 +27,15 @@ class Cart extends Model
     protected $guarded = [
     ];
 
+     /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
     /**
      * Get the user associated with the cart.
      *

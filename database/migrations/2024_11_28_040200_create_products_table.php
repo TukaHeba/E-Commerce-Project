@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->softDeletes();
 
             // Indexing columns to optimize performance
-            $table->fullText('name', 'index_products_name');
+            $table->index('name', 'index_products_name');
             $table->index('price', 'index_products_price');
             $table->index('product_quantity', 'index_products_product_quantity');
         });
