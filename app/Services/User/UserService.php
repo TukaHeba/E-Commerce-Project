@@ -59,7 +59,7 @@ class UserService
     /**
      * Calculate the average total price of all delivered orders for the user.
      *
-     * @param string $id The ID of the user.
+     * @param User $user
      * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
      */
     public function userPurchasesAverage($user)

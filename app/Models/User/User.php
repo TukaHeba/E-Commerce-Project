@@ -177,7 +177,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getBirthdateAttribute($value)
     {
-        return Carbon::parse($value)->format('l, F j, Y'); 
+        return Carbon::parse($value)->format('l, F j, Y');
     }
     /**
      * Calculate the average total price of all delivered orders for the user.
