@@ -27,6 +27,7 @@ class CartController extends Controller
 
     public function index()
     {
+        $this->authorize('index', Cart::class);
         $carts = Cart::paginate(10);
         return self::paginated($carts, CartResource::class, 'Carts retrieved successfully', 200);
     }
@@ -39,6 +40,7 @@ class CartController extends Controller
      */
     public function show(Cart $cart)
     {
+        $this->authorize('show', Cart::class);
         return self::success(new CartResource($cart->load(['user', 'cartItems.product'])));
     }
 

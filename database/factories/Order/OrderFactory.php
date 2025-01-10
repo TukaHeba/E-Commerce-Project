@@ -2,10 +2,11 @@
 
 namespace Database\Factories\Order;
 
+use Carbon\Carbon;
 use App\Models\User\User;
+use App\Models\Order\Order;
 use Illuminate\Support\Str;
 use App\Models\Address\Zone;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -27,6 +28,7 @@ class OrderFactory extends Factory
             'postal_code' => fake()->postcode,
             'status' => fake()->randomElement(['pending', 'shipped', 'delivered', 'canceled']),
             'total_price' => fake()->randomFloat(2, 10, 1000),
+            'order_number' => Order::generateOrderNumber(),
             'created_at' => fake()->dateTimeBetween('-1 year', 'now'),
         ];
     }

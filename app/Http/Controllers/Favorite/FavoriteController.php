@@ -43,6 +43,7 @@ class FavoriteController extends Controller
      */
     public function destroy(Product $product): JsonResponse
     {
+        $this->authorize('destroy', $product);
         $this->FavoriteService->destroyFavorite($product);
         return self::success(null, 'Product Removed from Favorite successfully');
     }

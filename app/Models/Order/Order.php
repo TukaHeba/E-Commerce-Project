@@ -2,14 +2,14 @@
 
 namespace App\Models\Order;
 
-use App\Models\Address\Zone;
-use App\Models\OrderTracking\OrderTracking;
 use App\Models\User\User;
+use Illuminate\Support\Str;
+use App\Models\Address\Zone;
 use App\Models\OrderItem\OrderItem;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\OrderTracking\OrderTracking;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
 
 class Order extends Model
 {

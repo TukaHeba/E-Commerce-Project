@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class SubCategory extends Model
 {
   use HasFactory, SoftDeletes;
-
   /**
    * The attributes that are mass assignable.
    *
@@ -44,8 +43,4 @@ class SubCategory extends Model
     return $this->belongsToMany(MainCategory::class, 'maincategory_subcategory');
   }
 
-  public function photos()
-  {
-    return $this->morphMany(Photo::class, 'photoable');
-  }
 }
