@@ -26,11 +26,13 @@ class PasswordResetController extends Controller
     }
 
     /**
-     * send link in email for forget password
+     * Handle the request to send a reset password link via email.
      *
      * @param sendLinkRequest $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
+
     public function sendResetLink(sendLinkRequest $request)
     {
         $data = $request->validationData();
@@ -39,7 +41,7 @@ class PasswordResetController extends Controller
     }
 
     /**
-     * reset password with verification code
+     *  Handle the request to reset the user's password using a verification code.
      *
      * @param ResetPasswordRequest $request
      * @return \Illuminate\Http\JsonResponse

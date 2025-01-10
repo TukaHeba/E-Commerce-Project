@@ -2,7 +2,6 @@
 
 namespace App\Services\User;
 
-use App\Models\User\PasswordReset;
 use App\Models\User\PasswordResetToken;
 use App\Models\User\User;
 use App\Notifications\ResetPasswordNotification;
@@ -14,10 +13,11 @@ use Illuminate\Support\Str;
 class ResetPasswordService
 {
     /**
-     * service send verification code in email
+     * Send a reset password link to the user's email.
      *
      * @param array $data
      * @return void
+     * @throws \Exception
      */
     public function sendResetLink(array $data)
     {
@@ -43,23 +43,22 @@ class ResetPasswordService
     }
 
     /**
-     * service reset password
+     * Reset the user's password using the provided token and new password.
      *
      * @param array $data
      * @return void
-     * @throws \Exception
+     * @throws \Exception If the token is invalid or has expired.
      */
     public function resetPassword(array $data)
     {
 
         $reset = PasswordResetToken::where('email', $data['email'])->first();
-
-        // Verify that the token exists
+        // Check if the token exists and is valid.
         if (!$reset || !Hash::check($data['token'], $reset->token)) {
             throw new \Exception('Token is invalid.', 400);
         }
 
-        // Check token validity (10 minutes)
+        // Ensure the token has not expired (valid for 10 minutes).
         if (Carbon::parse($reset->created_at)->addMinutes(10)->isPast()) {
             throw new \Exception('Token has expired.', 400);
         }
