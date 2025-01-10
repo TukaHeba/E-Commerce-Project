@@ -18,6 +18,10 @@ return new class extends Migration
             $table->string('new_status')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            // Indexing columns to optimize performance
+            $table->index(['order_id', 'new_status'], 'index_tracking_orderID_newStatus');
+            $table->index('updated_at', 'index_tracking_updated_at');
         });
     }
 
