@@ -21,7 +21,8 @@ class AuthController extends Controller
     }
 
     /**
-     * register user
+     * Register a new user and return a token.
+     *
      * @param RegisterRequest $request
      * @return JsonResponse
      * @throws \Exception
@@ -33,7 +34,8 @@ class AuthController extends Controller
     }
 
     /**
-     * login for user
+     * Authenticate a user and return a token.
+     *
      * @param LoginRequest $request
      * @return JsonResponse
      * @throws \Illuminate\Auth\AuthenticationException
@@ -45,24 +47,27 @@ class AuthController extends Controller
     }
 
     /**
-     * logout user
-     * @param Request $request
+     * Log out the authenticated user.
+     *
      * @return JsonResponse
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(): JsonResponse
     {
         Auth::logout();
         return self::success(null, 'Logged out successfully');
     }
 
     /**
-     * refresh token
+     * Refresh the user's authentication token.
+     *
      * @return JsonResponse
      */
     public function refresh(): JsonResponse
     {
+        $user = Auth::user();
         return self::success([
-            'user' => new UserResource(Auth::user()),
+            'user' => new UserResource($user),
+            'role'=>$user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => Auth::refresh(),
                 'type' => 'bearer',
@@ -71,18 +76,20 @@ class AuthController extends Controller
     }
 
     /**
-     * register user by Oauth
+     * Redirect to the OAuth provider for login
+     *
      * @param string $provider
      * @return mixed
      * @throws \Exception
      */
-    public function redirectToProvider(string $provider)
+    public function redirectToProvider(string $provider): mixed
     {
         return $this->authService->redirectToProvider($provider);
     }
 
     /**
-     * callback api in Oauth
+     * Handle the callback from the OAuth provider
+     *
      * @param string $provider
      * @return JsonResponse
      * @throws \Exception

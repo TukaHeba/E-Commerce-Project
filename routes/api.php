@@ -38,7 +38,8 @@ Route::middleware(['throttle:auth', 'security'])->group(function () {
         Route::post('register', 'register');
         Route::post('logout', 'logout')->middleware('auth:api');
         Route::post('refresh-token', 'refresh')->middleware('auth:api');
-        // OAuth Routes
+
+        // OAuth Routes  ----------  These links are tested in the browser -------------
         Route::get('auth/{provider}', 'redirectToProvider');
         Route::get('auth/{provider}/callback', 'handleProviderCallback');
     });
@@ -46,8 +47,8 @@ Route::middleware(['throttle:auth', 'security'])->group(function () {
 
     // ----------------------------------- Reset Password Routes ----------------------------------- //
     Route::controller(PasswordResetController::class)->group(function () {
+        Route::post('password/send-email', 'sendResetLink');
         Route::post('password/reset', 'resetPassword');
-        Route::post('password/forgot', 'sendResetLink');
     });
 });
 
@@ -118,13 +119,8 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::apiResource('carts', CartController::class)->only(['index', 'show']);
     });
 
-
     // ---------------------------------- Cart Items Routes ---------------------------------- //
-    Route::controller(CartItemController::class)->middleware('auth:api')->group(function () {
-        Route::post('cart-items', 'store');
-        Route::put('cart-items/{cart-item}', 'update');
-        Route::delete('cart-items/{cart-item}', 'destroy');
-    });
+    Route::middleware('auth:api')->apiResource('/cart-items',CartItemController::class)->only(['store','update','destroy']);
 
     #FIXME Re-check showDeleted-user
     // ------------------------------------- Order Routes ------------------------------------- //
@@ -167,6 +163,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
             Route::get('products/{name}/largest-quantity-sold', 'showLargestQuantitySold');
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
+
         Route::get('products/offers', 'getOfferProducts');
         Route::get('products/category', 'getProductsByCategory');
 
@@ -190,8 +187,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
     });
 
 
-
-
     // -------------------------------------- Export Routes -------------------------------------- //
     Route::controller(ExportController::class)->middleware('auth:api')->group(function () {
         Route::get('Export/best-categories',  'bestCategoriesExport');
@@ -200,6 +195,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('Export/orders-late-to-deliver', 'ordersLateToDeliverExport');
         Route::get('Export/products-never-been-sold',  'productsNeverBeenSoldExport');
         Route::get('Export/products-remaining-in-carts', 'productsRemainingInCartsExport');
-        Route::get('Export/countries-with-highest-orders',  'countriesWithHighestOrdersExport');
+        Route::get('Export/countries-with-highest-orders/{country?}',  'countriesWithHighestOrdersExport');
     });
 });
