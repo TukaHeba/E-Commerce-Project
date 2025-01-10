@@ -43,6 +43,7 @@ class AuthService
         $token = Auth::login($user);
         return [
             'user' => new UserResource($user),
+            'role'=>$user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
@@ -67,6 +68,7 @@ class AuthService
         $user = Auth::user();
         return [
             'user' => new UserResource($user),
+            'role'=>$user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
@@ -129,6 +131,7 @@ class AuthService
         $token = Auth::login($userCreated);
         return [
             'user' => new UserResource($userCreated),
+            'role'=>$user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',

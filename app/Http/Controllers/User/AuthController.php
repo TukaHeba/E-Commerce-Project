@@ -64,8 +64,10 @@ class AuthController extends Controller
      */
     public function refresh(): JsonResponse
     {
+        $user = Auth::user();
         return self::success([
-            'user' => new UserResource(Auth::user()),
+            'user' => new UserResource($user),
+            'role'=>$user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => Auth::refresh(),
                 'type' => 'bearer',

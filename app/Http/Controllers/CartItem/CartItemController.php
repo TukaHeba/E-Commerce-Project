@@ -19,21 +19,22 @@ class CartItemController extends Controller
         $this->cartItemService = $cartItemService;
     }
     /**
-     * store a new Item in cart.
+     * Add a new item to the cart.
      *
      * @param StoreCartItemRequest $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
+
     public function store(StoreCartItemRequest $request)
     {
         $data = $request->validationData();
-        $cartItem = $this->cartItemService->store($data);
-        return self::success($cartItem, 'A new item Added successfully!', 201);
+        $this->cartItemService->store($data);
+        return self::success(null,'A new item Added successfully!', 201);
     }
 
     /**
-     *  Update item cart quantity.
+     *  Update the quantity of an item in the cart.
      *
      * @param UpdateCartItemRequest $request
      * @param CartItem $cartItem
@@ -46,7 +47,7 @@ class CartItemController extends Controller
     }
 
     /**
-     *  Delete Item from cart.
+     * Remove an item from the cart.
      *
      * @param CartItem $cartItem
      * @return \Illuminate\Http\JsonResponse

@@ -114,13 +114,8 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::apiResource('carts', CartController::class)->only(['index', 'show']);
     });
 
-
     // ---------------------------------- Cart Items Routes ---------------------------------- //
-    Route::controller(CartItemController::class)->middleware('auth:api')->group(function () {
-        Route::post('cart-items', 'store');
-        Route::put('cart-items/{cart-item}', 'update');
-        Route::delete('cart-items/{cart-item}', 'destroy');
-    });
+    Route::middleware('auth:api')->apiResource('/cart-items',CartItemController::class)->only(['store','update','destroy']);
 
     #FIXME Re-check showDeleted-user
     // ------------------------------------- Order Routes ------------------------------------- //
@@ -158,7 +153,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
             Route::get('products/{name}/largest-quantity-sold', 'showLargestQuantitySold');
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
-        
+
         Route::get('products/hot-selling', 'getBestSellingProducts');
         Route::get('products/top-rated', 'topRatedProducts');
         Route::get('products/filter', 'getProductsWithFilter');
