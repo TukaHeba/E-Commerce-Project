@@ -333,37 +333,11 @@ class Product extends Model
     }
 
     /**
-     * Scope to join related tables with the products table.
-     * This method performs left joins with the maincategory_subcategory, sub_categories,
-     * and main_categories tables to retrieve related data for products.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
-     * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with joined tables.
-     */
-    // public function scopeJoinRelatedTables($query)
-    // {
-    //     return $query
-    //         ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
-    //         ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
-    //         ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id');
-    // }
-
-    /**
      * Apply a series of left joins to the query for retrieving related data.
-     * This method joins the products table with order_items, sub_categories,
-     * main_categories, and rates tables to include additional information in the query results.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
      * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with applied joins.
      */
-    // private function applyJoins($query)
-    // {
-    //     return $query
-    //         ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-    //         ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
-    //         ->leftJoin('main_categories', 'products.maincategory_subcategory_id', '=', 'main_categories.id')
-    //         ->leftJoin('rates', 'products.id', '=', 'rates.product_id');
-    // }
     public function scopeApplyJoins($query, $type){
            return match ($type) {
                'index' =>  $query

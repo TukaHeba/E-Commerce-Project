@@ -102,7 +102,7 @@ class ProductService
      */
     public function getOfferProducts()
     {
-        $cache_key = 'offer_products';
+        $cache_key = 'best_selling_products_last_year';
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
         return Cache::remember($cache_key, now()->addMonth(), function () {
             return Product::bestSelling('offer')
