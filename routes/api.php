@@ -195,6 +195,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('Export/orders-late-to-deliver', 'ordersLateToDeliverExport');
         Route::get('Export/products-never-been-sold',  'productsNeverBeenSoldExport');
         Route::get('Export/products-remaining-in-carts', 'productsRemainingInCartsExport');
-        Route::get('Export/countries-with-highest-orders',  'countriesWithHighestOrdersExport');
+        Route::get('Export/countries-with-highest-orders/{country?}',  'countriesWithHighestOrdersExport');
     });
 });
