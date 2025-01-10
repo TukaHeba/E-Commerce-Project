@@ -49,7 +49,7 @@ class SubCategory extends Model
    */
   public function mainCategories()
   {
-    return $this->belongsToMany(MainCategory::class, 'maincategory_subcategory');
+    return $this->belongsToMany(MainCategory::class, 'maincategory_subcategory')->withTimestamps();
   }
 
 }
