@@ -15,11 +15,16 @@ class RateResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'rate id'        => $this->id,
-            'user name'      => $this->whenLoaded('user', function() { return $this->user->full_name;}),
-            'product name'   => $this->whenLoaded('product', function() { return $this->product->name;}),
-            'rating'         => $this->rating,
-            'review'         => $this->review,
+            'user_id' => $this->user_id,
+            'rating' => $this->rating,
+            'review' => $this->review,
+            'created_at' => $this->created_at->toDateTimeString(),
+
+            // 'rate id'        => $this->id,
+            // 'user name'      => $this->whenLoaded('user', function() { return $this->user->full_name;}),
+            // 'product name'   => $this->whenLoaded('product', function() { return $this->product->name;}),
+            // 'rating'         => $this->rating,
+            // 'review'         => $this->review,
         ];
     }
 }

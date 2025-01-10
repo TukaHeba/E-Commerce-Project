@@ -33,15 +33,15 @@ class MainCategoryService
     public function storeMainCategory($data)
     {
 
-        $maincategory = new MainCategory();
-        $maincategory->main_category_name = $data['main_category_name'];
-        $maincategory->save();
+        $mainCategory = new MainCategory();
+        $mainCategory->main_category_name = $data['main_category_name'];
+        $mainCategory->save();
 
-        $maincategory->subCategories()->attach($data['sub_category_name']);
-        $maincategory->save();
+        $mainCategory->subCategories()->attach($data['sub_category_name']);
+        $mainCategory->save();
 
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $maincategory;
+        return $mainCategory;
     }
 
     /**
@@ -50,27 +50,26 @@ class MainCategoryService
      * @param   MainCategory $maincategory
      * @return /Illuminate\Http\JsonResponse if have an error
      */
-    public function updateMainCategory($data, MainCategory $maincategory)
+    public function updateMainCategory($data, MainCategory $mainCategory)
     {
-        $maincategory->main_category_name = $data['main_category_name'] ?? $maincategory->main_category_name;
-        $maincategory->save();
+        $mainCategory->main_category_name = $data['main_category_name'] ?? $mainCategory->main_category_name;
+        $mainCategory->save();
 
         if ($data['sub_category_name'] != null) {
-            $maincategory->subCategories()->sync($data['sub_category_name']);
-            $maincategory->save();
+            $mainCategory->subCategories()->sync($data['sub_category_name']);
+            $mainCategory->save();
         }
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $maincategory;
+        return $mainCategory;
     }
 
     /**
      * method to soft delete main category alraedy exist
-     * @param  $id
+     * @param  $mainCategory
      * @return /Illuminate\Http\JsonResponse if have an error
      */
-    public function destroyMainCategory($id)
+    public function destroyMainCategory($mainCategory)
     {
-        $mainCategory = MainCategory::findOrFail($id);
         $mainCategory->delete();
         $mainCategory->subCategories()->updateExistingPivot($mainCategory->subCategories->pluck('id'), ['deleted_at' => now()]);
         $this->clearCacheGroup($this->groupe_key_cache);

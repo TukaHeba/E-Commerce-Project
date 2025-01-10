@@ -5,12 +5,15 @@ namespace App\Services\Order;
 use App\Models\User\User;
 use App\Models\Order\Order;
 use App\Jobs\SendNotification;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Traits\CacheManagerTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrderService
 {
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'orders_cache_keys';
     /**
      * List of orders related to user
      * @param mixed $request
@@ -18,7 +21,10 @@ class OrderService
      */
     public function getOrdersUser($request)
     {
-        $orders = Cache::remember('orders_' . Auth::id(), 1200, function () use ($request) {
+        $cache_key = 'user-orders';
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
+
+        $orders = Cache::remember($cache_key . Auth::id(), 1200, function () use ($request) {
             return Order::byFilters($request)->where('user_id', Auth::id())->paginate(10);
         });
         return $orders;
@@ -31,7 +37,10 @@ class OrderService
      */
     public function getOrdersAdmin($request)
     {
-        $orders = Cache::remember('orders_' . Auth::id(), 1200, function () use ($request) {
+        $cache_key = 'all-orders';
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
+
+        $orders = Cache::remember($cache_key, 1200, function () use ($request) {
             return Order::byFilters($request)->paginate(10);
         });
         return $orders;
@@ -49,10 +58,10 @@ class OrderService
 
         $user = User::where('id', $order->user_id)->first();
         SendNotification::dispatch($user->email, $user->first_name, $order->id, $order->status);
-
+        $this->clearCacheGroup($this->groupe_key_cache);
         return $order;
     }
-    
+
     /**
      * Fetch the tracking history associated with the specified order
      *
@@ -72,7 +81,9 @@ class OrderService
      */
     public function getDeletedOrdersAdmin($request)
     {
-        $deletedOrders = Cache::remember('deleted_orders_' . Auth::id(), 1200, function () use ($request) {
+        $cache_key = 'deleted-orders';
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
+        $deletedOrders = Cache::remember($cache_key, 1200, function () use ($request) {
             return Order::onlyTrashed()
                 ->byFilters($request)
                 ->paginate(10);

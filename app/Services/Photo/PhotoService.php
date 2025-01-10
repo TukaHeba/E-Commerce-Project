@@ -3,15 +3,19 @@
 namespace App\Services\Photo;
 
 use App\Models\Photo\Photo;
+
 use Exception;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Traits\CacheManagerTrait;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class PhotoService
 {
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'photos_cache_keys';
     /**
      * @var string The API key for VirusTotal.
      */
@@ -86,7 +90,7 @@ class PhotoService
             'photoable_id' => $photoable->id,
             'photoable_type' => get_class($photoable),
         ]);
-
+        $this->clearCacheGroup($this->groupe_key_cache);
         return ['photo' => $photo, 'message' => $message];
     }
 
@@ -108,6 +112,7 @@ class PhotoService
                 $results[] = ['photo' => null, 'message' => $e->getMessage(), 'status' => 'error'];
             }
         }
+        $this->clearCacheGroup($this->groupe_key_cache);
         return $results;
     }
 
@@ -121,6 +126,7 @@ class PhotoService
     {
         if (Storage::exists($filePath)) {
             Storage::delete($filePath);
+            $this->clearCacheGroup($this->groupe_key_cache);
         } else {
             throw new Exception('File not found in storage', 404);
         }
