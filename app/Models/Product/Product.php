@@ -181,8 +181,8 @@ class Product extends Model
     public function scopeTopRated($query, int $limit = 10)
     {
         return $query->withAvg('ratings', 'rating')
-                     ->orderByDesc('ratings_avg_rating')
-                     ->take($limit);
+            ->orderByDesc('ratings_avg_rating')
+            ->take($limit);
     }
 
     /**
@@ -209,12 +209,12 @@ class Product extends Model
         $type = 'product_with_total_sold_and_rating';
 
         $query = $this->applyFilters($query, $request);
-        $query = $this->applyJoins($query);
         return $query
-                    ->select($this->getColumns($type))
-                    ->groupBy($this->getGroupByColumns($type))
-                    ->orderByDesc('total_sold')
-                    ->take(100);
+            ->applyJoins('index')
+            ->select($this->getColumns($type))
+            ->groupBy($this->getGroupByColumns($type))
+            ->orderByDesc('total_sold')
+            ->take(100);
     }
 
     /**
@@ -225,10 +225,17 @@ class Product extends Model
      */
     public function scopeByCategory($query, $request)
     {
-        return $query->whereHas('category.mainCategory', function ($query) use ($request) {
-            $query->when($request->mainCategoryId, fn($q) => $q->where('main_categories.id', $request->mainCategoryId))
-                  ->when($request->subCategoryId, fn($q) => $q->where('sub_categories.id', $request->subCategoryId));
-        });
+        return $query
+            ->when($request->mainCategoryId, function ($q) use ($request) {
+                $q->whereHas('mainCategory', function ($mainQuery) use ($request) {
+                    $mainQuery->where('main_categories.id', $request->mainCategoryId);
+                });
+            })
+            ->when($request->subCategoryId, function ($q) use ($request) {
+                $q->whereHas('subCategory', function ($subQuery) use ($request) {
+                    $subQuery->where('sub_categories.id', $request->subCategoryId);
+                });
+            });
     }
     /**
      * Scope to get products may user like it
@@ -246,19 +253,19 @@ class Product extends Model
             ->when($user_id, function ($q) use ($user_id) {                                                    // Get categories of products that the user likes.
                 $q->whereIn('products.maincategory_subcategory_id', function ($subQuery) use ($user_id) {
                     $subQuery->select('products.maincategory_subcategory_id')
-                             ->from('favorites')
-                             ->join('products', 'favorites.product_id', '=', 'products.id')                          // Using join for better performance compared to relations.
-                             ->where('favorites.user_id', $user_id);
+                        ->from('favorites')
+                        ->join('products', 'favorites.product_id', '=', 'products.id')                          // Using join for better performance compared to relations.
+                        ->where('favorites.user_id', $user_id);
                 })
                     ->whereNotExists(function ($subQuery) use ($user_id) {                                     // Avoid showing products that the user has already liked.
                     $subQuery->select(DB::raw(1))
-                             ->from('favorites')
-                             ->whereRaw('favorites.product_id = products.id')
-                             ->where('favorites.user_id', $user_id);
+                        ->from('favorites')
+                        ->whereRaw('favorites.product_id = products.id')
+                        ->where('favorites.user_id', $user_id);
                 });
             })
             ->select($columns)
-            ->joinRelatedTables()
+            ->applyJoins('may_like')
             ->distinct();                                                                                             // Avoid repeating products if the user likes multiple products from the same category.
     }
 
@@ -274,7 +281,11 @@ class Product extends Model
 
         return $query
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->joinRelatedTables()
+            ->applyJoins('best_selling')
+            ->when($type === "offer", function ($q) {
+                $q->whereMonth('order_items.created_at', now()->subYear()->month)
+                    ->whereYear('order_items.created_at', now()->subYear()->year);
+            })
             ->select($columns)
             ->groupBy(...$this->getGroupByColumns($type))
             ->orderByDesc('total_sold');
@@ -329,13 +340,13 @@ class Product extends Model
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
      * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with joined tables.
      */
-    public function scopeJoinRelatedTables($query)
-    {
-        return $query
-            ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
-            ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
-            ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id');
-    }
+    // public function scopeJoinRelatedTables($query)
+    // {
+    //     return $query
+    //         ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
+    //         ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
+    //         ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id');
+    // }
 
     /**
      * Apply a series of left joins to the query for retrieving related data.
@@ -345,13 +356,29 @@ class Product extends Model
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
      * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with applied joins.
      */
-    private function applyJoins($query)
-    {
-        return $query
-            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
-            ->leftJoin('main_categories', 'products.maincategory_subcategory_id', '=', 'main_categories.id')
-            ->leftJoin('rates', 'products.id', '=', 'rates.product_id');
+    // private function applyJoins($query)
+    // {
+    //     return $query
+    //         ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+    //         ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
+    //         ->leftJoin('main_categories', 'products.maincategory_subcategory_id', '=', 'main_categories.id')
+    //         ->leftJoin('rates', 'products.id', '=', 'rates.product_id');
+    // }
+    public function scopeApplyJoins($query, $type){
+           return match ($type) {
+               'index' =>  $query
+                         ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+                         ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
+                         ->leftJoin('main_categories', 'products.maincategory_subcategory_id', '=', 'main_categories.id')
+                         ->leftJoin('rates', 'products.id', '=', 'rates.product_id'),
+                'best_selling', 'may_like'
+                       => $query
+                         ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
+                         ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
+                         ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id'),
+
+            default => throw new InvalidArgumentException('Invalid type for join tabels'),
+           };
     }
 
     /**
@@ -381,6 +408,8 @@ class Product extends Model
             })
             ->when($request->mainCategoryId, fn($q) => $q->where('main_categories.id', $request->mainCategoryId))
             ->when($request->subCategoryId, fn($q) => $q->where('sub_categories.id', $request->subCategoryId))
+            ->when($request->rating, fn($q) => $q->having('avg_rating', '>=', $request->rating))
+            ->when($request->totalSold, fn($q) => $q->having('total_sold', '>=', $request->totalSold))
             ->where('product_quantity', '>', 0);
     }
 
@@ -409,14 +438,16 @@ class Product extends Model
         $averageRate = [
             // Use DB::raw to calculate the average rating (AVG of `rates.rating`) and round it to 2 decimal places.
             // COALESCE ensures that if no ratings exist, a default value of 0 is returned. The result is aliased as 'ratings_avg_rating'.
-            DB::raw('ROUND(COALESCE(AVG(rates.rating), 0), 2) as ratings_avg_rating')
+            DB::raw('ROUND(COALESCE(AVG(rates.rating), 0), 2) as avg_rating')
         ];
         return match ($type) {
             'product' => array_merge($productColumns, $categoryColumns),
             'category' => $categoryColumns,
             'category_with_total_sold' => array_merge($categoryColumns, $totalSoldColumn),
+            'offer' => array_merge($productColumns, $categoryColumns, $totalSoldColumn, $averageRate),
             'product_with_total_sold' => array_merge($productColumns, $categoryColumns, $totalSoldColumn),
             'product_with_total_sold_and_rating' => array_merge($productColumns, $categoryColumns, $totalSoldColumn, $averageRate),
+
             default => throw new InvalidArgumentException('Invalid type for select columns'),
         };
     }
@@ -429,7 +460,7 @@ class Product extends Model
     private function getGroupByColumns($type)
     {
         return match (true) {
-            in_array($type, ['product', 'product_with_total_sold', 'product_with_total_sold_and_rating']) => [
+            in_array($type, ['product', 'offer', 'product_with_total_sold', 'product_with_total_sold_and_rating']) => [
                 'products.id',
                 'products.name',
                 'products.description',
@@ -457,17 +488,5 @@ class Product extends Model
             ->whereHas('product', function ($query) use ($name) {
                 $query->where('name', 'like', '%' . $name . '%');
             });
-    }
-
-    /**
-     * Get the count of favorites for the product.
-     *
-     * This is an accessor that retrieves the number of users who favorited the product.
-     *
-     * @return int
-     */
-    public function getFavoritesCountAttribute()
-    {
-        return $this->favoredBy()->count();
     }
 }
