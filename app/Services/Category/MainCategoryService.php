@@ -33,15 +33,15 @@ class MainCategoryService
     public function storeMainCategory($data)
     {
 
-        $maincategory = new MainCategory();
-        $maincategory->main_category_name = $data['main_category_name'];
-        $maincategory->save();
+        $mainCategory = new MainCategory();
+        $mainCategory->main_category_name = $data['main_category_name'];
+        $mainCategory->save();
 
-        $maincategory->subCategories()->attach($data['sub_category_name']);
-        $maincategory->save();
+        $mainCategory->subCategories()->attach($data['sub_category_name']);
+        $mainCategory->save();
 
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $maincategory;
+        return $mainCategory;
     }
 
     /**
@@ -50,6 +50,7 @@ class MainCategoryService
      * @param   $id
      * @return /Illuminate\Http\JsonResponse if have an error
      */
+
     public function updateMainCategory($data, $id)
     {
         $maincategory = MainCategory::findOrFail($id);
@@ -67,14 +68,16 @@ class MainCategoryService
 
     /**
      * method to soft delete main category alraedy exist
-     * @param  $id
+     * @param  $mainCategory
      * @return /Illuminate\Http\JsonResponse if have an error
      */
     public function destroyMainCategory($id)
     {
+
         $maincategory = MainCategory::findOrFail($id);
         $maincategory->delete();
         $maincategory->subCategories()->updateExistingPivot($maincategory->subCategories->pluck('id'), ['deleted_at' => now()]);
+
         $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }

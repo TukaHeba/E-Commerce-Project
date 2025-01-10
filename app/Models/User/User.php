@@ -2,12 +2,12 @@
 
 namespace App\Models\User;
 
+use Carbon\Carbon;
 use App\Models\Cart\Cart;
 use App\Models\Rate\Rate;
 use App\Models\Order\Order;
 use App\Models\Photo\Photo;
 use App\Models\Product\Product;
-use App\Models\Favorite\Favorite;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -56,7 +56,7 @@ class User extends Authenticatable implements JWTSubject
     /**
      * List of attributes that should be appended to the model's array and JSON representation.
      * These attributes are dynamically generated using accessor methods.
-     * 
+     *
      * @var array
      */
     public $appends = [
@@ -162,14 +162,23 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Accessor to get the full name of the user by concatenating the first and last names.
      * This method is used to create a dynamic attribute 'full_name' when accessing the model.
-     * 
+     *
      * @return string The full name of the user.
      */
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
     }
-
+    /**
+     * Accessor to get the Birth Data with format
+     * example: "Saturday, January 10, 1990"
+     * @param mixed $value
+     * @return string
+     */
+    public function getBirthdateAttribute($value)
+    {
+        return Carbon::parse($value)->format('l, F j, Y');
+    }
     /**
      * Calculate the average total price of all delivered orders for the user.
      *

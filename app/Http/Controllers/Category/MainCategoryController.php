@@ -56,6 +56,7 @@ class MainCategoryController extends Controller
      * Update the specified main category in storage.
      * @throws \Exception
      */
+
     public function update(UpdateMainCategoryRequest $request, $id): JsonResponse
     {
         $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $id);
@@ -65,10 +66,10 @@ class MainCategoryController extends Controller
     /**
      * Remove the specified main category from storage.
      */
-    public function destroy($id): JsonResponse
+    public function destroy(MainCategory $mainCategory): JsonResponse
     {
         $this->authorize('delete', MainCategory::class);
-        $this->MainCategoryService->destroyMainCategory($id);
+        $this->MainCategoryService->destroyMainCategory($mainCategory);
         return self::success(null, 'MainCategory deleted successfully');
     }
 
