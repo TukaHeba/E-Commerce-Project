@@ -15,17 +15,14 @@ class MainCategoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'main_category_name' => $this->main_category_name,
-            'sub_categories' => SubCategoryResource::collection($this->whenLoaded('subCategories')),
-            // 'main category id' => $this->id,
-            // 'main category name' => $this->main_category_name, 
-            // 'sub_categories' => $this->subCategories ? $this->subCategories->map(function ($subCategory) {
-            //     return [
-            //         'id' => $subCategory->id,
-            //         'name' => $subCategory->sub_category_name,
-            //     ];
-            // }) : [],
+            'main category id' => $this->id,
+            'main category name' => $this->main_category_name, 
+            'sub_categories' => $this->subCategories ? $this->subCategories->map(function ($subCategory) {
+                return [
+                    'id' => $subCategory->id,
+                    'name' => $subCategory->sub_category_name,
+                ];
+            }) : [],
         ];
     }
 }
