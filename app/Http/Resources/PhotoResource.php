@@ -14,6 +14,13 @@ class PhotoResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'photo_name' => $this->photo_name,
+            'photo_path' => $this->photo_path,
+            'mime_type' => $this->mime_type,
+            'photoable_id' => $this->photoable_id,
+            'photoable_type' => $this->photoable_type,
+        ];
     }
 }
