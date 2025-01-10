@@ -59,10 +59,10 @@ class SubCategoryController extends Controller
      * @param \App\Models\Category\SubCategory $subCategory
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateSubCategoryRequest $request, SubCategory $subCategory): JsonResponse
+    public function update(UpdateSubCategoryRequest $request, $id): JsonResponse
     {
         $this->authorize('update', SubCategory::class);
-        $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(),$subCategory);
+        $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(),$id);
         return self::success(new SubCategoryResource($updatedSubCategory), 'SubCategory updated successfully');
     }
 
