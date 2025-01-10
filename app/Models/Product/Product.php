@@ -42,7 +42,10 @@ class Product extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'product_quantity'
+        'product_quantity',
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
     /**
      * The attributes that are not mass assignable.
@@ -320,9 +323,9 @@ class Product extends Model
 
     /**
      * Scope to join related tables with the products table.
-     * This method performs left joins with the maincategory_subcategory, sub_categories, 
+     * This method performs left joins with the maincategory_subcategory, sub_categories,
      * and main_categories tables to retrieve related data for products.
-     * 
+     *
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
      * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with joined tables.
      */
@@ -334,12 +337,11 @@ class Product extends Model
             ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id');
     }
 
-
     /**
      * Apply a series of left joins to the query for retrieving related data.
-     * This method joins the products table with order_items, sub_categories, 
+     * This method joins the products table with order_items, sub_categories,
      * main_categories, and rates tables to include additional information in the query results.
-     * 
+     *
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
      * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with applied joins.
      */
@@ -360,7 +362,7 @@ class Product extends Model
      * - Main category ID.
      * - Subcategory ID.
      * Additionally, it filters out products with zero or negative quantity.
-     * 
+     *
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
      * @param \Illuminate\Http\Request $request The request object containing filter parameters.
      * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with applied filters.

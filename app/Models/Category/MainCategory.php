@@ -26,7 +26,16 @@ class MainCategory extends Model
    * @var array
    */
   protected $guarded = [];
-
+ /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
   /**
    * The attributes that should be cast.
    *

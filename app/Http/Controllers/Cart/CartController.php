@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Cart;
 
+use App\Models\Cart\Cart;
+use Illuminate\Http\JsonResponse;
+use App\Services\Cart\CartService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Resources\CartResource;
 use App\Http\Resources\OrderResource;
-use App\Models\Cart\Cart;
-use App\Services\Cart\CartService;
-use Illuminate\Http\JsonResponse;
+use App\Http\Requests\Order\StoreOrderRequest;
 
 class CartController extends Controller
 {
@@ -46,7 +46,7 @@ class CartController extends Controller
 
     /**
      * View the cart of the auth user.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function userCart()

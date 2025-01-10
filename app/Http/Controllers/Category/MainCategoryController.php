@@ -58,7 +58,7 @@ class MainCategoryController extends Controller
      */
     public function update(UpdateMainCategoryRequest $request, MainCategory $mainCategory): JsonResponse
     {
-        $mainCategory = $this->MainCategoryService->updateMainCategory($request->validated(), $mainCategory);
+        $this->MainCategoryService->updateMainCategory($request->validated(), $mainCategory);
         return self::success(new MainCategoryResource($mainCategory), 'MainCategory updated successfully');
     }
 
