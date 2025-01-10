@@ -35,7 +35,7 @@ class UserFactory extends Factory
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ];
     }
 

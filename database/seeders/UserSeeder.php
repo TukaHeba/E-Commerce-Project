@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ]);
         $admin->assignRole('admin');
 
@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ]);
         $salesmanager->assignRole('sales manager');
 
@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ]);
         $storemanager->assignRole('store manager');
 
@@ -66,7 +66,7 @@ class UserSeeder extends Seeder
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
         $customer->cart()->create();
@@ -81,7 +81,7 @@ class UserSeeder extends Seeder
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
         $customer->cart()->create();
@@ -97,7 +97,7 @@ class UserSeeder extends Seeder
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
         $customer->cart()->create();
@@ -113,22 +113,7 @@ class UserSeeder extends Seeder
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
-        ]);
-        $customer->assignRole('customer');
-        $customer->cart()->create();
-
-        $customer = User::create([
-            'first_name' => 'Nourhan',
-            'last_name' => 'Almohammed',
-            'email' => 'gnourhhaan1994@gmail.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('Customer5@12345678'),
-            'phone' => fake()->phoneNumber,
-            'address' => fake()->address,
-            'is_male' => fake()->boolean,
-            'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
         $customer->cart()->create();
@@ -143,7 +128,7 @@ class UserSeeder extends Seeder
             'address' => fake()->address,
             'is_male' => fake()->boolean,
             'birthdate' => fake()->date(),
-            'telegram_user_id' => fake()->optional()->randomNumber(),
+            'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
         $customer->cart()->create();
