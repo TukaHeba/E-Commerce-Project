@@ -46,11 +46,12 @@ class SubCategoryService
     /**
      * Update sub category alraedy exist
      * @param   $data
-     * @param   SubCategory $subcategory
+     * @param   $id
      * @return /Illuminate\Http\JsonResponse if have an error
      */
-    public function updateSubCategory($data, $subCategory)
+    public function updateSubCategory($data, $id)
     {
+        $subCategory = SubCategory::findOrFail($id);
         $subCategory->sub_category_name = $data['sub_category_name'] ?? $subCategory->sub_category_name;
         $subCategory->save();
 
