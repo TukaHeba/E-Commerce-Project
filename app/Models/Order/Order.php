@@ -29,6 +29,16 @@ class Order extends Model
         'order_number',
     ];
 
+ /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
     /**
      * The attributes that are not mass assignable.
      *

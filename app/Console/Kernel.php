@@ -19,6 +19,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('app:unsold-products-email-command')->monthly();
 
+        $schedule->command('app:update-offer-products-command')->monthly();
+
         $schedule->command('app:best_category_report_command')->everyFiveSeconds();
 
         $schedule->command('app:best-products-report-command')->quarterlyOn(1, '08:00');

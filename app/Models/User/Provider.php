@@ -20,7 +20,16 @@ class Provider extends Model
         'provider_id',
         'user_id'
     ];
-
+ /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
     /**
      * Get the user
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

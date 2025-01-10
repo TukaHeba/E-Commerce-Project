@@ -179,6 +179,18 @@ class ProductController extends Controller
         return self::paginated($products, null, 'Products retrieved successfully', 200);
     }
     /**
+     * Retrieve offer products with caching and pagination .
+     * @return JsonResponse
+     */
+    public function getOfferProducts()
+    {
+        $products = $this->ProductService->getOfferProducts();
+        if ($products->isEmpty()) {
+            return self::error(null, 'No Offer Found!', 404);
+        }
+        return self::paginated($products, null, 'Products retrieved successfully', 200);
+    }
+    /**
      * Retrieve products the user may like
      * @return JsonResponse
      */

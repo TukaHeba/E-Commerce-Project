@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\User;
 
 use App\Models\User\User;
-use App\Traits\CacheManagerTrait;
 use Illuminate\Http\JsonResponse;
 use App\Services\User\UserService;
 use App\Http\Controllers\Controller;
@@ -14,8 +13,6 @@ use App\Http\Requests\User\UpdateUserRequest;
 
 class UserController extends Controller
 {
-    use CacheManagerTrait;
-    private $groupe_key_cache = 'users_cache_keys';
     protected UserService $UserService;
 
     public function __construct(UserService $UserService)
@@ -86,7 +83,6 @@ class UserController extends Controller
     {
         $this->authorize('delete', $user);
         $user->delete();
-        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User deleted successfully');
     }
 
@@ -112,7 +108,6 @@ class UserController extends Controller
         $this->authorize('restoreDeleted', User::class);
         $user = User::onlyTrashed()->findOrFail($id);
         $user->restore();
-        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User restored successfully');
     }
     /**
@@ -125,7 +120,6 @@ class UserController extends Controller
     {
         $this->authorize('forceDeleted', User::class);
         User::onlyTrashed()->findOrFail($id)->forceDelete();
-        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User force deleted successfully');
     }
 

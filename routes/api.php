@@ -167,12 +167,11 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
             Route::get('products/{name}/largest-quantity-sold', 'showLargestQuantitySold');
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
-        
-        
+        Route::get('products/offers', 'getOfferProducts');
+        Route::get('products/category', 'getProductsByCategory');
+
         Route::get('products/hot-selling', 'getBestSellingProducts');
         Route::get('products/top-rated', 'topRatedProducts');
-        Route::get('products/filter', 'getProductsWithFilter');
-        Route::get('products/category', 'getProductsByCategory');
         Route::get('products/latest-arrivals', 'getLatestProducts');
         Route::get('products', 'index');
         Route::get('products/{product}', 'show');

@@ -61,6 +61,7 @@ class MainCategoryController extends Controller
     {
         $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $id);
         return self::success(new MainCategoryResource($maincategory), 'MainCategory updated successfully');
+
     }
 
     /**

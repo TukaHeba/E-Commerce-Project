@@ -19,7 +19,15 @@ class Zone extends Model
         'name',
         'city_id'
     ];
-
+ /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 
     /**
      * Get orders for the zone

@@ -3,15 +3,10 @@
 namespace App\Services\User;
 
 use App\Models\User\User;
-use App\Traits\CacheManagerTrait;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class UserService
 {
-    use CacheManagerTrait;
-    private $groupe_key_cache = 'users_cache_keys';
-
     /**
      * Retrieve all users with pagination.
      *
@@ -21,12 +16,8 @@ class UserService
      */
     public function getUsers()
     {
-        $cache_key = 'users';
-        $this->addCacheKey($this->groupe_key_cache, $cache_key);
+        return User::paginate(10);
 
-        return Cache::remember($cache_key, now()->addDay(), function () {
-            return User::paginate(10);
-        });
     }
 
     /**
@@ -38,7 +29,6 @@ class UserService
     public function storeUser(array $data): ?User
     {
         $user = User::create($data);
-        $this->clearCacheGroup($this->groupe_key_cache);
         return $user;
     }
 
@@ -52,7 +42,6 @@ class UserService
     public function updateUser(User $user, array $data): ?User
     {
         $user->update(array_filter($data));
-        $this->clearCacheGroup($this->groupe_key_cache);
         return $user;
     }
 
@@ -74,13 +63,8 @@ class UserService
      */
     public function showDeletedUsers()
     {
-        $cache_key = 'deleted_users';
-        $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         $users = User::onlyTrashed()->paginate();
-
-        return Cache::remember($cache_key, now()->addWeek(), function () use ($users) {
             return $users;
-        });
     }
 }

@@ -51,8 +51,11 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
-
+ 
     /**
      * List of attributes that should be appended to the model's array and JSON representation.
      * These attributes are dynamically generated using accessor methods.
