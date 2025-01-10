@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Resources\CartResource;
+use App\Http\Resources\OrderResource;
 use App\Models\Cart\Cart;
 use App\Services\Cart\CartService;
 use Illuminate\Http\JsonResponse;
 
 class CartController extends Controller
 {
-
     protected CartService $CartService;
 
     public function __construct(CartService $CartService)
@@ -22,29 +22,31 @@ class CartController extends Controller
     /**
      * View all user carts for ((Admin))
      *
-     * //     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
 
     public function index()
     {
+        $this->authorize('index', Cart::class);
         $carts = Cart::paginate(10);
         return self::paginated($carts, CartResource::class, 'Carts retrieved successfully', 200);
     }
 
     /**
-     *   Display the specified cart for ((Admin))
+     * Display the specified cart for ((Admin))
      *
      * @param Cart $cartItem
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Cart $cart)
     {
+        $this->authorize('show', Cart::class);
         return self::success(new CartResource($cart->load(['user', 'cartItems.product'])));
     }
 
-
     /**
-     *  View the cart of the auth user.
+     * View the cart of the auth user.
+     * 
      * @return \Illuminate\Http\JsonResponse
      */
     public function userCart()
@@ -53,9 +55,8 @@ class CartController extends Controller
         return self::success(new CartResource($cart));
     }
 
-
     /**
-     * Checkout the cart and get cart items data and total price.
+     * Checkout the cart and get cart items data with total price.
      *
      * @return JsonResponse
      */
@@ -69,16 +70,14 @@ class CartController extends Controller
     }
 
     /**
-     * Place an order by creating the order and order items, then clearing the cart.
+     * Place an order by creating the order and order items.
      *
      * @param \App\Http\Requests\Order\StoreOrderRequest $request
      * @return JsonResponse
      */
     public function placeOrder(StoreOrderRequest $request)
     {
-        $validated = $request->validated();
-        $order = $this->CartService->placeOrder($validated['shipping_address']);
-
-        return self::success($order, 'Order placed successfully!', 201);
+        $order = $this->CartService->placeOrder($request->validated());
+        return self::success(new OrderResource($order), 'Order placed successfully!', 201);
     }
 }

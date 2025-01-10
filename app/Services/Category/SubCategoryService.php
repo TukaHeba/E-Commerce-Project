@@ -2,26 +2,34 @@
 
 namespace App\Services\Category;
 
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
+use App\Traits\CacheManagerTrait;
 use App\Models\Category\SubCategory;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SubCategoryService
 {
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'sub_categories_cache_keys';
+
     /**
-     * method to view all sub categories with a filtes on (????)
-     * @return /Illuminate\Http\JsonResponse if have an error
+     * View all sub categories
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getSubCategorys($request)
+    public function getSubCategories(): LengthAwarePaginator
     {
-        $subcategories = SubCategory::with('mainCategories')->get();
-        return $subcategories;
+        $cache_key = 'sub_categories';
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
+
+        return Cache::remember($cache_key, now()->addWeek(), function (): LengthAwarePaginator {
+              return SubCategory::with('mainCategories')->paginate(10);
+        });
     }
 
     /**
-     * method to creta new sub category
-     * @param   $data
-     * @return /Illuminate\Http\JsonResponse if have an error
+     * Create new sub category
+     * @param mixed $data
+     * @return SubCategory
      */
     public function storeSubCategory($data)
     {
@@ -32,26 +40,26 @@ class SubCategoryService
         $subcategory->mainCategories()->attach($data['main_category_name']);
         $subcategory->save();
 
+        $this->clearCacheGroup($this->groupe_key_cache);
         return $subcategory;
     }
     /**
-     * method to update sub category alraedy exist
+     * Update sub category alraedy exist
      * @param   $data
      * @param   SubCategory $subcategory
      * @return /Illuminate\Http\JsonResponse if have an error
      */
-    public function updateSubCategory($data, $id)
+    public function updateSubCategory($data, $subCategory)
     {
-        $subcategory = SubCategory::findOrFail($id);
-        $subcategory->sub_category_name = $data['sub_category_name'] ?? $subcategory->sub_category_name;
-        $subcategory->save();
+        $subCategory->sub_category_name = $data['sub_category_name'] ?? $subCategory->sub_category_name;
+        $subCategory->save();
 
         if ($data['main_category_name'] != null) {
-            $subcategory->mainCategories()->sync($data['main_category_name']);
-            $subcategory->save();
+            $subCategory->mainCategories()->sync($data['main_category_name']);
+            $subCategory->save();
         }
-
-        return $subcategory;
+        $this->clearCacheGroup($this->groupe_key_cache);
+        return $subCategory;
     }
     /**
      * method to soft delete sub category alraedy exist
@@ -63,6 +71,7 @@ class SubCategoryService
         $subCategory = SubCategory::findOrFail($id);
         $subCategory->delete();
         $subCategory->mainCategories()->updateExistingPivot($subCategory->mainCategories->pluck('id'), ['deleted_at' => now()]);
+        $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
     /**
@@ -75,6 +84,7 @@ class SubCategoryService
         $subCategory = SubCategory::onlyTrashed()->findOrFail($id);
         $subCategory->mainCategories()->withTrashed()->updateExistingPivot($subCategory->mainCategories->pluck('id'), ['deleted_at' => null]);
         $subCategory->restore();
+        $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
 }

@@ -2,20 +2,19 @@
 
 namespace App\Models\User;
 
-use App\Models\Account\Account;
+use Carbon\Carbon;
 use App\Models\Cart\Cart;
-use App\Models\Favorite\Favorite;
+use App\Models\Rate\Rate;
 use App\Models\Order\Order;
 use App\Models\Photo\Photo;
 use App\Models\Product\Product;
-use App\Models\Rate\Rate;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -34,7 +33,8 @@ class User extends Authenticatable implements JWTSubject
         'phone',
         'address',
         'is_male',
-        'birthdate'
+        'birthdate',
+        'telegram_user_id'
     ];
 
     /**
@@ -52,9 +52,15 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    /**
+     * List of attributes that should be appended to the model's array and JSON representation.
+     * These attributes are dynamically generated using accessor methods.
+     *
+     * @var array
+     */
     public $appends = [
         'full_name',
-        'avatar'
     ];
 
     /**
@@ -134,16 +140,6 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the favorite products for the user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function favorites()
-    {
-        return $this->hasMany(Favorite::class);
-    }
-
-    /**
      * Get the rates of products for the user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -151,16 +147,6 @@ class User extends Authenticatable implements JWTSubject
     public function rates()
     {
         return $this->hasMany(Rate::class);
-    }
-
-    /**
-     * Get the user accounts.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function accounts()
-    {
-        return $this->hasMany(Account::class);
     }
 
     /**
@@ -173,24 +159,36 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Product::class, 'favorites')->withTimestamps();
     }
 
-
-
-
+    /**
+     * Accessor to get the full name of the user by concatenating the first and last names.
+     * This method is used to create a dynamic attribute 'full_name' when accessing the model.
+     *
+     * @return string The full name of the user.
+     */
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
     }
-
     /**
-     * Get the most expensive delivered order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * Accessor to get the Birth Data with format
+     * example: "Saturday, January 10, 1990"
+     * @param mixed $value
+     * @return string
      */
-    public function mostExpensiveOrder()
+    public function getBirthdateAttribute($value)
     {
-        return $this->hasOne(Order::class)
-            ->where('status', 'delivered')
-            ->ofMany('total_price', 'max');
+        return Carbon::parse($value)->format('l, F j, Y'); 
+    }
+    /**
+     * Calculate the average total price of all delivered orders for the user.
+     *
+     * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
+     */
+    public function userPurchasesAverage()
+    {
+        return $this->orders()
+                    ->where('status', 'delivered')
+                    ->avg('total_price');
     }
 
     /**

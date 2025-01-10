@@ -2,15 +2,15 @@
 
 namespace App\Services\User;
 
-use Exception;
 use App\Models\User\User;
-use Illuminate\Http\Request;
-use App\Services\Photo\PhotoService;
-use Illuminate\Support\Facades\Auth;
+use App\Traits\CacheManagerTrait;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class UserService
 {
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'users_cache_keys';
 
     /**
      * Retrieve all users with pagination.
@@ -19,9 +19,14 @@ class UserService
      * Log the exception and throw it
      * @return LengthAwarePaginator
      */
-    public function getUsers($request)
+    public function getUsers()
     {
-        return User::paginate(10);
+        $cache_key = 'users';
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
+
+        return Cache::remember($cache_key, now()->addDay(), function () {
+            return User::paginate(10);
+        });
     }
 
     /**
@@ -33,6 +38,7 @@ class UserService
     public function storeUser(array $data): ?User
     {
         $user = User::create($data);
+        $this->clearCacheGroup($this->groupe_key_cache);
         return $user;
     }
 
@@ -46,13 +52,35 @@ class UserService
     public function updateUser(User $user, array $data): ?User
     {
         $user->update(array_filter($data));
+        $this->clearCacheGroup($this->groupe_key_cache);
         return $user;
     }
-    public function showmostExpensiveOrder($user)
-    {
-        $mostExpensiveOrder = $user->mostExpensiveOrder;
-        return   $mostExpensiveOrder;
 
+    /**
+     * Calculate the average total price of all delivered orders for the user.
+     *
+     * @param string $id The ID of the user.
+     * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
+     */
+    public function userPurchasesAverage($user)
+    {
+        $userPurchasesAverage = $user->userPurchasesAverage;
+        return $userPurchasesAverage;
     }
 
+    /**
+     * Show deleted users
+     * @return mixed
+     */
+    public function showDeletedUsers()
+    {
+        $cache_key = 'deleted_users';
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
+
+        $users = User::onlyTrashed()->paginate();
+
+        return Cache::remember($cache_key, now()->addWeek(), function () use ($users) {
+            return $users;
+        });
+    }
 }

@@ -37,7 +37,10 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'shipping_address' => 'required|string|min:5|max:100',
+            'country_id' => 'required|integer|exists:countries,id',
+            'city_id' => 'required|integer|exists:cities,id',
+            'zone_id' => 'required|integer|exists:zones,id',
+            'postal_code' => 'required|string|min:5|max:10',
         ];
     }
 
@@ -49,7 +52,10 @@ class StoreOrderRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'shipping_address' => 'Shipping Address'
+            'country_id' => 'Country',
+            'city_id' => 'City',
+            'zone_id' => 'Zone',
+            'postal_code' => 'Postal Code',
         ];
     }
 
@@ -64,7 +70,7 @@ class StoreOrderRequest extends FormRequest
             'required' => 'The :attribute field is required.',
             'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
-            'in' => 'The selected :attribute is invalid.',
+            'exists' => 'The selected :attribute is invalid.',
         ];
     }
 

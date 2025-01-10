@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ExportController;
 use App\Http\Controllers\Cart\CartController;
 use App\Http\Controllers\Rate\RateController;
 use App\Http\Controllers\Role\RoleController;
@@ -9,6 +8,7 @@ use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Photo\PhotoController;
+use App\Http\Controllers\Export\ExportController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\CartItem\CartItemController;
@@ -57,23 +57,24 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
     // ----------------------------------------- User Routes ----------------------------------------- //
     Route::controller(UserController::class)->middleware('auth:api')->group(function () {
         Route::get('users/show-deleted', 'showDeleted');
-        Route::delete('users/{user}/force-deleted', 'forceDeleted');
-        Route::post('users/{user}/restore-deleted', 'restoreDeleted');
-        Route::get('users/{user}/most-expensive-order', 'showmostExpensiveOrder');
+        Route::delete('users/{userId}/force-deleted', 'forceDeleted');
+        Route::post('users/{userId}/restore-deleted', 'restoreDeleted');
+        Route::get('users/{userId}/user-purchases-average', 'userPurchasesAverage');
         Route::apiResource('users', UserController::class);
     });
 
 
     // ---------------------------------- Roles & Permissuin Routes ---------------------------------- //
-    Route::apiResource('roles', RoleController::class);
-    Route::apiResource('permissions', PermissionController::class);
-
+    Route::middleware(['throttle:60,1', 'security', 'auth:api', 'role:admin'])->group(function () {
+        Route::apiResource('roles', RoleController::class);
+        Route::apiResource('permissions', PermissionController::class);
+    });
 
     // ------------------------------------ Main Category Routes ------------------------------------ //
     Route::controller(MainCategoryController::class)->middleware('auth:api')->group(function () {
-        Route::get('main-categories/{main-category}/show-deleted', 'showDeleted');
-        Route::delete('main-categories/{main-category}/force-deleted', 'forceDeleted');
-        Route::post('main-categories/{main-category}/restore-deleted', 'restoreDeleted');
+        Route::get('main-categories//show-deleted', 'showDeleted');
+        Route::delete('main-categories/{mainCategoryId}/force-deleted', 'forceDeleted');
+        Route::post('main-categories/{mainCategoryId}/restore-deleted', 'restoreDeleted');
         Route::apiResource('main-categories', MainCategoryController::class)->except(['index', 'show']);
     });
     Route::apiResource('main-categories', MainCategoryController::class)->only(['index', 'show']);
@@ -81,9 +82,9 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // ------------------------------------ Sub Category Routes ------------------------------------ //
     Route::controller(SubCategoryController::class)->middleware('auth:api')->group(function () {
-        Route::get('sub-categories/{sub-category}/show-deleted', 'showDeleted');
-        Route::delete('sub-categories/{sub-category}/force-deleted', 'forceDeleted');
-        Route::post('sub-categories/{sub-category}/restore-deleted', 'restoreDeleted');
+        Route::get('sub-categories/show-deleted', 'showDeleted');
+        Route::delete('sub-categories/{subCategoryId}/force-deleted', 'forceDeleted');
+        Route::post('sub-categories/{subCategoryId}/restore-deleted', 'restoreDeleted');
         Route::apiResource('sub-categories', SubCategoryController::class)->except(['index', 'show']);
     });
     Route::apiResource('sub-categories', SubCategoryController::class)->only(['index', 'show']);
@@ -99,9 +100,6 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // --------------------------------------- Rate Routes --------------------------------------- //
     Route::controller(RateController::class)->middleware('auth:api')->group(function () {
-        Route::get('rates/{rate}/show-deleted', 'showDeleted');
-        Route::delete('rates/{rate}/force-deleted', 'forceDeleted');
-        Route::post('rates/{rate}/restore-deleted', 'restoreDeleted');
         Route::apiResource('rates', RateController::class)->except(['index', 'show']);
     });
     Route::apiResource('rates', RateController::class)->only(['index', 'show']);
@@ -131,10 +129,9 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('orders/oldest-order', 'showOldestOrder');
         Route::get('orders/latest-order', 'showLatestOrder');
         Route::get('orders/{order}/tracking', 'orderTracking');
-        Route::delete('orders/{order}/force-deleted', 'forceDeleted');
-        Route::post('orders/{order}/restore-deleted', 'restoreDeleted');
-        Route::get('orders/{order}/show-deleted-user', 'showDeletedUser');
-        Route::get('orders/{order}/show-deleted-admin', 'showDeletedAdmin');
+        Route::delete('orders/{orderId}/force-deleted', 'forceDeleted');
+        Route::post('orders/{orderId}/restore-deleted', 'restoreDeleted');
+        Route::get('orders/{orderId}/show-deleted-admin', 'getDeletedOrdersAdmin');
         Route::apiResource('orders', OrderController::class)->except(['index', 'store']);
     });
 
@@ -155,11 +152,12 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::middleware('auth:api')->group(function () {
             Route::get('products/you-may-like', 'getProductsUserMayLike');
             Route::get('products/{product}/show-deleted', 'showDeleted');
-            Route::delete('products/{product}/force-deleted', 'forceDeleted');
-            Route::post('products/{product}/restore-deleted', 'restoreDeleted');
+            Route::delete('products/{productId}/force-deleted', 'forceDeleted');
+            Route::post('products/{productId}/restore-deleted', 'restoreDeleted');
             Route::get('products/{name}/largest-quantity-sold', 'showLargestQuantitySold');
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
+        
         Route::get('products/hot-selling', 'getBestSellingProducts');
         Route::get('products/top-rated', 'topRatedProducts');
         Route::get('products/filter', 'getProductsWithFilter');
@@ -171,16 +169,15 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
 
     // -------------------------------------- Report Routes -------------------------------------- //
-    Route::controller(ReportController::class)->group(function () {
+    Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
         Route::get('reports/best-categories',  'bestCategoriesReport');
         Route::get('reports/best-selling-products', 'bestSellingProductsReport');
         Route::get('reports/products-low-on-stocks',  'productsLowOnStockReport');
         Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport');
         Route::get('reports/products-never-been-sold',  'productsNeverBeenSoldReport');
         Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
-        Route::get('reports/countries-with-highest-orders',  'countriesWithHighestOrdersReport');
+        Route::get('reports/countries-with-highest-orders/{country?}',  'countriesWithHighestOrdersReport');
     });
-
 
 
     // -------------------------------------- Export Routes -------------------------------------- //
@@ -190,9 +187,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
         Route::get('Export/products-low-on-stocks',  'productsLowOnStockExport');
         Route::get('Export/orders-late-to-deliver', 'ordersLateToDeliverExport');
         Route::get('Export/products-never-been-sold',  'productsNeverBeenSoldExport');
+        Route::get('Export/products-remaining-in-carts', 'productsRemainingInCartsExport');
         Route::get('Export/countries-with-highest-orders',  'countriesWithHighestOrdersExport');
     });
-
 });
-
-

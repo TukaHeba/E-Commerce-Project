@@ -4,6 +4,7 @@ namespace App\Services\Cart;
 
 use App\Models\Cart\Cart;
 use App\Models\Order\Order;
+use App\Models\Address\Country;
 use App\Models\Product\Product;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
@@ -31,11 +32,11 @@ class CartService
 
         // Step 2
         if (!$cart) {
-            throw new ModelNotFoundException('The cart does not exist.');
+            throw new ModelNotFoundException('The cart does not exist.', 500);
         }
 
         if ($cart->cartItems->isEmpty()) {
-            throw new \Exception('The cart is empty.');
+            throw new \Exception('The cart is empty.', 500);
         }
 
         // Step 3
@@ -51,21 +52,22 @@ class CartService
     }
 
     /**
-     * Places an order by creating the order, saving order items, and clearing the cart.
+     * Places an order by creating the order, saving order items, and clearing the cart items.
      *
      * 1- Begins a database transaction to ensure data integrity.
      * 2- Fetch cart data using the cartCheckout method.
-     * 3- Creates an order with the total price and shipping address.
-     * 4- Saves the cart items as order items in the database.
-     * 5- Fetch product and reduce its quantity.
-     * 6- Clears the user's cart after the order is placed.
-     * 7- Commits the transaction if all steps are successful, or rolls back in case of an error.
-     * 8- Dispatch the email notification job
+     * 3- Validate the address and get the zone ID.
+     * 4- Creates an order with the total price and shipping address.
+     * 5- Saves the cart items as order items in the database.
+     * 6- Fetch product and reduce its quantity.
+     * 7- Clears the user's cart after the order is placed.
+     * 8- Commits the transaction if all steps are successful, or rolls back in case of an error.
+     * 9- Dispatch the email notification job
      * 
      * @param string $shipping_address The address where the order will be shipped.
      * @return \App\Models\Order\Order The created order with its details.
      */
-    public function placeOrder($shipping_address)
+    public function placeOrder(array $data)
     {
         // Step 1
         DB::beginTransaction();
@@ -75,14 +77,18 @@ class CartService
             $cartData = $this->cartCheckout();
 
             // Step 3
+            $zoneId = $this->validateAddress($data['country_id'], $data['city_id'], $data['zone_id']);
+
+            // Step 4
             $order = Order::create([
                 'user_id' => Auth::id(),
-                'shipping_address' => $shipping_address,
+                'zone_id' => $zoneId,
+                'postal_code' => $data['postal_code'],
                 'total_price' => $cartData['total_price'],
                 'status' => 'pending',
             ]);
 
-            // Step 4
+            // Step 5
             foreach ($cartData['cart_items'] as $cartItemData) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -91,20 +97,20 @@ class CartService
                     'price' => $cartItemData['price'],
                 ]);
 
-                // Step 5
+                // Step 6
                 $product = Product::find($cartItemData['product_id']);
                 $product->product_quantity -= $cartItemData['quantity'];
                 $product->save();
             }
 
-            // Step 6
+            // Step 7
             $cart = Cart::where('user_id', Auth::id())->first();
             $cart->cartItems()->delete();
 
-            // Step 7
+            // Step 8
             DB::commit();
 
-            // Step 8
+            // Step 9
             $user = Auth::user();
             SendOrderConfirmationEmail::dispatch($user, $order);
 
@@ -150,5 +156,25 @@ class CartService
 
         // Step 4
         return ['cart_items'  => $cartItemsData, 'total_price' => $totalPrice];
+    }
+
+    /**
+     * Validate the address and get the zone ID.
+     * 
+     * Checking the existence of the country then ensuring that city belongs to the specified country 
+     * and the zone belongs to the specified city.
+     * 
+     * @param int $countryId The ID of the country.
+     * @param int $cityId The ID of the city.
+     * @param int $zoneId The ID of the zone.
+     * @return int The ID of the validated zone.
+     */
+    public function validateAddress(int $countryId, int $cityId, int $zoneId): int
+    {
+        $country = Country::findOrFail($countryId);
+        $city = $country->cities()->findOrFail($cityId);
+        $zone = $city->zones()->findOrFail($zoneId);
+
+        return $zone->id;
     }
 }

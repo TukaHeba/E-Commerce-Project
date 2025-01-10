@@ -33,6 +33,7 @@ class RateController extends Controller
         return self::paginated($rates, RateResource::class, 'Rates retrieved successfully', 200);
     }
 
+    #FIXME check $data['user_id] = auth()->id() to join it inside form request
     /**
      * Store a newly created rate in the database.
      * @param StoreRateRequest $request The HTTP request object containing validated rate data.
@@ -67,6 +68,7 @@ class RateController extends Controller
      */
     public function update(UpdateRateRequest $request, Rate $rate): JsonResponse
     {
+        $this->authorize('update', $rate);
         $updatedRate = $this->RateService->updateRate($rate, $request->validated());
         return self::success(new RateResource($updatedRate), 'Rate updated successfully', 201);
     }
@@ -78,49 +80,8 @@ class RateController extends Controller
      */
     public function destroy(Rate $rate): JsonResponse
     {
-        if ($rate->user_id === auth()->id()) {
-            $this->RateService->destroy($rate);
-            return self::success(null, 'Rate deleted successfully', 200);
-        } else {
-            return self::error(null, "You're not authorized to delete this rate.", 403);
-        }
-    }
-
-    /**
-     * Display a paginated list of soft-deleted rates.
-     * @return JsonResponse A JSON response with soft-deleted rates or an error if none are found.
-     */
-    public function showDeleted(): JsonResponse
-    {
-        $rates = $this->RateService->showDeleted();
-        if ($rates->isEmpty()) {
-            return self::error(null, 'No deleted rates found.', 404);
-        }
-        return self::paginated($rates, RateResource::class, 'Rates retrieved successfully', 200);
-    }
-
-    /**
-     * Restore a specific soft-deleted rate.
-     * @param Rate $rate The soft-deleted rate model instance to be restored.
-     * @return JsonResponse A JSON response with the restored rate or an error if it is not deleted.
-     */
-    public function restoreDeleted(Rate $rate): JsonResponse
-    {
-        if (!$rate->trashed()) {
-            return self::error(null, 'Rate is not deleted.', 400);
-        }
-        $rate = $this->RateService->restoreDeleted($rate);
-        return self::success(new RateResource($rate), 'Rate restored successfully', 200);
-    }
-
-    /**
-     * Permanently delete a specific soft-deleted rate from the database.
-     * @param Rate $rate The soft-deleted rate model instance to be permanently deleted.
-     * @return JsonResponse A JSON response confirming the permanent deletion.
-     */
-    public function forceDeleted(Rate $rate): JsonResponse
-    {
-        $rate->forceDelete();
-        return self::success(null, 'Rate force deleted successfully');
+        $this->authorize('delete', $rate);
+        $this->RateService->destroy($rate);
+        return self::success(null, 'Rate deleted successfully', 200);
     }
 }
