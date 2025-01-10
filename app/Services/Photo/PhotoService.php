@@ -2,12 +2,12 @@
 
 namespace App\Services\Photo;
 
-use Exception;
 use App\Models\Photo\Photo;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
+use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 class PhotoService
@@ -36,6 +36,7 @@ class PhotoService
      */
     public function storePhoto($photofile, $photoable)
     {
+        set_time_limit(60);
         $message = '';
 
         // Scan the file for viruses
