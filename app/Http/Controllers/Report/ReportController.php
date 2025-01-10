@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Report\TopCountryRequest;
+use App\Http\Resources\OrderResource;
 use App\Http\Resources\ProductResource;
 use App\Jobs\SendDelayedOrderEmail;
 use App\Services\Report\ReportService;
@@ -19,12 +20,13 @@ class ReportController extends Controller
     }
 
     /**
-     * Orders late to deliver report
+     * Generate a report of orders delayed for delivery
+     * @return \Illuminate\Http\JsonResponse
      */
     public function ordersLateToDeliverReport()
     {
         $latingOrders = $this->ReportService->getOrdersLateToDeliver();
-        return self::paginated($latingOrders, JsonResource::class, 'Lating orders retrieved successfully', 200);
+        return self::paginated($latingOrders, OrderResource::class, 'Lating orders retrieved successfully', 200);
     }
 
     /**

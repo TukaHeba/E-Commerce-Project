@@ -27,10 +27,6 @@ class LateProductsReportCommand extends Command
      */
     public function handle()
     {
-        // Retrieve all sales managers (users with the 'sales manager' role)
-        $sales_managers = User::role('sales manager')->get();
-        foreach($sales_managers as $sales_manager){
-            LateProductsReportJob::dispatch($sales_manager , 'file.xlsx');
-        }
+        LateProductsReportJob::dispatch();
     }
 }

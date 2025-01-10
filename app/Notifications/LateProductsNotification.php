@@ -2,10 +2,12 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
 
 class LateProductsNotification extends Notification
 {
@@ -35,10 +37,15 @@ class LateProductsNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $url = Storage::path($this->filePath);
         return (new MailMessage)
-                    ->line('This Message For Test Code')
-                    ->action('Notification Action', url($this->filePath))
-                    ->line('Thank you for using our application!');
+            ->greeting('Hello Sales Manager')
+            ->subject('Lating Orders to delivered')
+            ->attach($url,[
+                'as'=>'orders_Late_To_Deliver.xlsx',
+                'mime'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ])
+            ->line('Here is excel sheet in the attachment for lating orders for today');
     }
 
     /**
