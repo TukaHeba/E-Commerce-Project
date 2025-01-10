@@ -2,21 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\ProductsRemainingReportJob;
-use App\Models\User\User;
-use App\Services\Export\ExportService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\ProductsRemainingReportJob;
 
 class ProductsRemainingCommand extends Command
 {
-    protected $exportFile;
-    public function __construct(ExportService $exportService)
-    {
-        parent::__construct();
-        $this->exportFile = $exportService;
-    }
-
     /**
      * The name and signature of the console command.
      *
@@ -37,11 +28,7 @@ class ProductsRemainingCommand extends Command
     public function handle()
     {
         Log::info('Before execution command');
-        $admins = User::role('admin')->get();
-        foreach ($admins as $admin) {
-            ProductsRemainingReportJob::dispatch($admin);
-        }
-        $this->info('Products remaining report job dispatched successfully.');
+        ProductsRemainingReportJob::dispatch();
         Log::info('After execution command');
     }
 }
