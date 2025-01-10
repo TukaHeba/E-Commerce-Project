@@ -459,4 +459,15 @@ class Product extends Model
             });
     }
 
+    /**
+     * Get the count of favorites for the product.
+     *
+     * This is an accessor that retrieves the number of users who favorited the product.
+     *
+     * @return int
+     */
+    public function getFavoritesCountAttribute()
+    {
+        return $this->favoredBy()->count();
+    }
 }
