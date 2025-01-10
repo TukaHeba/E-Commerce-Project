@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Address\City;
+use App\Models\Address\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,6 +26,8 @@ class OrderResource extends JsonResource
             'order_number' => $this->order_number,
             'order_items' => OrderItemResource::collection($this->whenLoaded('orderItems')),
             'order_tracking' => OrderTrackingResource::collection($this->whenLoaded('orderTrackings')),
+            'zone'=>$this->whenLoaded('zone'),
+            'city'=>$this->whenLoaded('city'),
         ];
     }
 }

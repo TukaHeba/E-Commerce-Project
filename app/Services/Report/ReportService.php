@@ -20,8 +20,10 @@ class ReportService
     {
         $sevenDaysAgo = Carbon::now()->subDays(7); // Create the current date and subtract 7 days from it
 
-        $lating_orders = Order::where('status', 'shipped')
-            ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
+        // Select orders with status 'shipped' where the last update was 7 or more days ago
+        $lating_orders = Order::with(['zone:id,name,city_id','zone.city:id,name'])->select('user_id','zone_id','postal_code','status','total_price','order_number')
+            ->where('status',  'shipped')
+            ->where('updated_at', '<=', $sevenDaysAgo)->paginate(10);
 
         return $lating_orders;
     }
