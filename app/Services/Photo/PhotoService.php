@@ -2,8 +2,9 @@
 
 namespace App\Services\Photo;
 
-use Exception;
 use App\Models\Photo\Photo;
+
+use Exception;
 use Illuminate\Support\Str;
 use App\Traits\CacheManagerTrait;
 use Illuminate\Support\Facades\Log;
@@ -39,6 +40,7 @@ class PhotoService
      */
     public function storePhoto($photofile, $photoable)
     {
+        set_time_limit(60);
         $message = '';
 
         // Scan the file for viruses
