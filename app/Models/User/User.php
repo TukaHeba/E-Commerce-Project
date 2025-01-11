@@ -180,18 +180,6 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Calculate the average total price of all delivered orders for the user.
-     *
-     * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
-     */
-    public function userPurchasesAverage()
-    {
-        return $this->orders()
-            ->where('status', 'delivered')
-            ->avg('total_price');
-    }
-
-    /**
      * Get the oldest order for a user.
      * 
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
