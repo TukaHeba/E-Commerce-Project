@@ -6,6 +6,7 @@ use App\Models\Photo\Photo;
 use App\Models\Product\Product;
 use App\Models\Category\SubCategory;
 use App\Models\Category\MainCategory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PhotoPolicy
@@ -15,8 +16,9 @@ class PhotoPolicy
     /**
      * Determine if the user can upload a photo.
      */
-    public function create(User $user, $model): bool
+    public function create(User $user, Model $model): bool
     {
+       
         // If the model is User, allow only the user with the account
         if ($model instanceof User) {
             return $user->id === $model->id;
@@ -36,12 +38,12 @@ class PhotoPolicy
     public function delete(User $user, Photo $photo): bool
     {
         // Check if the photo is attached to a user model (only owner can delete)
-        if ($photo->photoable_type === 'User') {
+        if ($photo->photoable_type === 'App\Models\User\User') {
             return $user->id === $photo->photoable_id; // Only the user can delete their own photo
         }
 
         // If the photo is attached to a product, main-category or sub-category, only admin can delete
-        if ($photo->photoable_type === 'Product' || $photo->photoable_type === 'MainCategory' || $photo->photoable_type === 'SubCategory') {
+        if ($photo->photoable_type === 'App\Models\Product\Product' || $photo->photoable_type === 'App\Models\MainCategory\MainCategory' || $photo->photoable_type === 'App\Models\SubCategory\SubCategory') {
             return $user->hasRole('admin'); // Only admin can delete photos from these models
         }
 

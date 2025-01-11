@@ -28,6 +28,11 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Route::model('user', User::class);
+        Route::model('product', Product::class);
+        Route::model('subCategory', SubCategory::class);
+        Route::model('mainCategory', MainCategory::class);
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
@@ -38,21 +43,21 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         // Define dynamic route model bindings
-        Route::bind('user', function ($value) {
-            return User::findOrFail($value);
-        });
+        // Route::bind('user', function ($value) {
+        //     return User::findOrFail($value);
+        // });
 
-        Route::bind('product', function ($value) {
-            return Product::findOrFail($value);
-        });
+        // Route::bind('product', function ($value) {
+        //     return Product::findOrFail($value);
+        // });
 
-        Route::bind('mainCategory', function ($value) {
-            return MainCategory::findOrFail($value);
-        });
+        // Route::bind('mainCategory', function ($value) {
+        //     return MainCategory::findOrFail($value);
+        // });
 
-        Route::bind('subCategory', function ($value) {
-            return SubCategory::findOrFail($value);
-        });
+        // Route::bind('subCategory', function ($value) {
+        //     return SubCategory::findOrFail($value);
+        // });
 
         $this->routes(function () {
             Route::middleware('api')

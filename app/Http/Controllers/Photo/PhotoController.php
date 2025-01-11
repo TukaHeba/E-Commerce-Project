@@ -37,7 +37,7 @@ class PhotoController extends Controller
      * @return JsonResponse The JSON response indicating success or failure.
      */
     public function storePhoto(StorePhotoRequest $request, Model $model): JsonResponse
-    {
+    {    
         $this->authorize('create' , $model);
         // Store the photo using the PhotoService
         $photo = $this->PhotoService->storePhoto($request->file('photo'), $model);
