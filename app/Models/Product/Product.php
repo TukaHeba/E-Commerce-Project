@@ -37,33 +37,17 @@ class Product extends Model
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'product_quantity',
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
-    /**
-     * The attributes that are not mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [];
-
-    /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
      */
     protected $casts = [
-        //
+        'price' => 'float',
     ];
+
     /**
      * Get the users favored this product.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function favoredBy()
@@ -73,14 +57,17 @@ class Product extends Model
 
     /**
      * Relation with category: each product belongs to one category.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category()
     {
         return $this->belongsTo(MainCategorySubCategory::class, 'maincategory_subcategory_id');
     }
+
     /**
      * Get the main category associated with the product.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
      */
     public function mainCategory()
@@ -94,8 +81,10 @@ class Product extends Model
             'main_category_id'
         );
     }
+
     /**
      * Get the subcategory associated with the product.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
      */
     public function subCategory()
@@ -112,6 +101,7 @@ class Product extends Model
 
     /**
      * Get the cart items associated with the product.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function cartItems()
@@ -121,6 +111,7 @@ class Product extends Model
 
     /**
      * Get the photos associated with the product.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function photos()
@@ -130,6 +121,7 @@ class Product extends Model
 
     /**
      * Get the order items associated with the product.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function orderItems()
@@ -139,6 +131,7 @@ class Product extends Model
 
     /**
      * Get the rates associated with the product.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function ratings()
@@ -237,6 +230,7 @@ class Product extends Model
                 });
             });
     }
+
     /**
      * Scope to get products may user like it
      * By join products.id with favourites.products_id tables
@@ -258,11 +252,11 @@ class Product extends Model
                         ->where('favorites.user_id', $user_id);
                 })
                     ->whereNotExists(function ($subQuery) use ($user_id) {                                     // Avoid showing products that the user has already liked.
-                    $subQuery->select(DB::raw(1))
-                        ->from('favorites')
-                        ->whereRaw('favorites.product_id = products.id')
-                        ->where('favorites.user_id', $user_id);
-                });
+                        $subQuery->select(DB::raw(1))
+                            ->from('favorites')
+                            ->whereRaw('favorites.product_id = products.id')
+                            ->where('favorites.user_id', $user_id);
+                    });
             })
             ->select($columns)
             ->applyJoins('may_like')
@@ -283,7 +277,7 @@ class Product extends Model
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->applyJoins('best_selling')
             ->when($type == "offer", function ($q) {
-                  $q->leftJoin('orders', 'orders.id', '=', 'order_items.order_id')
+                $q->leftJoin('orders', 'orders.id', '=', 'order_items.order_id')
                     ->whereMonth('orders.created_at', now()->subYear()->month)
                     ->whereYear('orders.created_at', now()->subYear()->year);
             })
@@ -291,6 +285,7 @@ class Product extends Model
             ->groupBy(...$this->getGroupByColumns($type))
             ->orderByDesc('total_sold');
     }
+
     /**
      * Scope to filter products with low stock.
      *
@@ -305,6 +300,7 @@ class Product extends Model
     {
         return $query->where('product_quantity', '<', $threshold);
     }
+
     /**
      * Scope to filter unsold products.
      *
@@ -320,6 +316,7 @@ class Product extends Model
     {
         return $query->whereDoesntHave('orderItems');
     }
+
     /**
      * generate low stock products excel sheet as report to admin
      * @return string
@@ -339,21 +336,22 @@ class Product extends Model
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
      * @return \Illuminate\Database\Eloquent\Builder The updated query builder instance with applied joins.
      */
-    public function scopeApplyJoins($query, $type){
-           return match ($type) {
-               'index' =>  $query
-                         ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-                         ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
-                         ->leftJoin('main_categories', 'products.maincategory_subcategory_id', '=', 'main_categories.id')
-                         ->leftJoin('rates', 'products.id', '=', 'rates.product_id'),
-                'best_selling', 'may_like'
-                       => $query
-                         ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
-                         ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
-                         ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id'),
+    public function scopeApplyJoins($query, $type)
+    {
+        return match ($type) {
+            'index' =>  $query
+                ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+                ->leftJoin('sub_categories', 'products.maincategory_subcategory_id', '=', 'sub_categories.id')
+                ->leftJoin('main_categories', 'products.maincategory_subcategory_id', '=', 'main_categories.id')
+                ->leftJoin('rates', 'products.id', '=', 'rates.product_id'),
+            'best_selling', 'may_like'
+            => $query
+                ->leftJoin('maincategory_subcategory', 'products.maincategory_subcategory_id', '=', 'maincategory_subcategory.id')
+                ->leftJoin('sub_categories', 'maincategory_subcategory.sub_category_id', '=', 'sub_categories.id')
+                ->leftJoin('main_categories', 'maincategory_subcategory.main_category_id', '=', 'main_categories.id'),
 
             default => throw new InvalidArgumentException('Invalid type for join tabels'),
-           };
+        };
     }
 
     /**

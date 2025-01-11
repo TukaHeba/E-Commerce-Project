@@ -23,39 +23,23 @@ class MainCategory extends Model
   ];
 
   /**
-   * The attributes that are not mass assignable.
+   * The attributes that should be hidden for serialization.
    *
-   * @var array
+   * @var array<int, string>
    */
-  protected $guarded = [];
- /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-        'deleted_at'
-    ];
-  /**
-   * The attributes that should be cast.
-   *
-   * @var array<string, string>
-   */
-  protected $casts = [
-    //
+  protected $hidden = [
+    'created_at',
+    'updated_at',
+    'deleted_at'
   ];
+
   /**
-   * Relation with sub category.
+   * Get the sub categories associated with the main category.
+   * 
    * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
    */
   public function subCategories()
   {
     return $this->belongsToMany(SubCategory::class, 'maincategory_subcategory')->withTimestamps();
   }
-
-
-
-
 }
