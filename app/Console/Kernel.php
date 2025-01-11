@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
 
          $schedule->command('app:best-products-report-command')->quarterlyOn(1, '08:00');
 
-         $schedule->command('app:countries-with-highest-orders-command')->cron('0 10 1 1,5,9,13 *');
+         $schedule->command('app:countries-with-highest-orders-command')->cron('0 10 1 1,5,9 *');
 
          $schedule->command('app:get-telegram-bot-users-command')->everyTenMinutes();
     }
