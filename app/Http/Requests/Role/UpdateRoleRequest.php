@@ -37,7 +37,6 @@ class UpdateRoleRequest extends FormRequest
     {
         return [
             'name' => 'Role Name',
-            'guard_name' => 'Guard Name'
         ];
     }
 
@@ -71,7 +70,7 @@ class UpdateRoleRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], status: 422)
         );
     }
 }
