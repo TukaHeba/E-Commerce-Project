@@ -1,22 +1,22 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cart\CartController;
+use App\Http\Controllers\CartItem\CartItemController;
+use App\Http\Controllers\Category\MainCategoryController;
+use App\Http\Controllers\Category\SubCategoryController;
+use App\Http\Controllers\Export\ExportController;
+use App\Http\Controllers\Favorite\FavoriteController;
+use App\Http\Controllers\Order\OrderController;
+use App\Http\Controllers\Permission\PermissionController;
+use App\Http\Controllers\Photo\PhotoController;
+use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Rate\RateController;
+use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Role\RoleController;
 use App\Http\Controllers\User\AuthController;
-use App\Http\Controllers\User\UserController;
-use App\Http\Controllers\Order\OrderController;
-use App\Http\Controllers\Photo\PhotoController;
-use App\Http\Controllers\Export\ExportController;
-use App\Http\Controllers\Report\ReportController;
-use App\Http\Controllers\Product\ProductController;
-use App\Http\Controllers\CartItem\CartItemController;
-use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\User\PasswordResetController;
-use App\Http\Controllers\Category\SubCategoryController;
-use App\Http\Controllers\Category\MainCategoryController;
-use App\Http\Controllers\Permission\PermissionController;
+use App\Http\Controllers\User\UserController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +30,7 @@ use App\Http\Controllers\Permission\PermissionController;
 */
 
 // 1- Apply throttling (10 requests per minute) for authentication-related routes.
-Route::middleware(['throttle:auth', 'security'])->group(function () {
+Route::middleware('throttle:auth')->group(function () {
 
     // ----------------------------------- Authentication Routes ----------------------------------- //
     Route::controller(AuthController::class)->group(function () {
@@ -53,7 +53,7 @@ Route::middleware(['throttle:auth', 'security'])->group(function () {
 });
 
 // 2- Apply throttling (60 requests per minute) for general API routes.
-Route::middleware(['throttle:api', 'security'])->group(function () {
+Route::middleware('throttle:api')->group(function () {
 
     // ----------------------------------------- User Routes ----------------------------------------- //
     Route::controller(UserController::class)->middleware('auth:api')->group(function () {
@@ -68,17 +68,22 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
     });
 
 
-    // ---------------------------------- Roles & Permissuin Routes ---------------------------------- //
-    Route::middleware(['throttle:60,1', 'security', 'auth:api', 'role:admin'])->group(function () {
+    // ---------------------------------- Roles & Permission Routes ---------------------------------- //
+    Route::middleware(['throttle:60,1', 'auth:api', 'role:admin'])->group(function () {
         Route::apiResource('roles', RoleController::class);
         Route::apiResource('permissions', PermissionController::class);
-        Route::apiResource('roles', RoleController::class);
-        Route::apiResource('permissions', PermissionController::class);
+
+        Route::post('users/{user}/assign-role', [UserController::class, 'assignRole']);
+        Route::delete('users/{user}/remove-role', [UserController::class, 'removeRole']);
+
+        Route::post('roles/{role}/give-permission', [RoleController::class, 'givePermission']);
+        Route::delete('roles/{role}/revoke-permission', [RoleController::class, 'revokePermission']);
     });
+
 
     // ------------------------------------ Main Category Routes ------------------------------------ //
     Route::controller(MainCategoryController::class)->middleware('auth:api')->group(function () {
-        Route::get('main-categories//show-deleted', 'showDeleted');
+        Route::get('main-categories/show-deleted', 'showDeleted');
         Route::delete('main-categories/{mainCategoryId}/force-deleted', 'forceDeleted');
         Route::get('main-categories/{mainCategoryId}/restore-deleted', 'restoreDeleted');
         Route::apiResource('main-categories', MainCategoryController::class)->except(['index', 'show']);
@@ -120,7 +125,7 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
     });
 
     // ---------------------------------- Cart Items Routes ---------------------------------- //
-    Route::middleware('auth:api')->apiResource('/cart-items',CartItemController::class)->only(['store','update','destroy']);
+    Route::middleware('auth:api')->apiResource('/cart-items', CartItemController::class)->only(['store', 'update', 'destroy']);
 
     #FIXME Re-check showDeleted-user
     // ------------------------------------- Order Routes ------------------------------------- //
@@ -177,24 +182,24 @@ Route::middleware(['throttle:api', 'security'])->group(function () {
 
     // -------------------------------------- Report Routes -------------------------------------- //
     Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
-        Route::get('reports/best-categories',  'bestCategoriesReport');
+        Route::get('reports/best-categories', 'bestCategoriesReport');
         Route::get('reports/best-selling-products', 'bestSellingProductsReport');
-        Route::get('reports/products-low-on-stocks',  'productsLowOnStockReport');
+        Route::get('reports/products-low-on-stocks', 'productsLowOnStockReport');
         Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport');
-        Route::get('reports/products-never-been-sold',  'productsNeverBeenSoldReport');
+        Route::get('reports/products-never-been-sold', 'productsNeverBeenSoldReport');
         Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
-        Route::get('reports/countries-with-highest-orders/{country?}',  'countriesWithHighestOrdersReport');
+        Route::get('reports/countries-with-highest-orders/{country?}', 'countriesWithHighestOrdersReport');
     });
 
 
     // -------------------------------------- Export Routes -------------------------------------- //
     Route::controller(ExportController::class)->middleware('auth:api')->group(function () {
-        Route::get('Export/best-categories',  'bestCategoriesExport');
+        Route::get('Export/best-categories', 'bestCategoriesExport');
         Route::get('Export/best-selling-products', 'bestSellingProductsExport');
-        Route::get('Export/products-low-on-stocks',  'productsLowOnStockExport');
+        Route::get('Export/products-low-on-stocks', 'productsLowOnStockExport');
         Route::get('Export/orders-late-to-deliver', 'ordersLateToDeliverExport');
-        Route::get('Export/products-never-been-sold',  'productsNeverBeenSoldExport');
+        Route::get('Export/products-never-been-sold', 'productsNeverBeenSoldExport');
         Route::get('Export/products-remaining-in-carts', 'productsRemainingInCartsExport');
-        Route::get('Export/countries-with-highest-orders/{country?}',  'countriesWithHighestOrdersExport');
+        Route::get('Export/countries-with-highest-orders/{country?}', 'countriesWithHighestOrdersExport');
     });
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Role;
 
+use App\Http\Requests\Role\PermissionRequest;
 use Illuminate\Http\JsonResponse;
 use App\Services\Role\RoleService;
 use Spatie\Permission\Models\Role;
@@ -13,6 +14,7 @@ use App\Http\Requests\Role\UpdateRoleRequest;
 class RoleController extends Controller
 {
     protected RoleService $RoleService;
+
     public function __construct(RoleService $RoleService)
     {
         $this->RoleService = $RoleService;
@@ -20,7 +22,7 @@ class RoleController extends Controller
 
     /**
      * Display a listing of the resource.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): JsonResponse
@@ -31,7 +33,7 @@ class RoleController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * 
+     *
      * @param \App\Http\Requests\Role\StoreRoleRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -43,7 +45,7 @@ class RoleController extends Controller
 
     /**
      * Display the specified resource.
-     * 
+     *
      * @param \Spatie\Permission\Models\Role $role
      * @return \Illuminate\Http\JsonResponse
      */
@@ -55,7 +57,7 @@ class RoleController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * 
+     *
      * @param \App\Http\Requests\Role\UpdateRoleRequest $request
      * @param \Spatie\Permission\Models\Role $role
      * @return \Illuminate\Http\JsonResponse
@@ -68,7 +70,7 @@ class RoleController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * 
+     *
      * @param \Spatie\Permission\Models\Role $role
      * @return \Illuminate\Http\JsonResponse
      */
@@ -77,4 +79,31 @@ class RoleController extends Controller
         $role->delete();
         return self::success(null, 'Role deleted successfully', 200);
     }
+
+    /**
+     * Assign a permission to a role.
+     *
+     * @param PermissionRequest $request
+     * @param Role $role
+     * @return JsonResponse
+     */
+    public function givePermission(PermissionRequest $request, Role $role)
+    {
+        $role->givePermissionTo($request->permission_name);
+        return self::success(null, 'The permission has been added to the role successfully.');
+    }
+
+    /**
+     * Remove a permission from a role.
+     *
+     * @param PermissionRequest $request
+     * @param Role $role
+     * @return JsonResponse
+     */
+    public function revokePermission(PermissionRequest $request, Role $role)
+    {
+        $role->revokePermissionTo($request->permission_name);
+        return self::success(null, 'The permission was removed from the role successfully.');
+    }
+
 }
