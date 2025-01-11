@@ -37,7 +37,6 @@ class UpdatePermissionRequest extends FormRequest
     {
         return [
             'name' => 'Permission Name',
-            'guard_name' => 'Guard Name'
         ];
     }
 
@@ -71,7 +70,7 @@ class UpdatePermissionRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

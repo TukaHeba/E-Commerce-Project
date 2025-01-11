@@ -169,7 +169,7 @@ Route::middleware('throttle:api')->group(function () {
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
 
-        Route::get('products/offers', 'getOfferProducts');
+        Route::get('products/season-products', 'getSeasonProducts');
         Route::get('products/category', 'getProductsByCategory');
 
         Route::get('products/hot-selling', 'getBestSellingProducts');

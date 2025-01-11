@@ -47,7 +47,7 @@ class Product extends Model
 
     /**
      * Get the users favored this product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function favoredBy()
@@ -57,7 +57,7 @@ class Product extends Model
 
     /**
      * Relation with category: each product belongs to one category.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category()
@@ -67,7 +67,7 @@ class Product extends Model
 
     /**
      * Get the main category associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
      */
     public function mainCategory()
@@ -84,7 +84,7 @@ class Product extends Model
 
     /**
      * Get the subcategory associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
      */
     public function subCategory()
@@ -101,7 +101,7 @@ class Product extends Model
 
     /**
      * Get the cart items associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function cartItems()
@@ -111,7 +111,7 @@ class Product extends Model
 
     /**
      * Get the photos associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function photos()
@@ -121,7 +121,7 @@ class Product extends Model
 
     /**
      * Get the order items associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function orderItems()
@@ -131,7 +131,7 @@ class Product extends Model
 
     /**
      * Get the rates associated with the product.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function ratings()
@@ -276,7 +276,7 @@ class Product extends Model
         return $query
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->applyJoins('best_selling')
-            ->when($type == "offer", function ($q) {
+            ->when($type == "season", function ($q) {
                 $q->leftJoin('orders', 'orders.id', '=', 'order_items.order_id')
                     ->whereMonth('orders.created_at', now()->subYear()->month)
                     ->whereYear('orders.created_at', now()->subYear()->year);
@@ -417,7 +417,7 @@ class Product extends Model
             'product' => array_merge($productColumns, $categoryColumns),
             'category' => $categoryColumns,
             'category_with_total_sold' => array_merge($categoryColumns, $totalSoldColumn),
-            'offer' => array_merge($productColumns, $categoryColumns, $totalSoldColumn),
+            'season' => array_merge($productColumns, $categoryColumns, $totalSoldColumn),
             'product_with_total_sold' => array_merge($productColumns, $categoryColumns, $totalSoldColumn),
             'product_with_total_sold_and_rating' => array_merge($productColumns, $categoryColumns, $totalSoldColumn, $averageRate),
 
@@ -433,7 +433,7 @@ class Product extends Model
     private function getGroupByColumns($type)
     {
         return match (true) {
-            in_array($type, ['product', 'offer', 'product_with_total_sold', 'product_with_total_sold_and_rating']) => [
+            in_array($type, ['product', 'season', 'product_with_total_sold', 'product_with_total_sold_and_rating']) => [
                 'products.id',
                 'products.name',
                 'products.description',
