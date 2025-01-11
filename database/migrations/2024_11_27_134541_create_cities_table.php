@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->timestamps();
 
             // Indexing column to optimize performance
-            $table->fullText('name', 'index_cities_name');
+            $table->index('name', 'index_cities_name');
         });
     }
 

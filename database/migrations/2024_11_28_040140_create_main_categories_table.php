@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('main_category_name');
             $table->timestamps();
             $table->softDeletes();
+
+            // Indexing column to optimize performance
+            $table->index('main_category_name', 'index_main_category_name');
         });
     }
 
