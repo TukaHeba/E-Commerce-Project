@@ -22,7 +22,6 @@ class AuthService
         $this->photoService = $photoService;
     }
 
-
     /**
      * Register a new user, create a cart, and store the avatar if provided.
      *
@@ -43,7 +42,7 @@ class AuthService
         $token = Auth::login($user);
         return [
             'user' => new UserResource($user),
-            'role'=>$user->getRoleNames()->first(),
+            'role' => $user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
@@ -68,7 +67,7 @@ class AuthService
         $user = Auth::user();
         return [
             'user' => new UserResource($user),
-            'role'=>$user->getRoleNames()->first(),
+            'role' => $user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
@@ -83,7 +82,6 @@ class AuthService
      * @return mixed
      * @throws \Exception
      */
-
     public function redirectToProvider(string $provider)
     {
         $this->validateProvider($provider);
@@ -131,7 +129,7 @@ class AuthService
         $token = Auth::login($userCreated);
         return [
             'user' => new UserResource($userCreated),
-            'role'=>$user->getRoleNames()->first(),
+            'role' => $user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',

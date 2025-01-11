@@ -21,14 +21,15 @@ class ResetPasswordService
      */
     public function sendResetLink(array $data)
     {
-
         $user = User::where('email', $data['email'])->first();
 
         if (!$user) {
             throw new \Exception('User with this email does not exist.', 404);
         }
 
-        DB::transaction(function () use ($data, $user
+        DB::transaction(function () use (
+            $data,
+            $user
         ) {
             PasswordResetToken::where('email', $data['email'])->delete();
             $token = Str::random(8);
@@ -39,7 +40,6 @@ class ResetPasswordService
             ]);
             $user->notify(new ResetPasswordNotification($token));
         });
-
     }
 
     /**
@@ -51,7 +51,6 @@ class ResetPasswordService
      */
     public function resetPassword(array $data)
     {
-
         $reset = PasswordResetToken::where('email', $data['email'])->first();
         // Check if the token exists and is valid.
         if (!$reset || !Hash::check($data['token'], $reset->token)) {
@@ -70,6 +69,5 @@ class ResetPasswordService
 
             PasswordResetToken::where('email', $data['email'])->delete();
         });
-
     }
 }

@@ -16,7 +16,6 @@ class sendLinkRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -28,7 +27,6 @@ class sendLinkRequest extends FormRequest
             'email' => 'required|email|exists:users,email',
         ];
     }
-
 
     /**
      * Define custom error messages for validation failures.
@@ -58,7 +56,7 @@ class sendLinkRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }
