@@ -2,70 +2,72 @@
 
 namespace App\Services\User;
 
-use App\Models\User\PasswordReset;
+use App\Models\User\PasswordResetToken;
 use App\Models\User\User;
+use App\Notifications\ResetPasswordNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class ResetPasswordService
 {
     /**
-     * service send verification code in email
-     *
-     * @param array $data
-     * @return void
-     */
-    public function sendResetLink(array $data)
-    {
-        // حذف التوكنات القديمة
-        DB::table('password_reset_tokens')->where('email', $data['email'])->delete();
-        // إنشاء توكن جديد
-        $token = Str::random(60);
-
-        // إضافة التوكن في الجدول
-
-        DB::table('password_reset_tokens')->insert([
-            'email' => $data['email'],
-            'token' => $token,
-            'created_at' => Carbon::now()
-        ]);
-
-        // إرسال البريد الإلكتروني
-        Mail::send('emails.password_reset', ['token' => $token], function ($message) use ($data) {
-            $message->to($data['email']);
-            $message->subject('Reset Password Notification');
-        });
-    }
-
-    /**
-     * service reset password
+     * Send a reset password link to the user's email.
      *
      * @param array $data
      * @return void
      * @throws \Exception
      */
-    public function resetPassword(array $data)
+    public function sendResetLink(array $data)
     {
+        $user = User::where('email', $data['email'])->first();
 
-        // تحقق من صحة التوكن
-        $reset = DB::table('password_reset_tokens')->where([
-            'email' => $data['email'],
-            'token' => $data['token']
-        ])->first();
-
-        if (empty($reset)) {
-            throw new \Exception('Invalid token or email', 400);
+        if (!$user) {
+            throw new \Exception('User with this email does not exist.', 404);
         }
 
-        // تحديث كلمة المرور
-        $user = User::where('email', $data['email'])->first();
-        $user->password = Hash::make($data['password']);
-        $user->save();
+        DB::transaction(function () use (
+            $data,
+            $user
+        ) {
+            PasswordResetToken::where('email', $data['email'])->delete();
+            $token = Str::random(8);
 
-        // حذف التوكن بعد الاستخدام
-        DB::table('password_reset_tokens')->where(['email' => $data['email']])->delete();
+            PasswordResetToken::create([
+                'email' => $data['email'],
+                'token' => $token
+            ]);
+            $user->notify(new ResetPasswordNotification($token));
+        });
+    }
+
+    /**
+     * Reset the user's password using the provided token and new password.
+     *
+     * @param array $data
+     * @return void
+     * @throws \Exception If the token is invalid or has expired.
+     */
+    public function resetPassword(array $data)
+    {
+        $reset = PasswordResetToken::where('email', $data['email'])->first();
+        // Check if the token exists and is valid.
+        if (!$reset || !Hash::check($data['token'], $reset->token)) {
+            throw new \Exception('Token is invalid.', 400);
+        }
+
+        // Ensure the token has not expired (valid for 10 minutes).
+        if (Carbon::parse($reset->created_at)->addMinutes(10)->isPast()) {
+            throw new \Exception('Token has expired.', 400);
+        }
+
+        DB::transaction(function () use ($data) {
+            $user = User::where('email', $data['email'])->first();
+            $user->password = Hash::make($data['password']);
+            $user->save();
+
+            PasswordResetToken::where('email', $data['email'])->delete();
+        });
     }
 }

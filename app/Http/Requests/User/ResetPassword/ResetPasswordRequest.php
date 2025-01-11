@@ -17,7 +17,6 @@ class ResetPasswordRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,12 +26,15 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'email' => 'required|email|exists:users,email',
-            'token' => 'required|string|max:255',
-            'password' => ['required', 'max:30', 'confirmed',
-                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
+            'token' => 'required|string|max:8',
+            'password' => [
+                'required',
+                'max:30',
+                'confirmed',
+                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()
+            ],
         ];
     }
-
 
     /**
      * Define custom error messages for validation failures.
@@ -67,7 +69,7 @@ class ResetPasswordRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

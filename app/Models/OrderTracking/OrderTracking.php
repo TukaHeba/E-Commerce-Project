@@ -21,26 +21,24 @@ class OrderTracking extends Model
         'old_status',
         'new_status'
     ];
-    protected $table = 'order_tracking';
 
     /**
      * The attributes that are not mass assignable.
      *
      * @var array
      */
-    protected $guarded = [];
+    protected $guarded = [
+        'old_status',
+        'new_status'
+    ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * Get the order associated with this record. 
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    protected $casts = [
-        //
-    ];
     public function order()
     {
         return $this->belongsTo(Order::class, 'order_id');
     }
-
 }

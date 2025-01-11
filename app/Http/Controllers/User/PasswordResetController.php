@@ -14,7 +14,6 @@ class PasswordResetController extends Controller
      */
     protected $passwordResetService;
 
-
     /**
      * PasswordResetController constructor
      *
@@ -26,20 +25,21 @@ class PasswordResetController extends Controller
     }
 
     /**
-     * send link in email for forget password
+     * Handle the request to send a reset password link via email.
      *
      * @param sendLinkRequest $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function sendResetLink(sendLinkRequest $request)
     {
         $data = $request->validationData();
         $this->passwordResetService->sendResetLink($data);
-        return self::success(null, 'Reset password link sent.');
+        return self::success(null, 'A reset password link has been sent to your email address.');
     }
 
     /**
-     * reset password with verification code
+     *  Handle the request to reset the user's password using a verification code.
      *
      * @param ResetPasswordRequest $request
      * @return \Illuminate\Http\JsonResponse
@@ -49,7 +49,6 @@ class PasswordResetController extends Controller
     {
         $data = $request->validationData();
         $this->passwordResetService->resetPassword($data);
-        return self::success('Password has been reset.');
+        return self::success(null, 'Your password has been successfully reset.');
     }
-
 }

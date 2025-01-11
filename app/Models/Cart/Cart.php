@@ -19,12 +19,15 @@ class Cart extends Model
     protected $fillable = [
         'user_id'
     ];
+
     /**
-     * The attributes that are not mass assignable.
+     * The attributes that should be hidden for serialization.
      *
-     * @var array
+     * @var array<int, string>
      */
-    protected $guarded = [
+    protected $hidden = [
+        'created_at',
+        'updated_at',
     ];
 
     /**

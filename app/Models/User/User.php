@@ -42,7 +42,8 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array
      */
-    protected $guarded = [];
+    protected $guarded = ['telegram_user_id'];
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -75,10 +76,9 @@ class User extends Authenticatable implements JWTSubject
         'birthdate' => 'date',
     ];
 
-
     /**
-     * Get the route information for Telegram notifications.
-     * This method is used to specify the Telegram user ID where notifications should be sent for this model.
+     * This method is used to specify the Telegram user ID where 
+     * notifications should be sent for this model.
      *
      * @return string|null The Telegram user ID of the notifiable.
      */
@@ -107,16 +107,15 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-
     /**
-     * Get the Oauth for the user
+     * Get the Oauth for the user.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function providers()
     {
         return $this->hasMany(Provider::class);
     }
-
 
     /**
      * Get the orders for the user.
@@ -133,7 +132,6 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-
     public function cart()
     {
         return $this->hasOne(Cart::class);
@@ -169,6 +167,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->first_name . ' ' . $this->last_name;
     }
+
     /**
      * Accessor to get the Birth Data with format
      * example: "Saturday, January 10, 1990"
@@ -177,8 +176,9 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getBirthdateAttribute($value)
     {
-        return Carbon::parse($value)->format('l, F j, Y'); 
+        return Carbon::parse($value)->format('l, F j, Y');
     }
+
     /**
      * Calculate the average total price of all delivered orders for the user.
      *
@@ -187,12 +187,13 @@ class User extends Authenticatable implements JWTSubject
     public function userPurchasesAverage()
     {
         return $this->orders()
-                    ->where('status', 'delivered')
-                    ->avg('total_price');
+            ->where('status', 'delivered')
+            ->avg('total_price');
     }
 
     /**
-     * Get the oldest order.
+     * Get the oldest order for a user.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function oldestOrder(): HasOne
@@ -201,7 +202,8 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the latest order.
+     * Get the latest order for a user.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function latestOrder(): HasOne

@@ -14,7 +14,9 @@ class MainCategorySubCategory extends Model
     protected $table = 'maincategory_subcategory';
 
     /**
-     * This method retrieves the main category associated with a specific maincategory_subcategory record.
+     * Get the main category associated with maincategory_subcategory record.
+     *
+     * Defines a belongs-to relationship using the 'main_category_id' foreign key.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function mainCategory()
@@ -23,7 +25,9 @@ class MainCategorySubCategory extends Model
     }
 
     /**
-     * This method retrieves the subcategory associated with a specific maincategory_subcategory record.
+     * Get the sub category associated with maincategory_subcategory record.
+     *
+     * Defines a belongs-to relationship using the 'sub_category_id' foreign key.
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function subCategory()
@@ -32,7 +36,9 @@ class MainCategorySubCategory extends Model
     }
 
     /**
-     * This method retrieves all products associated with a specific maincategory_subcategory record.
+     * Get all products associated with maincategory_subcategory record.
+     *
+     * Defines a has-many relationship with the Product model.
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function products()

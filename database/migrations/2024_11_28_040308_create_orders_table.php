@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('zone_id')->constrained('zones');
             $table->string('postal_code');
             $table->enum('status', ['pending', 'shipped', 'delivered', 'canceled'])->default('pending');
@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->softDeletes();
 
             // Indexing columns to optimize performance
-            $table->index(['user_id', 'zone_id'], 'index_orders_user_zone');
+            $table->index('zone_id', 'index_orders_zone');
             $table->index('status', 'index_orders_status');
             $table->index('total_price', 'index_orders_total_price');
             $table->index('created_at', 'index_orders_created_at');

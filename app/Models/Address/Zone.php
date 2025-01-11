@@ -20,6 +20,15 @@ class Zone extends Model
         'city_id'
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 
     /**
      * Get orders for the zone
@@ -27,7 +36,8 @@ class Zone extends Model
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
 
-    public function orders(){
+    public function orders()
+    {
         return $this->hasMany(Order::class);
     }
 
@@ -36,8 +46,8 @@ class Zone extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function city(){
+    public function city()
+    {
         return $this->belongsTo(City::class);
     }
-
 }

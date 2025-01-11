@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_tracking', function (Blueprint $table) {
+        Schema::create('order_trackings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->string('old_status')->nullable();
             $table->string('new_status')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            // Indexing columns to optimize performance
+            $table->index(['order_id', 'new_status'], 'index_tracking_orderID_newStatus');
+            $table->index('updated_at', 'index_tracking_updated_at');
         });
     }
 

@@ -22,12 +22,12 @@ class Provider extends Model
     ];
 
     /**
-     * Get the user
+     * Get the user associated with this provider.
+     * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
 }
