@@ -95,17 +95,17 @@ class ProductService
         });
     }
     /**
-     * Retrieve offer products with caching and pagination.
+     * Retrieve season products with caching and pagination.
      *
      * @param mixed $request The HTTP request for fetching best-selling products same month from last year.
      * @return mixed A paginated list of products.
      */
-    public function getOfferProducts()
+    public function getSeasonProducts()
     {
-        $cache_key = 'best_selling_products_last_year';
+        $cache_key = 'season_products';
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
         return Cache::remember($cache_key, now()->addMonth(), function () {
-            return Product::bestSelling('offer')
+            return Product::bestSelling('season')
                 ->available()
                 ->paginate(10);
         });

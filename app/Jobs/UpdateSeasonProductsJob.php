@@ -11,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class UpdateOfferProductsJob implements ShouldQueue
+class UpdateSeasonProductsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -29,10 +29,10 @@ class UpdateOfferProductsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $cacheKey = 'best_selling_products_last_year';
+        $cacheKey = 'season_products';
 
         try {
-            $products = Product::bestSelling('offer')->available()->paginate(10);
+            $products = Product::bestSelling('season')->available()->paginate(10);
 
             Cache::put($cacheKey, $products, now()->addMonth());
         } catch (\Exception $e) {

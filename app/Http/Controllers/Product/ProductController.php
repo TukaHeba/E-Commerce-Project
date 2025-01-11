@@ -179,14 +179,14 @@ class ProductController extends Controller
         return self::paginated($products, null, 'Products retrieved successfully', 200);
     }
     /**
-     * Retrieve offer products with caching and pagination .
+     * Retrieve season products with caching and pagination .
      * @return JsonResponse
      */
-    public function getOfferProducts()
+    public function getSeasonProducts()
     {
-        $products = $this->ProductService->getOfferProducts();
+        $products = $this->ProductService->getSeasonProducts();
         if ($products->isEmpty()) {
-            return self::error(null, 'No Offer Found!', 404);
+            return self::error(null, 'No season products Found!', 404);
         }
         return self::paginated($products, null, 'Products retrieved successfully', 200);
     }
