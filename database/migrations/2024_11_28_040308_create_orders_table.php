@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('zone_id')->constrained('zones');
             $table->string('postal_code');
             $table->enum('status', ['pending', 'shipped', 'delivered', 'canceled'])->default('pending');

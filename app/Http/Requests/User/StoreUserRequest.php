@@ -29,7 +29,8 @@ class StoreUserRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'name' => $this->name ? ucwords(trim($this->name)) : null,
+            'first_name' => $this->first_name ? ucwords(trim($this->first_name)) : null,
+            'last_name' => $this->last_name ? ucwords(trim($this->last_name)) : null,
             'email' => $this->email ? strtolower(trim($this->email)) : null,
         ]);
     }
@@ -45,7 +46,7 @@ class StoreUserRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z\s]+$/'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required','max:30','confirmed',Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
+            'password' => ['required', 'max:30', 'confirmed', Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
             'phone'  => ['sometimes', new Phone],
             'address' => ['required', 'string', 'max:255'],
             'is_male' => ['required', 'boolean'],
@@ -67,9 +68,8 @@ class StoreUserRequest extends FormRequest
             'password' => 'Password',
             'phone' => 'Phone Number',
             'address' => 'Address',
-            'is_male' => 'Male or Female',
+            'is_male' => 'Gender',
             'birthdate' => 'Birthday',
-
         ];
     }
 
@@ -83,14 +83,13 @@ class StoreUserRequest extends FormRequest
         return [
             'required' => 'The :attribute field is required.',
             'max' => 'The :attribute may not be greater than :max characters.',
+            'min' => 'The :attribute must be at least :min characters.',
             'unique' => 'The :attribute has already been taken.',
             'date' => 'The :attribute must be a valid date.',
-            'first_name.regix' => 'first name must be a valid name contains only letters.',
-            'last_name.regix' => 'last name must be a valid name contains only letters.',
+            'regix' => ':attribute must be a valid name contains only letters.',
             'email' => 'email must be a valid email address.',
             'boolean' => 'The Male or Female field must be 1 or 0 .',
             'password.confirmed' => 'The password confirmation does not match.',
-            'password.min' => 'The password must be at least 8 characters.',
             'password.letters' => 'The password must contain at least one letter.',
             'password.mixedCase' => 'The password must contain both uppercase and lowercase letters.',
             'password.numbers' => 'The password must contain at least one number.',
@@ -113,7 +112,7 @@ class StoreUserRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

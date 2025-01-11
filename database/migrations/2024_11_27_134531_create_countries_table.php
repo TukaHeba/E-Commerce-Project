@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexing column to optimize performance
-            $table->unique('name', 'index_countries_name');
+            $table->index('name', 'index_countries_name');
         });
     }
 

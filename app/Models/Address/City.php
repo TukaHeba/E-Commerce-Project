@@ -19,7 +19,7 @@ class City extends Model
         'country_id'
     ];
 
-     /**
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
@@ -28,12 +28,14 @@ class City extends Model
         'created_at',
         'updated_at',
     ];
+
     /**
      * Get the zones for the city
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function zones(){
+    public function zones()
+    {
         return $this->hasMany(Zone::class);
     }
 
@@ -42,7 +44,8 @@ class City extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function country(){
+    public function country()
+    {
         return $this->belongsTo(Country::class);
     }
 }

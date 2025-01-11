@@ -17,7 +17,6 @@ class UserService
     public function getUsers()
     {
         return User::paginate(10);
-
     }
 
     /**
@@ -63,8 +62,7 @@ class UserService
      */
     public function showDeletedUsers()
     {
-
         $users = User::onlyTrashed()->paginate();
-            return $users;
+        return $users;
     }
 }

@@ -9,8 +9,10 @@ class PasswordResetToken extends Model
 {
     use HasFactory;
 
-
-    //disable timestamp
+    /**
+     * Disable timestamp
+     * @var 
+     */
     public $timestamps = false;
 
     /**
@@ -31,5 +33,4 @@ class PasswordResetToken extends Model
     protected $casts = [
         'token' => 'hashed',
     ];
-
 }

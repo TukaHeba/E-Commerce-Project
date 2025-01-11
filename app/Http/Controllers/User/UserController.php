@@ -19,9 +19,10 @@ class UserController extends Controller
     {
         $this->UserService = $UserService;
     }
+
     /**
      * Display a listing of users.
-     * @param \Illuminate\Http\Request $request
+     * 
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): JsonResponse
@@ -29,7 +30,6 @@ class UserController extends Controller
         $this->authorize('index', User::class);
         $users = $this->UserService->getUsers();
         return self::paginated($users, UserResource::class, 'Users retrieved successfully', 200);
-
     }
 
     /**
@@ -97,29 +97,31 @@ class UserController extends Controller
         $users = $this->UserService->showDeletedUsers();
         return self::paginated($users, UserResource::class, 'Users retrieved successfully', 200);
     }
+
     /**
      * Restore a soft-deleted user.
      *
      * @param User $user  the user to restore.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function restoreDeleted($user): JsonResponse
+    public function restoreDeleted(User $user): JsonResponse
     {
         $this->authorize('restoreDeleted', User::class);
-        $user = User::onlyTrashed()->findOrFail($id);
+        $user = User::onlyTrashed()->findOrFail($user->id);
         $user->restore();
         return self::success(null, 'User restored successfully');
     }
+
     /**
      * Permanently delete a soft-deleted user.
      *
      * @param  User $user   the user to permanently delete.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function forceDeleted($user): JsonResponse
+    public function forceDeleted($userId): JsonResponse
     {
         $this->authorize('forceDeleted', User::class);
-        User::onlyTrashed()->findOrFail($id)->forceDelete();
+        User::onlyTrashed()->findOrFail($userId)->forceDelete();
         return self::success(null, 'User force deleted successfully');
     }
 
@@ -130,11 +132,9 @@ class UserController extends Controller
      * @return \Illuminate\Http\JsonResponse
      *
      */
-
     public function userPurchasesAverage($user)
     {
         $userPurchasesAverage = $this->UserService->userPurchasesAverage($user);
         return self::success($userPurchasesAverage, 'the average total price of all delivered orders for the user');
     }
-
 }

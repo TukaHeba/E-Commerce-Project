@@ -14,7 +14,6 @@ class PasswordResetController extends Controller
      */
     protected $passwordResetService;
 
-
     /**
      * PasswordResetController constructor
      *
@@ -32,7 +31,6 @@ class PasswordResetController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-
     public function sendResetLink(sendLinkRequest $request)
     {
         $data = $request->validationData();
@@ -53,5 +51,4 @@ class PasswordResetController extends Controller
         $this->passwordResetService->resetPassword($data);
         return self::success(null, 'Your password has been successfully reset.');
     }
-
 }

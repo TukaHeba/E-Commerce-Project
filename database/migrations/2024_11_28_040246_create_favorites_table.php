@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexing column to optimize performance
-            $table->unique(['user_id', 'product_id']); // Add unique constraint
+            $table->unique(['user_id', 'product_id']); 
         });
     }
 
