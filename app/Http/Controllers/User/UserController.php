@@ -126,15 +126,18 @@ class UserController extends Controller
     }
 
     /**
-     * Calculate the average total price of all delivered orders for the user.
+     * Get the average total price of delivered orders for a specific user.
      *
      * @param User $user
-     * @return \Illuminate\Http\JsonResponse
-     *
+     * @return JsonResponse
      */
-    public function userPurchasesAverage($user)
+    public function getAveragePurchases(User $user): JsonResponse
     {
-        $userPurchasesAverage = $this->UserService->userPurchasesAverage($user);
-        return self::success($userPurchasesAverage, 'the average total price of all delivered orders for the user');
+        $average = $this->UserService->calculateAverage($user);
+
+        if (is_null($average)) {
+            return self::error(null, 'No delivered orders found for this user', 404);
+        }
+        return self::success($average, 'The average of all this user\'s completed orders is:');
     }
 }
