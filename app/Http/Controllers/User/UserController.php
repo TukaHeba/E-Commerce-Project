@@ -11,6 +11,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User\User;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
+use Spatie\Permission\Models\Role;
 
 
 class UserController extends Controller
@@ -150,22 +151,21 @@ class UserController extends Controller
      * @param User $user
      * @return JsonResponse
      */
-    public function assignRole(RoleRequest $request, User $user)
+    public function assignRole(User $user,Role $role)
     {
-        $user->assignRole($request->role_name);
+        $user->assignRole($role);
         return self::success(null, 'The role has been added to the user successfully.');
     }
 
     /**
      * Remove a role from a user.
      *
-     * @param RoleRequest $request
      * @param User $user
      * @return JsonResponse
      */
-    public function removeRole(RoleRequest $request, User $user)
+    public function removeRole(User $user,Role $role)
     {
-        $user->removeRole($request->role_name);
+        $user->removeRole($role);
         return self::success(null, 'The role for the user has been successfully deleted.');
     }
 

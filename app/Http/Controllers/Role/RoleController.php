@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Role;
 
-use App\Http\Requests\Role\PermissionRequest;
-use Illuminate\Http\JsonResponse;
-use App\Services\Role\RoleService;
-use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\RoleResource;
+use App\Http\Requests\Role\PermissionRequest;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
+use App\Http\Resources\RoleResource;
+use App\Services\Role\RoleService;
+use Illuminate\Http\JsonResponse;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -81,28 +82,29 @@ class RoleController extends Controller
     }
 
     /**
-     * Assign a permission to a role.
+     * Assign permissions to a role.
      *
      * @param PermissionRequest $request
      * @param Role $role
      * @return JsonResponse
      */
+
     public function givePermission(PermissionRequest $request, Role $role)
     {
-        $role->givePermissionTo($request->permission_name);
+        $role->givePermissionTo($request->permissions);
         return self::success(null, 'The permission has been added to the role successfully.');
     }
 
     /**
      * Remove a permission from a role.
      *
-     * @param PermissionRequest $request
      * @param Role $role
+     * @param Permission $permission
      * @return JsonResponse
      */
-    public function revokePermission(PermissionRequest $request, Role $role)
+    public function revokePermission(Role $role, Permission $permission)
     {
-        $role->revokePermissionTo($request->permission_name);
+        $role->revokePermissionTo($permission);
         return self::success(null, 'The permission was removed from the role successfully.');
     }
 

@@ -73,11 +73,11 @@ Route::middleware('throttle:api')->group(function () {
         Route::apiResource('roles', RoleController::class);
         Route::apiResource('permissions', PermissionController::class);
 
-        Route::post('users/{user}/assign-role', [UserController::class, 'assignRole']);
-        Route::delete('users/{user}/remove-role', [UserController::class, 'removeRole']);
+        Route::post('users/{user}/assign-role/{role}', [UserController::class, 'assignRole']);
+        Route::delete('users/{user}/remove-role/{role}', [UserController::class, 'removeRole']);
 
         Route::post('roles/{role}/give-permission', [RoleController::class, 'givePermission']);
-        Route::delete('roles/{role}/revoke-permission', [RoleController::class, 'revokePermission']);
+        Route::delete('roles/{role}/revoke-permission/{permission}', [RoleController::class, 'revokePermission']);
     });
 
 
