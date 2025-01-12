@@ -51,7 +51,7 @@ class ReportController extends Controller
     }
 
     /**
-     * Best-selling products for offers report
+     * Best-selling products for report
      */
     public function bestSellingProductsReport()
     {
