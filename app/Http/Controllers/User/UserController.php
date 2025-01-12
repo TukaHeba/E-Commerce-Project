@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Models\User\User;
-use Illuminate\Http\JsonResponse;
-use App\Services\User\UserService;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
+use App\Http\Requests\User\RemoveRoleRequest;
+use App\Http\Requests\User\RoleRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Models\User\User;
+use App\Services\User\UserService;
+use Illuminate\Http\JsonResponse;
+use Spatie\Permission\Models\Role;
 
 
 class UserController extends Controller
@@ -22,7 +25,7 @@ class UserController extends Controller
 
     /**
      * Display a listing of users.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): JsonResponse
@@ -101,7 +104,7 @@ class UserController extends Controller
     /**
      * Restore a soft-deleted user.
      *
-     * @param User $user  the user to restore.
+     * @param User $user the user to restore.
      * @return \Illuminate\Http\JsonResponse
      */
     public function restoreDeleted(User $user): JsonResponse
@@ -115,7 +118,7 @@ class UserController extends Controller
     /**
      * Permanently delete a soft-deleted user.
      *
-     * @param  User $user   the user to permanently delete.
+     * @param User $user the user to permanently delete.
      * @return \Illuminate\Http\JsonResponse
      */
     public function forceDeleted($userId): JsonResponse
@@ -126,15 +129,44 @@ class UserController extends Controller
     }
 
     /**
-     * Calculate the average total price of all delivered orders for the user.
+     * Get the average total price of delivered orders for a specific user.
      *
      * @param User $user
-     * @return \Illuminate\Http\JsonResponse
-     *
+     * @return JsonResponse
      */
-    public function userPurchasesAverage($user)
+    public function getAveragePurchases(User $user): JsonResponse
     {
-        $userPurchasesAverage = $this->UserService->userPurchasesAverage($user);
-        return self::success($userPurchasesAverage, 'the average total price of all delivered orders for the user');
+        $average = $this->UserService->calculateAverage($user);
+
+        if (is_null($average)) {
+            return self::error(null, 'No delivered orders found for this user', 404);
+        }
+        return self::success($average, 'The average of all this user\'s completed orders is:');
     }
+
+    /**
+     * Assign a role to a user.
+     *
+     * @param RoleRequest $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function assignRole(User $user,Role $role)
+    {
+        $user->assignRole($role);
+        return self::success(null, 'The role has been added to the user successfully.');
+    }
+
+    /**
+     * Remove a role from a user.
+     *
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function removeRole(User $user,Role $role)
+    {
+        $user->removeRole($role);
+        return self::success(null, 'The role for the user has been successfully deleted.');
+    }
+
 }

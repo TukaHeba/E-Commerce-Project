@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Permission;
+namespace App\Http\Requests\Role;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UpdatePermissionRequest extends FormRequest
+class PermissionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,19 +24,8 @@ class UpdatePermissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'nullable|string|min:3|max:150|unique:permissions,name',
-        ];
-    }
-
-    /**
-     * Define human-readable attribute names for validation errors.
-     *
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            'name' => 'Permission Name',
+            'permissions'=>['required','array'],
+            'permissions.*' => ['required', 'string', 'exists:permissions,name']
         ];
     }
 
@@ -49,10 +38,8 @@ class UpdatePermissionRequest extends FormRequest
     {
         return [
             'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
-            'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'string' => 'The :attribute must be a valid string.',
+            'string' => 'The :attribute must be a string.',
+            'exists' => 'The selected :attribute is invalid.',
         ];
     }
 
@@ -70,7 +57,7 @@ class UpdatePermissionRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 422)
+            ], 403)
         );
     }
 }

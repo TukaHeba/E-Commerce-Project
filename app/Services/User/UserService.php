@@ -45,15 +45,15 @@ class UserService
     }
 
     /**
-     * Calculate the average total price of all delivered orders for the user.
+     * Calculate the average total price of delivered orders for a user.
      *
      * @param User $user
-     * @return float|null The average total price of delivered orders. Returns null if there are no delivered orders.
+     * @return float|null The average total price of delivered orders, or null if none.
      */
-    public function userPurchasesAverage($user)
+    public function calculateAverage(User $user): ?float
     {
-        $userPurchasesAverage = $user->userPurchasesAverage;
-        return $userPurchasesAverage;
+        return $user->orders()
+            ->where('status', 'delivered')->avg('total_price');
     }
 
     /**
