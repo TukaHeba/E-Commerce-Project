@@ -317,7 +317,7 @@ class ExportService
             $row++;
         }
 
-        $fileName = 'Best_Categories.xlsx';
+        $fileName = 'Best_Categories.xlsx'. now()->format('Y-m-d') . '.xlsx';
         $filePath = 'reports/' . $fileName;
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
