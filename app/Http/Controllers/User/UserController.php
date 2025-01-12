@@ -79,11 +79,12 @@ class UserController extends Controller
     /**
      * Remove  user from the database (soft delete).
      *
-     * @param \App\Models\User\User $user
+     * @param string $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(User $user): JsonResponse
+    public function destroy($id): JsonResponse
     {
+        $user = User::findOrFail($id);
         $this->authorize('delete', $user);
         $user->delete();
         $this->clearCacheGroup($this->groupe_key_cache);
@@ -104,10 +105,10 @@ class UserController extends Controller
     /**
      * Restore a soft-deleted user.
      *
-     * @param User $user  the user to restore.
+     * @param string $id  the user to restore.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function restoreDeleted($user): JsonResponse
+    public function restoreDeleted($id): JsonResponse
     {
         $this->authorize('restoreDeleted', User::class);
         $user = User::onlyTrashed()->findOrFail($id);
@@ -118,10 +119,10 @@ class UserController extends Controller
     /**
      * Permanently delete a soft-deleted user.
      *
-     * @param  User $user   the user to permanently delete.
+     * @param  string $id   the user to permanently delete.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function forceDeleted($user): JsonResponse
+    public function forceDeleted($id): JsonResponse
     {
         $this->authorize('forceDeleted', User::class);
         User::onlyTrashed()->findOrFail($id)->forceDelete();
