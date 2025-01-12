@@ -19,15 +19,16 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('app:unsold-products-email-command')->monthly();
 
-        $schedule->command('app:update-offer-products-command')->monthly();
+        $schedule->command('app:update-season-products-command')->monthlyOn(); // default on 1 of month and 00:000
 
         // Run command daily
          $schedule->command('app:late-products-report-command')->daily();
+         
          $schedule->command('app:best_category_report_command')->everyFiveSeconds();
 
          $schedule->command('app:best-products-report-command')->quarterlyOn(1, '08:00');
 
-         $schedule->command('app:countries-with-highest-orders-command')->cron('0 10 1 1,5,9,13 *');
+         $schedule->command('app:countries-with-highest-orders-command')->cron('0 10 1 1,5,9 *');
 
          $schedule->command('app:get-telegram-bot-users-command')->everyTenMinutes();
     }
