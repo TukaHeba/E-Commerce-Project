@@ -146,9 +146,9 @@ class UserController extends Controller
 
     /**
      * Assign a role to a user.
-     *
-     * @param RoleRequest $request
-     * @param User $user
+     * 
+     * @param \App\Models\User\User $user
+     * @param \Spatie\Permission\Models\Role $role
      * @return JsonResponse
      */
     public function assignRole(User $user,Role $role)
@@ -168,5 +168,4 @@ class UserController extends Controller
         $user->removeRole($role);
         return self::success(null, 'The role for the user has been successfully deleted.');
     }
-
 }
