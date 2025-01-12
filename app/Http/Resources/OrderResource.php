@@ -19,6 +19,13 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'user' => $this->whenLoaded('user', function ($data) {
+                return [
+                    'full_name' => $data->full_name,
+                    'email' => $data->email,
+                    'phone' => $data->phone,
+                ];
+            }),
             'zone_id' => $this->zone_id,
             'postal_code' => $this->postal_code,
             'status' => $this->status,
