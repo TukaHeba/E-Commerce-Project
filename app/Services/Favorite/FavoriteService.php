@@ -2,7 +2,6 @@
 
 namespace App\Services\Favorite;
 
-use auth;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use App\Models\Product\Product;
@@ -21,11 +20,14 @@ class FavoriteService
      * @return null
      */
 
-    public function storeFavorite(Product $product)
+    public function storeFavorite(Product $product, $id)
     {
-        $user = User::findOrFail(auth()->user()->id);
-        $user->favoriteProducts()->attach($product->id);
+        $user = User::findOrFail($id);
+        $result = $user->favoriteProducts()->syncWithoutDetaching($product->id);
         $this->clearCacheGroup($this->groupe_key_cache);
+        if (!empty($result['attached'])) {
+            return true;
+        }
     }
 
     /**
@@ -47,10 +49,13 @@ class FavoriteService
      * @return null
      */
 
-    public function destroyFavorite($product)
+    public function destroyFavorite($product , $id)
     {
-        $user = User::findOrFail(auth()->user()->id);
-        $user->favoriteProducts()->detach($product->id);
-        $this->clearCacheGroup($this->groupe_key_cache);
+        $user = User::findOrFail($id);
+        if ($user->favoriteProducts()->where('product_id', $product->id)->exists()) {
+            $user->favoriteProducts()->detach($product->id);
+            $this->clearCacheGroup($this->groupe_key_cache);
+            return true;
+        }
     }
 }
