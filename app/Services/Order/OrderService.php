@@ -14,8 +14,10 @@ class OrderService
 {
     use CacheManagerTrait;
     private $groupe_key_cache = 'orders_cache_keys';
+
     /**
      * List of orders related to user
+     * 
      * @param mixed $request
      * @return mixed
      */
@@ -32,6 +34,7 @@ class OrderService
 
     /**
      * List of orders related to admin
+     * 
      * @param mixed $request
      * @return mixed
      */
@@ -48,6 +51,7 @@ class OrderService
 
     /**
      * Update order status
+     * 
      * @param \App\Models\Order\Order $order
      * @param array $data
      * @return Order
@@ -79,7 +83,7 @@ class OrderService
      * @param mixed $request
      * @return mixed
      */
-    public function getDeletedOrdersAdmin($request)
+    public function getDeletedOrders($request)
     {
         $cache_key = 'deleted-orders';
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
@@ -89,33 +93,5 @@ class OrderService
                 ->paginate(10);
         });
         return $deletedOrders;
-    }
-
-    /**
-     * Get oldest order related to user
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     * @return mixed
-     */
-    public function getOldestOrder()
-    {
-        $user = Auth::user();
-        if (!$oldestOrder = $user->oldestOrder) {
-            throw new ModelNotFoundException();
-        }
-        return $oldestOrder;
-    }
-
-    /**
-     * Get latest order related to user
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     * @return mixed
-     */
-    public function getLatestOrder()
-    {
-        $user = Auth::user();
-        if (!$latestOrder = $user->latestOrder) {
-            throw new ModelNotFoundException();
-        }
-        return $latestOrder;
     }
 }

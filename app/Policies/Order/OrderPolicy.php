@@ -102,14 +102,14 @@ class OrderPolicy
         return $user->hasRole('admin');
     }
 
-     /**
+    /**
      * Determine if the user can view 'order tracking' or 'oldest order' or 'latest order'.
      *
      * @param User $user The authenticated user.
      * @return bool True if the user has the 'admin' or 'sales manager' or 'store manager' role.
      */
-    public function OrderTracking_oldest_lastest(User $user): bool
+    public function OrderTracking(User $user): bool
     {
-        return $user->hasRole(['admin', 'sales manager','store manager']);
+        return $user->hasRole(['admin', 'sales manager', 'store manager']);
     }
 }
