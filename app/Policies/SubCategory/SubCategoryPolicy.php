@@ -68,7 +68,7 @@ class SubCategoryPolicy
         return  $user->hasRole(['admin', 'store manager']);
     }
 
-     /**
+    /**
      * Determine if the user can restore deleted SubCategories.
      *
      * @param User $user The authenticated user.
@@ -78,7 +78,6 @@ class SubCategoryPolicy
     {
         return  $user->hasRole(['admin', 'store manager']);
     }
-
 
     /**
      * Determine if the user can permanently delete a SubCategory.

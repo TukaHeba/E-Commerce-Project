@@ -26,7 +26,7 @@ class UpdateSubCategoryRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            //
+            'sub_category_name' => $this->sub_category_name ? ucwords(trim($this->sub_category_name)) : null,
         ]);
     }
 
@@ -90,7 +90,7 @@ class UpdateSubCategoryRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }
