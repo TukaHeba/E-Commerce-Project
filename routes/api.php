@@ -39,7 +39,7 @@ Route::middleware('throttle:auth')->group(function () {
         Route::post('logout', 'logout')->middleware('auth:api');
         Route::post('refresh-token', 'refresh')->middleware('auth:api');
 
-        // OAuth Routes  ----------  These links are tested in the browser -------------
+        // -------------- OAuth Routes (these links need to be tested in the browser) -------------- //
         Route::get('auth/{provider}', 'redirectToProvider');
         Route::get('auth/{provider}/callback', 'handleProviderCallback');
     });
@@ -60,10 +60,7 @@ Route::middleware('throttle:api')->group(function () {
         Route::get('users/show-deleted', 'showDeleted');
         Route::delete('users/{userId}/force-deleted', 'forceDeleted');
         Route::post('users/{userId}/restore-deleted', 'restoreDeleted');
-        Route::get('users/{userId}/user-purchases-average', 'userPurchasesAverage');
-        Route::delete('users/{userId}/force-deleted', 'forceDeleted');
-        Route::post('users/{userId}/restore-deleted', 'restoreDeleted');
-        Route::get('users/{userId}/user-purchases-average', 'userPurchasesAverage');
+        Route::get('users/{user}/average-purchases', 'getAveragePurchases')->middleware('role:admin');
         Route::apiResource('users', UserController::class);
     });
 
@@ -132,12 +129,8 @@ Route::middleware('throttle:api')->group(function () {
     Route::controller(OrderController::class)->middleware('auth:api')->group(function () {
         Route::get('orders', 'indexAdmin');
         Route::get('orders/user-orders', 'indexUser');
-        Route::get('orders/oldest-order', 'showOldestOrder');
-        Route::get('orders/latest-order', 'showLatestOrder');
+        Route::get('orders/show-deleted', 'showDeleted');
         Route::get('orders/{order}/tracking', 'orderTracking');
-        Route::delete('orders/{orderId}/force-deleted', 'forceDeleted');
-        Route::post('orders/{orderId}/restore-deleted', 'restoreDeleted');
-        Route::get('orders/{orderId}/show-deleted-admin', 'getDeletedOrdersAdmin');
         Route::delete('orders/{orderId}/force-deleted', 'forceDeleted');
         Route::post('orders/{orderId}/restore-deleted', 'restoreDeleted');
         Route::get('orders/{orderId}/show-deleted-admin', 'getDeletedOrdersAdmin');
