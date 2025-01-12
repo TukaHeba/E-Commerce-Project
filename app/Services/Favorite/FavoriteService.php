@@ -2,12 +2,12 @@
 
 namespace App\Services\Favorite;
 
+use Exception;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use App\Models\Product\Product;
 use App\Traits\CacheManagerTrait;
 use Illuminate\Database\Eloquent\Collection;
-
 
 class FavoriteService
 {
@@ -20,14 +20,14 @@ class FavoriteService
      * @return null
      */
 
-    public function storeFavorite(Product $product, $id)
+    public function storeFavorite(Product $product)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail(auth()->user()->id);
         $result = $user->favoriteProducts()->syncWithoutDetaching($product->id);
-        $this->clearCacheGroup($this->groupe_key_cache);
-        if (!empty($result['attached'])) {
-            return true;
+        if (empty($result['attached'])) {
+            throw new Exception("Product is already in favorites");
         }
+        $this->clearCacheGroup($this->groupe_key_cache);
     }
 
     /**
@@ -39,7 +39,11 @@ class FavoriteService
     public function showFavorites()
     {
         $user = User::findOrFail(auth()->id());
-        return  $user->favoriteProducts()->get();
+        $user_favorite_products = $user->favoriteProducts()->get();
+        if (empty($user_favorite_products)) {
+            throw new Exception("You do not have favorite  products,Add some product to favorite.", 404);
+        }
+        return $user_favorite_products;
     }
 
     /**
@@ -49,13 +53,13 @@ class FavoriteService
      * @return null
      */
 
-    public function destroyFavorite($product , $id)
+    public function destroyFavorite($product)
     {
-        $user = User::findOrFail($id);
-        if ($user->favoriteProducts()->where('product_id', $product->id)->exists()) {
-            $user->favoriteProducts()->detach($product->id);
-            $this->clearCacheGroup($this->groupe_key_cache);
-            return true;
+        $user = User::findOrFail(auth()->user()->id);
+        if ($user->favoriteProducts()->where('product_id', $product->id)->doesntExist()) {
+            throw new Exception("You do not have permission to access this resource.");
         }
+        $user->favoriteProducts()->detach($product->id);
+        $this->clearCacheGroup($this->groupe_key_cache);
     }
 }
