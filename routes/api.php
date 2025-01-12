@@ -175,13 +175,13 @@ Route::middleware('throttle:api')->group(function () {
 
     // -------------------------------------- Report Routes -------------------------------------- //
     Route::controller(ReportController::class)->middleware('auth:api')->group(function () {
-        Route::get('reports/best-categories', 'bestCategoriesReport');
-        Route::get('reports/best-selling-products', 'bestSellingProductsReport');
-        Route::get('reports/products-low-on-stocks', 'productsLowOnStockReport');
-        Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport');
-        Route::get('reports/products-never-been-sold', 'productsNeverBeenSoldReport');
-        Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport');
-        Route::get('reports/countries-with-highest-orders/{country?}', 'countriesWithHighestOrdersReport');
+        Route::get('reports/best-categories', 'bestCategoriesReport')->middleware('permission:BestSellingCategories');
+        Route::get('reports/best-selling-products', 'bestSellingProductsReport')->middleware('permission:BestSellingProducts');
+        Route::get('reports/products-low-on-stocks', 'productsLowOnStockReport')->middleware('permission:ProductsLowOnStock');
+        Route::get('reports/orders-late-to-deliver', 'ordersLateToDeliverReport')->middleware('permission:OrdersLateToDeliver');
+        Route::get('reports/products-never-been-sold', 'productsNeverBeenSoldReport')->middleware('permission:ProductsNeverBeenSold');
+        Route::get('reports/products-remaining-in-carts', 'productsRemainingInCartsReport')->middleware('permission:ProductsRemainingInCarts');
+        Route::get('reports/countries-with-highest-orders/{country?}', 'countriesWithHighestOrdersReport')->middleware('permission:CountriesWithHighestOrders');
     });
 
 
