@@ -15,36 +15,7 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $order = $this->route('order');
-        return Auth::check() && $order->user_id === Auth::id();
-    }
-
-    /**
-     * Handle authorization errors and throw an exception.
-     * @throws \Illuminate\Http\Exceptions\HttpResponseException
-     * @return never
-     */
-    public function failedAuthorization()
-    {
-        throw new HttpResponseException(
-            response()->json([
-                'status' => 'error',
-                'message' => 'This action is unauthorized',
-            ], 422)
-        );
-    }
-
-    /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     *
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
+        return true;
     }
 
     /**
@@ -79,13 +50,8 @@ class UpdateOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
-            'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
             'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
-            'exists' => 'The selected :attribute is invalid.',
+            'string' => 'The :attribute must be a valid string.',
         ];
     }
 
@@ -103,7 +69,7 @@ class UpdateOrderRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'There is error in validation from request',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }
