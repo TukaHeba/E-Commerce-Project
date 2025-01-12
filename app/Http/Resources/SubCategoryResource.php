@@ -15,14 +15,9 @@ class SubCategoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'sub category id' => $this->id,
-            'sub category name' => $this->sub_category_name, 
-            'main categories' => $this->mainCategories ? $this->mainCategories->map(function ($mainCategory) {
-                return [
-                    'id' => $mainCategory->id,
-                    'name' => $mainCategory->main_category_name,
-                ];
-            }) : [],
+            'id' => $this->id,
+            'sub_category_name' => $this->sub_category_name,
+            'main_categories' => MainCategoryResource::collection($this->whenLoaded('mainCategories')),
         ];
     }
 }
