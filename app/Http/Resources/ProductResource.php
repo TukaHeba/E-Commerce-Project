@@ -25,17 +25,6 @@ class ProductResource extends JsonResource
             'average_rating' => $this->averageRating() ?? 0,
             'photos' => PhotoResource::collection($this->whenLoaded('photos')),
             'ratings' => RateResource::collection($this->whenLoaded('rates')),
-
-            // 'Product id'             => $this->id,
-            // 'Product Name'           => $this->name,
-            // 'Product Description'    => $this->description,
-            // 'Product Price'          => $this->price,
-            // 'Product Quantity' => $this->product_quantity,
-            // 'Product Category'       => [
-            //     'main category' => $this->whenLoaded('mainCategory', fn() => $this->mainCategory->main_category_name),
-            //     'sub category'  => $this->whenLoaded('subCategory', fn() => $this->subCategory->sub_category_name),
-            // ],
-            // 'Average rating' => $this->averageRating() ?? 0,
         ];
     }
 }
