@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Report\TopCountryRequest;
+use App\Http\Resources\CartResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\ProductResource;
 use App\Jobs\SendDelayedOrderEmail;
@@ -28,15 +29,16 @@ class ReportController extends Controller
         $latingOrders = $this->ReportService->getOrdersLateToDeliver();
         return self::paginated($latingOrders, OrderResource::class, 'Lating orders retrieved successfully', 200);
     }
-
+    
     /**
-     * Products remaining in the cart without being ordered report
+     * Products remaining in the cart without being ordered report.
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function productsRemainingInCartsReport()
     {
         $productsRemaining = $this->ReportService->getProductsRemainingInCarts();
-        return self::success($productsRemaining, 'Products retrieved successfully', 200);
+        return self::paginated($productsRemaining, CartResource::class, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -77,7 +79,7 @@ class ReportController extends Controller
 
     public function countriesWithHighestOrdersReport(TopCountryRequest $request, int $country = 5)
     {
-        $result = $this->ReportService->getCountriesWithHighestOrders($request->validationData(),$country);
+        $result = $this->ReportService->getCountriesWithHighestOrders($request->validationData(), $country);
         return self::success($result, 'Countries With Highest Orders Report');
     }
 
