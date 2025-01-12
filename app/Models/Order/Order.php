@@ -25,8 +25,6 @@ class Order extends Model
         'zone_id',
         'postal_code',
         'status',
-        'total_price',
-        'order_number',
     ];
 
     /**
