@@ -26,6 +26,8 @@ class BestProductsReportJob implements ShouldQueue
     {
         $file = (new ExportService(new ReportService()))->bestSellingProductsExportStorage();
         $users = User::role(['sales manager','store manager'])->get();
-        Notification::send($users,new BestProductsNotification($file));
+        foreach($users as $user){
+            Notification::send($user,new BestProductsNotification($file));
+        }
     }
 }
