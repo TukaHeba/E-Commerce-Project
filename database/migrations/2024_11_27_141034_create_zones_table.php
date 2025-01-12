@@ -13,11 +13,11 @@ return new class extends Migration {
         Schema::create('zones', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('city_id')->constrained('cities');
+            $table->foreignId('city_id')->constrained('cities')->cascadeOnDelete();
             $table->timestamps();
 
             // Indexing column to optimize performance
-            $table->fullText('name', 'index_zones_name');
+            $table->index('name', 'index_zones_name');
         });
     }
 

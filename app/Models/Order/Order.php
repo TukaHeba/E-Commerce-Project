@@ -34,7 +34,10 @@ class Order extends Model
      *
      * @var array
      */
-    protected $guarded = [];
+    protected $guarded = [
+        'total_price',
+        'order_number',
+    ];
 
     /**
      * The attributes that should be cast.
@@ -42,7 +45,7 @@ class Order extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        //
+        'total_price' => 'float',
     ];
 
     /**
@@ -123,6 +126,7 @@ class Order extends Model
         return $this->belongsTo(Zone::class);
     }
 
+    #FIXME re-check the scope
     /**
      * Scope to filter orders by shipping_address through LIKE, status & total_price within a range.
      *
@@ -133,9 +137,9 @@ class Order extends Model
     public function scopeByFilters($query, $request)
     {
         return $query
-            ->when($request->shipping_address, function ($query) use ($request) {
-                $query->where('shipping_address', 'LIKE', "%{$request->shipping_address}%");
-            })
+            // ->when($request->shipping_address, function ($query) use ($request) {
+            //     $query->where('shipping_address', 'LIKE', "%{$request->shipping_address}%");
+            // })
             ->when($request->status, function ($query) use ($request) {
                 $query->where('status', $request->status);
             })
@@ -144,27 +148,5 @@ class Order extends Model
                 $maxPrice = $request->max_price ?? PHP_INT_MAX;
                 $query->whereBetween('total_price', [$minPrice, $maxPrice]);
             });
-    }
-
-    /**
-     * Scope to return latest order
-     *
-     * @param mixed $query
-     * @return mixed
-     */
-    public function scopeLatestOrder($query)
-    {
-        return $query->orderBy('created_at', 'desc');
-    }
-
-    /**
-     * Scope to return oldest order
-     *
-     * @param mixed $query
-     * @return mixed
-     */
-    public function scopeOldestOrder($query)
-    {
-        return $query->orderBy('created_at', 'asc');
     }
 }

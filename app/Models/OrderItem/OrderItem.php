@@ -25,19 +25,13 @@ class OrderItem extends Model
     ];
 
     /**
-     * The attributes that are not mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [];
-
-    /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
      */
     protected $casts = [
         'quantity' => 'integer',
+        'price' => 'float',
     ];
 
     /**

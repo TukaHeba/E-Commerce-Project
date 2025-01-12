@@ -344,7 +344,7 @@ class ProductSeeder extends Seeder
             'description' => 'Play like a pro with this high-quality soccer ball.',
             'price' => 29.99,
             'product_quantity' => 50,
-            'maincategory_subcategory_id' => 33,
+            'maincategory_subcategory_id' => 2,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -354,7 +354,36 @@ class ProductSeeder extends Seeder
             'description' => 'Stay comfortable during your workouts with these running shorts.',
             'price' => 19.99,
             'product_quantity' => 40,
-            'maincategory_subcategory_id' => 34,
+            'maincategory_subcategory_id' => 2,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        Product::create([
+            'name' => 'Tent',
+            'description' => 'Enjoy the outdoors with this spacious tent.',
+            'price' => 199.99,
+            'product_quantity' => 15,
+            'maincategory_subcategory_id' => 2,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        Product::create([
+            'name' => 'Blue Soccer Ball',
+            'description' => 'Play like a pro with this high-quality soccer ball.',
+            'price' => 29.99,
+            'product_quantity' => 50,
+            'maincategory_subcategory_id' => 2,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        Product::create([
+            'name' => 'Red Running Shorts',
+            'description' => 'Stay comfortable during your workouts with these running shorts.',
+            'price' => 19.99,
+            'product_quantity' => 40,
+            'maincategory_subcategory_id' => 2,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

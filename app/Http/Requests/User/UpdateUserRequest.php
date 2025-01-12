@@ -29,7 +29,8 @@ class UpdateUserRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'name' => $this->name ? ucwords(trim($this->name)) : null,
+            'first_name' => $this->first_name ? ucwords(trim($this->first_name)) : null,
+            'last_name' => $this->last_name ? ucwords(trim($this->last_name)) : null,
             'email' => $this->email ? strtolower(trim($this->email)) : null,
         ]);
     }
@@ -68,7 +69,7 @@ class UpdateUserRequest extends FormRequest
             'password' => 'Password',
             'phone' => 'Phone Number',
             'address' => 'Address',
-            'is_male' => 'Male or Female',
+            'is_male' => 'Gender',
             'birthdate' => 'Birthday',
         ];
     }
@@ -84,11 +85,10 @@ class UpdateUserRequest extends FormRequest
             'max' => 'The :attribute may not be greater than :max characters.',
             'unique' => 'The :attribute has already been taken.',
             'date' => 'The :attribute must be a valid date.',
-            'first_name.regix' => 'first name must be a valid name contains only letters.',
-            'last_name.regix' => 'last name must be a valid name contains only letters.',
+            'regix' => ':attribute must be a valid name contains only letters.',
             'email' => 'email must be a valid email address.',
             'password.confirmed' => 'The password confirmation does not match.',
-            'password.min' => 'The password must be at least 8 characters.',
+            'min' => 'The :attribute must be at least :min characters.',
             'password.letters' => 'The password must contain at least one letter.',
             'password.mixedCase' => 'The password must contain both uppercase and lowercase letters.',
             'password.numbers' => 'The password must contain at least one number.',
@@ -111,7 +111,7 @@ class UpdateUserRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], status: 422)
         );
     }
 }

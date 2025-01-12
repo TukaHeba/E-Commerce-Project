@@ -15,10 +15,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->integer('rating'); // rating is between 1 to 5
+            $table->integer('rating'); 
             $table->text('review')->nullable();
             $table->timestamps();
-            $table->softDeletes();
 
             // Indexing columns to optimize performance
             $table->unique(['user_id', 'product_id']);

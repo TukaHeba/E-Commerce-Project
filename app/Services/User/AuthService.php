@@ -10,53 +10,49 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthService
 {
 
-    protected PhotoService $photoService ;
-    public function __construct(PhotoService $photoService){
-        $this->photoService = $photoService ;
+    protected PhotoService $photoService;
+
+    public function __construct(PhotoService $photoService)
+    {
+        $this->photoService = $photoService;
     }
 
-
     /**
-     * User registration and shopping cart creation with register process
+     * Register a new user, create a cart, and store the avatar if provided.
+     *
      * @param array $data
      * @return array
-     * @throws \Exception
      */
     public function register(array $data): array
     {
-        try {
-            $user = DB::transaction(function () use ($data) {
-                $user = User::create($data);
-                $user->assignRole('customer');
-                Cart::create(['user_id' => $user->id]);
-                if(isset($data['avatar'])){
-                    $result = $this->photoService->storePhoto($data['avatar'],$user);
-                }
-                return $user;
-            });
-            $token = Auth::login($user);
-
-            return [
-                'user' => new UserResource($user),
-                'authorisation' => [
-                    'token' => $token,
-                    'type' => 'bearer',
-                ],
-            ];
-        } catch (\Exception $e) {
-            Log::error('Failed to register user: ' . $e->getMessage());
-            throw $e;
-        }
+        $user = DB::transaction(function () use ($data) {
+            $user = User::create($data);
+            $user->assignRole('customer');
+            Cart::create(['user_id' => $user->id]);
+            if (isset($data['avatar'])) {
+                $result = $this->photoService->storePhoto($data['avatar'], $user);
+            }
+            return $user;
+        });
+        $token = Auth::login($user);
+        return [
+            'user' => new UserResource($user),
+            'role' => $user->getRoleNames()->first(),
+            'authorisation' => [
+                'token' => $token,
+                'type' => 'bearer',
+            ],
+        ];
     }
 
     /**
-     * login user
+     * Authenticate a user and return a token.
+     *
      * @param array $credentials
      * @return array
      * @throws AuthenticationException
@@ -66,13 +62,12 @@ class AuthService
         $token = Auth::attempt($credentials);
 
         if (!$token) {
-            throw new AuthenticationException('Invalid credentials provided.');
+            throw new \Exception('Invalid credentials provided.');
         }
-
         $user = Auth::user();
-
         return [
             'user' => new UserResource($user),
+            'role' => $user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
@@ -81,12 +76,12 @@ class AuthService
     }
 
     /**
-     * Contact the server using Socialite package
+     * Redirect the user to the OAuth provider.
+     *
      * @param string $provider
      * @return mixed
      * @throws \Exception
      */
-
     public function redirectToProvider(string $provider)
     {
         $this->validateProvider($provider);
@@ -94,7 +89,8 @@ class AuthService
     }
 
     /**
-     * callback function in socialite
+     * Handle the OAuth provider callback and authenticate the user.
+     *
      * @param string $provider
      * @return array
      * @throws \Exception
@@ -133,6 +129,7 @@ class AuthService
         $token = Auth::login($userCreated);
         return [
             'user' => new UserResource($userCreated),
+            'role' => $user->getRoleNames()->first(),
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
@@ -141,7 +138,8 @@ class AuthService
     }
 
     /**
-     * Check driver
+     * Validate the OAuth provider.
+     *
      * @param string $provider
      * @return void
      * @throws \Exception

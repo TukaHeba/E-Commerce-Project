@@ -1,32 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Favorite;
+namespace App\Http\Requests\Role;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreFavoriteRequest extends FormRequest
+class PermissionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
-    }
-
-    /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     * 
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
+        return true;
     }
 
     /**
@@ -37,36 +24,21 @@ class StoreFavoriteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-        ];
-    }
-
-     /**
-     * Define human-readable attribute names for validation errors.
-     * 
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            //
+            'permissions'=>['required','array'],
+            'permissions.*' => ['required', 'string', 'exists:permissions,name']
         ];
     }
 
     /**
      * Define custom error messages for validation failures.
-     * 
+     *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
             'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
-            'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
+            'string' => 'The :attribute must be a string.',
             'exists' => 'The selected :attribute is invalid.',
         ];
     }

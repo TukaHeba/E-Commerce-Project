@@ -22,7 +22,7 @@ class SubCategoryService
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         return Cache::remember($cache_key, now()->addWeek(), function (): LengthAwarePaginator {
-              return SubCategory::with('mainCategories')->paginate(10);
+            return SubCategory::paginate(10);
         });
     }
 
@@ -41,16 +41,18 @@ class SubCategoryService
         $subcategory->save();
 
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $subcategory;
+        return $subcategory->load('mainCategories');
     }
+
     /**
      * Update sub category alraedy exist
      * @param   $data
-     * @param   SubCategory $subcategory
+     * @param   $id
      * @return /Illuminate\Http\JsonResponse if have an error
      */
-    public function updateSubCategory($data, $subCategory)
+    public function updateSubCategory($data, $id)
     {
+        $subCategory = SubCategory::findOrFail($id);
         $subCategory->sub_category_name = $data['sub_category_name'] ?? $subCategory->sub_category_name;
         $subCategory->save();
 
@@ -59,8 +61,9 @@ class SubCategoryService
             $subCategory->save();
         }
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $subCategory;
+        return $subCategory->load('mainCategories');
     }
+
     /**
      * method to soft delete sub category alraedy exist
      * @param  $id
@@ -74,6 +77,7 @@ class SubCategoryService
         $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
+
     /**
      * method to soft delete sub category alraedy exist
      * @param  $id

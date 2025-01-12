@@ -16,7 +16,6 @@ class sendLinkRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -29,7 +28,6 @@ class sendLinkRequest extends FormRequest
         ];
     }
 
-
     /**
      * Define custom error messages for validation failures.
      *
@@ -39,11 +37,7 @@ class sendLinkRequest extends FormRequest
     {
         return [
             'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
-            'min' => 'The :attribute must be at least :min characters.',
-            'unique' => 'The :attribute has already been taken.',
-            'in' => 'The selected :attribute is invalid.',
-            'date' => 'The :attribute must be a valid date.',
+            'email' => 'The :attribute must be a email format.',
             'exists' => 'The selected :attribute is invalid.',
         ];
     }
@@ -62,7 +56,7 @@ class sendLinkRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

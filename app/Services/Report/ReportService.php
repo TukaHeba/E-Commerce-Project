@@ -20,27 +20,27 @@ class ReportService
     {
         $sevenDaysAgo = Carbon::now()->subDays(7); // Create the current date and subtract 7 days from it
 
-        $lating_orders = Order::where('status', 'shipped')
-            ->where('created_at', '<=', $sevenDaysAgo)->paginate(10);
+        // Select orders with status 'shipped' where the last update was 7 or more days ago
+        $lating_orders = Order::with(['user','zone.city:id,name'])->select('id','user_id','zone_id','postal_code','status','total_price','order_number')
+            ->where('status',  'shipped')
+            ->where('updated_at', '<=', $sevenDaysAgo)->paginate(10);
 
         return $lating_orders;
     }
 
     /**
-     * Products remaining in the cart without being ordered report
-     * @return array
+     * Products remaining in the cart without being ordered report.
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getProductsRemainingInCarts(): array
+    public function getProductsRemainingInCarts()
     {
         $products_remaining = Cart::withWhereHas('cartItems', function ($query) {
-                $query->where('created_at', '<=', Carbon::now()->subMonths(2))
-                    ->with(['product:id,name'])
-                    ->select('cart_id', 'product_id', 'created_at');
-            }
-        )->select('id', 'user_id')
-         ->get();
+            $query->where('created_at', '<=', Carbon::now()->subMonths(2))
+                ->with('product:id,name');
+        })->select('id', 'user_id')->paginate(10);
 
-        return $products_remaining->toArray();
+        return $products_remaining;
     }
 
     /**
@@ -53,7 +53,7 @@ class ReportService
 
 
     /**
-     * Best-selling products for offers report
+     * Best-selling products for report
      */
     public function getBestSellingProducts()
     {

@@ -5,11 +5,11 @@ namespace App\Services\CartItem;
 class CartItemService
 {
     /**
-     * store a new Item in cart and validate if the item already exists
+     * Add a new item to the cart and ensure it is not already present.
      *
      * @param array $data
+     * @return void
      * @throws \Exception
-     * @return mixed
      */
     public function store(array $data)
     {
@@ -18,6 +18,5 @@ class CartItemService
         if (!$cartItem->wasRecentlyCreated) {
             throw new \Exception('The product is already in your cart.');
         }
-        return $cartItem;
     }
 }
