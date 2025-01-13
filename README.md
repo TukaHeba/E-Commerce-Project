@@ -1,4 +1,4 @@
-# E_Commerce Project
+# E-Commerce Project
 
 ## Description
 
@@ -17,7 +17,7 @@ Built for scalability and ease of use, this system supports role-specific workfl
 
 ### User Role & Permissions
 
-# ======== Admin ========
+# Admin
 
 -   **Cart Management**: Admin can view the cart and manage it.
 -   **CRUD Main Categories**: Admin can create, read, update, and delete main product categories.
@@ -35,7 +35,7 @@ Built for scalability and ease of use, this system supports role-specific workfl
     -   Products Never Been Sold
     -   Countries with Highest Orders
 
-# ======== Sales Manager ========
+# Sales Manager
 
 -   **Order Management**: Sales Manager can view specific orders.
 -   **Order Tracking**: Sales Manager can track the status of orders to ensure timely delivery.
@@ -45,7 +45,7 @@ Built for scalability and ease of use, this system supports role-specific workfl
     -   Best-Selling Categories
     -   Countries with Highest Orders
 
-# ======== Store Manager ======
+# Store Manager
 
 -   **CRUD Main Categories**: Store Manager can manage main product categories.
 -   **Order Management**: Store Manager can update specific orders and track their status.
@@ -59,13 +59,18 @@ Built for scalability and ease of use, this system supports role-specific workfl
     -   Products Never Been Sold
     -   Countries with Highest Orders
 
-# ======== Customer ========
+# Customer
 
 -   **Favorite Products**: Customers can delete their favorite products from the system.
 -   **Order Information**: Customers can view orders related to their accounts.
 -   **Profile Management**: Customers can upload or delete their avatar photo.
 -   **Product Rating**: Customers can update, delete their product ratings, and leave reviews.
 -   **Account Management**: Customers can update their account information or delete their account entirely.
+
+### Additional Features
+
+-   **Email and Telegram Notifications**: Real-time updates and confirmations sent via email and Telegram messages, enhancing user engagement
+-   **Postman Collection**:A ready-to-user Postman collection for API testing
 
 ## Technologies Used:
 
@@ -76,9 +81,53 @@ Built for scalability and ease of use, this system supports role-specific workfl
 -   Composer
 -   Postman Collection: Contains all API requests for easy testing and interaction with the API.
 
-## ERD
+## Packages Used
 
-![E_Commerce ERD](database/ERD/ERD.png)
+Below is a list of Composer packages used in the application, along with their purpose:
+
+1.`guzzlehttp/guzzle`
+
+    -   **Version**: `^7.2`
+    -   **Purpose**: Handles HTTP requests and responses. Used for integrating third-party APIs, such as sending requests to the Telegram Bot API.
+
+2. `laravel-notification-channels/telegram`
+
+    - **Version**:`^5.0`
+    - **Purpose**: Extends Laravel's notification system to support Telegram. Enables sending notifications directly to Telegram users.
+
+3. `laravel/socialite`
+
+    - **Version**: `^5.16`
+    - **Purpose**: Simplifies OAuth authentication, enabling login via social platforms like Google, Facebook, etc.
+
+4. `maatwebsite/excel`
+
+    - **Version**: `^3.1`
+    - **Purpose**: Simplifies importing and exporting data to and from Excel spreadsheets.
+
+5. `php-open-source-saver/jwt-auth`
+
+    - **Version**: `^2.7`
+    - **Purpose**: Implements JSON Web Token (JWT) authentication for API security.
+
+6. `phpoffice/phpspreadsheet`
+
+    - **Version**: `^1.29`
+    - **Purpose**: A PHP library for reading and writing spreadsheet files, used in reporting features.
+
+7. `propaganistas/laravel-phone`
+
+    - **Version**: `^5.3`
+    - **Purpose**: Validates phone numbers using an international standard format.
+
+8. `spatie/laravel-permission`
+
+    - **Version**: `^6.10`
+    - **Purpose**: Manages roles and permissions within the application, ensuring secure role-based access control.
+
+## Database Design
+
+For a detailed view of the system's ERD (Entity Relationship Diagram), please refer to this [link](https://dbdiagram.io/d/67449354e9daa85acaa49e3b)
 
 ## Installation
 
@@ -143,7 +192,15 @@ Ensure you have the following installed on your machine:
         php artisan schedule:work
         ```
 
+### Notification Integration
+
+The platform supports notifications through both email and Telegram:
+
+-   **Email Notification**: Reports and updates sent to specified recipients
+-   **Telegram Notifications**: Order confirmations and alerts via the Telegram Bot API.
+    Telegram Bot:
+    [OrderConfirmBot](https://t.me/OrderConfirmBot).
+
 ### Postman Collection:
 
 You can access the Postman collection for this project by following this [link](https://documenter.getpostman.com/view/34424205/2sAYBYgqz4). The collection includes all the necessary API requests for testing the application.
-<!-- https://documenter.getpostman.com/view/34424205/2sAYBYgqz4 -->
