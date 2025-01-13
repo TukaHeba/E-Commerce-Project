@@ -18,19 +18,6 @@ class UpdateRateRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     *
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -43,7 +30,7 @@ class UpdateRateRequest extends FormRequest
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      *
      * @return array<string, string>
@@ -51,7 +38,8 @@ class UpdateRateRequest extends FormRequest
     public function attributes(): array
     {
         return [
-           //
+            'rating' => 'Rating',
+            'review' => 'Review',
         ];
     }
 
@@ -65,7 +53,8 @@ class UpdateRateRequest extends FormRequest
         return [
             'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
-            'integer' => 'The :attribute must be number'
+            'integer' => 'The :attribute must be number',
+            'string' => 'The :attribute must be a valid string.',
         ];
     }
 
@@ -83,7 +72,7 @@ class UpdateRateRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }
