@@ -11,13 +11,12 @@ use App\Http\Requests\CartItem\UpdateCartItemRequest;
 
 class CartItemController extends Controller
 {
-
     protected CartItemService $cartItemService;
-
     public function __construct(CartItemService $cartItemService)
     {
         $this->cartItemService = $cartItemService;
     }
+
     /**
      * Add a new item to the cart.
      *
@@ -25,7 +24,6 @@ class CartItemController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-
     public function store(StoreCartItemRequest $request)
     {
         $data = $request->validationData();
@@ -34,7 +32,7 @@ class CartItemController extends Controller
     }
 
     /**
-     *  Update the quantity of an item in the cart.
+     * Update the quantity of an item in the cart.
      *
      * @param UpdateCartItemRequest $request
      * @param CartItem $cartItem
