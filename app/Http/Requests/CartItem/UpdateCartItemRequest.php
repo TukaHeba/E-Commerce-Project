@@ -16,7 +16,6 @@ class UpdateCartItemRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,10 +24,21 @@ class UpdateCartItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'quantity'=> 'sometimes|integer|min:1'
+            'quantity' => 'sometimes|integer|min:1'
         ];
     }
 
+    /**
+     * Define human-readable attribute names for validation errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'quantity' => 'Product Quantity'
+        ];
+    }
 
     /**
      * Define custom error messages for validation failures.
@@ -57,7 +67,7 @@ class UpdateCartItemRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }
