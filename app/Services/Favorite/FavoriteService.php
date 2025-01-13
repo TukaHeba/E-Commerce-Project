@@ -40,8 +40,8 @@ class FavoriteService
     {
         $user = User::findOrFail(auth()->id());
         $user_favorite_products = $user->favoriteProducts()->get();
-        if (empty($user_favorite_products)) {
-            throw new Exception("You do not have favorite  products,Add some product to favorite.", 404);
+        if ($user_favorite_products->isEmpty()) {
+            throw new Exception("You do not have favorite products. Add some products to favorites.", 404);
         }
         return $user_favorite_products;
     }
