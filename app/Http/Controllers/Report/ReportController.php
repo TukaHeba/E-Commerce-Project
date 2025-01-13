@@ -7,9 +7,7 @@ use App\Http\Requests\Report\TopCountryRequest;
 use App\Http\Resources\CartResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\ProductResource;
-use App\Jobs\SendDelayedOrderEmail;
 use App\Services\Report\ReportService;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReportController extends Controller
 {
@@ -29,7 +27,7 @@ class ReportController extends Controller
         $latingOrders = $this->ReportService->getOrdersLateToDeliver();
         return self::paginated($latingOrders, OrderResource::class, 'Lating orders retrieved successfully', 200);
     }
-    
+
     /**
      * Products remaining in the cart without being ordered report.
      *
@@ -86,6 +84,6 @@ class ReportController extends Controller
     public function productsNeverBeenSoldReport()
     {
         $unsoldProducts = $this->ReportService->getProductsNeverBeenSold();
-        return self::paginated($unsoldProducts, null, 'Products never been Sold retrieved successfully', 200);
+        return self::paginated($unsoldProducts, ProductResource::class, 'Products never been Sold retrieved successfully', 200);
     }
 }
