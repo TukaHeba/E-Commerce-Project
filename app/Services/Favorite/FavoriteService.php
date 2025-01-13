@@ -9,6 +9,8 @@ use App\Models\Product\Product;
 use App\Traits\CacheManagerTrait;
 use Illuminate\Database\Eloquent\Collection;
 
+use function PHPUnit\Framework\isEmpty;
+
 class FavoriteService
 {
     use CacheManagerTrait;
@@ -40,7 +42,7 @@ class FavoriteService
     {
         $user = User::findOrFail(auth()->id());
         $user_favorite_products = $user->favoriteProducts()->get();
-        if (empty($user_favorite_products)) {
+        if (isEmpty($user_favorite_products)) {
             throw new Exception("You do not have favorite  products,Add some product to favorite.", 404);
         }
         return $user_favorite_products;
