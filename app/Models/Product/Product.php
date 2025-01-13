@@ -318,19 +318,6 @@ class Product extends Model
     }
 
     /**
-     * generate low stock products excel sheet as report to admin
-     * @return string
-     */
-    static function generateLowStockReport()
-    {
-        $fileName = 'reports/low-stock-report-' . now()->format('Y-m-d') . '.xlsx';
-
-        Excel::store(new LowStockExport, $fileName, 'local'); // Save to storage/app
-
-        return $fileName;
-    }
-
-    /**
      * Apply a series of left joins to the query for retrieving related data.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.

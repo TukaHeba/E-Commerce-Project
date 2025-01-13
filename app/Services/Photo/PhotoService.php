@@ -40,7 +40,7 @@ class PhotoService
      */
     public function storePhoto($photofile, $photoable)
     {
-        set_time_limit(60);
+        set_time_limit(seconds: 120);
         $message = '';
 
         // Scan the file for viruses
