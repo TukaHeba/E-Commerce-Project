@@ -26,7 +26,7 @@ class UpdateMainCategoryRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            //
+            'main_category_name' => $this->main_category_name ? ucwords(trim($this->main_category_name)) : null,
         ]);
     }
 
@@ -90,7 +90,7 @@ class UpdateMainCategoryRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

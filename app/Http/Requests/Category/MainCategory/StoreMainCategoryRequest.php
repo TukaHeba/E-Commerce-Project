@@ -25,7 +25,7 @@ class StoreMainCategoryRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            //
+            'main_category_name' => $this->main_category_name ? ucwords(trim($this->main_category_name)) : null,
         ]);
     }
 
@@ -43,7 +43,7 @@ class StoreMainCategoryRequest extends FormRequest
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      * 
      * @return array<string, string>
@@ -88,7 +88,7 @@ class StoreMainCategoryRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

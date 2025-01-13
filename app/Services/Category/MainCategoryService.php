@@ -11,6 +11,7 @@ class MainCategoryService
 {
     use CacheManagerTrait;
     private $groupe_key_cache = 'main_categories_cache_keys';
+
     /**
      * View all main categories
      * @return \Illuminate\Pagination\LengthAwarePaginator
@@ -21,7 +22,7 @@ class MainCategoryService
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         return Cache::remember($cache_key, now()->addWeek(), function () {
-            return MainCategory::with('subCategories')->paginate(10);
+            return MainCategory::paginate(10);
         });
     }
 
@@ -32,7 +33,6 @@ class MainCategoryService
      */
     public function storeMainCategory($data)
     {
-
         $mainCategory = new MainCategory();
         $mainCategory->main_category_name = $data['main_category_name'];
         $mainCategory->save();
@@ -41,7 +41,7 @@ class MainCategoryService
         $mainCategory->save();
 
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $mainCategory;
+        return $mainCategory->load('subCategories');
     }
 
     /**
@@ -50,7 +50,6 @@ class MainCategoryService
      * @param   $id
      * @return /Illuminate\Http\JsonResponse if have an error
      */
-
     public function updateMainCategory($data, $id)
     {
         $maincategory = MainCategory::findOrFail($id);
@@ -61,9 +60,9 @@ class MainCategoryService
             $maincategory->subCategories()->sync($data['sub_category_name']);
             $maincategory->save();
         }
-        
+
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $maincategory;
+        return $maincategory->load('subCategories');
     }
 
     /**
@@ -73,7 +72,6 @@ class MainCategoryService
      */
     public function destroyMainCategory($id)
     {
-
         $maincategory = MainCategory::findOrFail($id);
         $maincategory->delete();
         $maincategory->subCategories()->updateExistingPivot($maincategory->subCategories->pluck('id'), ['deleted_at' => now()]);
@@ -81,6 +79,7 @@ class MainCategoryService
         $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
+
     /**
      * method to soft delete main category alraedy exist
      * @param  $id
