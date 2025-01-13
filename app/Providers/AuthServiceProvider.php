@@ -19,7 +19,6 @@ use App\Policies\Photo\PhotoPolicy;
 use App\Models\Category\SubCategory;
 use App\Models\Category\MainCategory;
 use App\Policies\Product\ProductPolicy;
-use App\Policies\Favorite\FavoritePolicy;
 use App\Policies\SubCategory\SubCategoryPolicy;
 use App\Policies\MainCategory\MainCategoryPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -36,12 +35,11 @@ class AuthServiceProvider extends ServiceProvider
         Photo::class => PhotoPolicy::class,
         User::class => UserPolicy::class,
         Cart::class => CartPolicy::class,
-        Favorite::class => FavoritePolicy::class,
         MainCategory::class => MainCategoryPolicy::class,
         SubCategory::class => SubCategoryPolicy::class,
         Product::class => ProductPolicy::class,
         Rate::class => RatePolicy::class,
-        
+
     ];
 
     /**
