@@ -107,9 +107,7 @@ Route::middleware('throttle:api')->group(function () {
 
 
     // --------------------------------------- Rate Routes --------------------------------------- //
-    Route::controller(RateController::class)->middleware('auth:api')->group(function () {
-        Route::apiResource('rates', RateController::class)->except(['index', 'show']);
-    });
+    Route::apiResource('rates', RateController::class)->except(['index', 'show'])->middleware('auth:api');
     Route::apiResource('rates', RateController::class)->only(['index', 'show']);
 
 
@@ -124,7 +122,6 @@ Route::middleware('throttle:api')->group(function () {
     // ---------------------------------- Cart Items Routes ---------------------------------- //
     Route::middleware('auth:api')->apiResource('/cart-items', CartItemController::class)->only(['store', 'update', 'destroy']);
 
-    #FIXME Re-check showDeleted-user
     // ------------------------------------- Order Routes ------------------------------------- //
     Route::controller(OrderController::class)->middleware('auth:api')->group(function () {
         Route::get('orders', 'indexAdmin');
