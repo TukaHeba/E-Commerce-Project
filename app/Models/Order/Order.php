@@ -25,6 +25,7 @@ class Order extends Model
         'zone_id',
         'postal_code',
         'status',
+        'total_price',
     ];
 
     /**
@@ -33,7 +34,6 @@ class Order extends Model
      * @var array
      */
     protected $guarded = [
-        'total_price',
         'order_number',
     ];
 

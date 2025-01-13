@@ -106,7 +106,7 @@ class OrderController extends Controller
     public function restoreDeleted(string $id): JsonResponse
     {
         $this->authorize('restoreDeleted', arguments: Order::class);
-        $order = Order::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        $order = Order::onlyTrashed()->findOrFail($id);
         $order->restore();
         return self::success($order, 'Order restored successfully');
     }
