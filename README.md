@@ -115,7 +115,7 @@ Ensure you have the following installed on your machine:
     ```
 5.  **Generate Application Key**
     ```
-    Generate Application Key
+    php artisan key:generate
     ```
 6.  **Run Migrations**
     ```
