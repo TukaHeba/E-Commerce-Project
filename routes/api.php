@@ -100,9 +100,9 @@ Route::middleware('throttle:api')->group(function () {
 
     // -------------------------------------- Favorite Routes -------------------------------------- //
     Route::controller(FavoriteController::class)->middleware('auth:api')->group(function () {
-        Route::get('users/my-favorite-products', 'show');
+        Route::get('my-favorite-products', 'show');
         Route::post('products/{product}/add-to-favorite', 'store');
-        Route::delete('products/{product}/remove-from-favorite', 'destroy');
+        Route::delete('remove-from-favorite/product/{product}', 'destroy');
     });
 
 
