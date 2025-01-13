@@ -184,12 +184,12 @@ Route::middleware('throttle:api')->group(function () {
 
     // -------------------------------------- Export Routes -------------------------------------- //
     Route::controller(ExportController::class)->prefix('export')->middleware('auth:api')->group(function () {
-        Route::get('best-categories', 'bestCategoriesExport');
-        Route::get('best-selling-products', 'bestSellingProductsExport');
-        Route::get('products-low-on-stocks', 'productsLowOnStockExport');
-        Route::get('orders-late-to-deliver', 'ordersLateToDeliverExport');
-        Route::get('products-never-been-sold', 'productsNeverBeenSoldExport');
-        Route::get('products-remaining-in-carts', 'productsRemainingInCartsExport');
-        Route::get('countries-with-highest-orders/{country?}', 'countriesWithHighestOrdersExport');
+        Route::get('best-categories', 'bestCategoriesExport')->middleware('permission:BestSellingCategories');
+        Route::get('best-selling-products', 'bestSellingProductsExport')->middleware('permission:BestSellingProducts');
+        Route::get('products-low-on-stocks', 'productsLowOnStockExport')->middleware('permission:ProductsLowOnStock');
+        Route::get('orders-late-to-deliver', 'ordersLateToDeliverExport')->middleware('permission:OrdersLateToDeliver');
+        Route::get('products-never-been-sold', 'productsNeverBeenSoldExport')->middleware('permission:ProductsNeverBeenSold');
+        Route::get('products-remaining-in-carts', 'productsRemainingInCartsExport')->middleware('permission:ProductsRemainingInCarts');
+        Route::get('countries-with-highest-orders/{country?}', 'countriesWithHighestOrdersExport')->middleware('permission:CountriesWithHighestOrders');
     });
 });

@@ -17,19 +17,6 @@ class StoreMultiplePhotosRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     * 
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -37,12 +24,12 @@ class StoreMultiplePhotosRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'photos' => ['required', 'array', 'min:1'], // Ensure it's an array and at least one photo is provided.
-            'photos.*' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:8192'], // Validate each photo in the array.
+            'photos' => ['required', 'array', 'min:1'],
+            'photos.*' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:8192'],
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      * 
      * @return array<string, string>
@@ -50,7 +37,8 @@ class StoreMultiplePhotosRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            //
+            'photos' => 'Photos',
+            'photos.*' => 'Individual Photo',
         ];
     }
 
@@ -62,11 +50,11 @@ class StoreMultiplePhotosRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'photos.required' => 'You must upload at least one photo.',
-            'photos.array' => 'The photos field must be an array.',
-            'photos.*.image' => 'Each file must be a valid image.',
-            'photos.*.mimes' => 'Each photo must be a file of type: jpeg, png, jpg, gif , webp.',
-            'photos.*.max' => 'Each photo must not exceed 8MB in size.',
+            'array' => 'The :attribute field must be an array.',
+            'required' => 'The :attribute field is required.',
+            'max' => 'The :attribute may not be greater than :max KB.',
+            'image' => 'The :attribute must be an image.',
+            'mimes' => 'The :attribute must be one of the following types: jpeg, png, jpg, gif, webp.',
         ];
     }
 
@@ -84,7 +72,7 @@ class StoreMultiplePhotosRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }
