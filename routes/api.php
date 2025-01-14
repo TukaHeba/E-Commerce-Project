@@ -114,7 +114,6 @@ Route::middleware('throttle:api')->group(function () {
     // ------------------------------------- Cart Routes ------------------------------------- //
     Route::controller(CartController::class)->middleware('auth:api')->group(function () {
         Route::get('carts/user-cart', 'userCart');
-        Route::get('carts/checkout', 'checkout');
         Route::post('carts/place-order', 'placeOrder');
         Route::apiResource('carts', CartController::class)->only(['index', 'show']);
     });
