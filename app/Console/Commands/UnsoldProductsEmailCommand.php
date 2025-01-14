@@ -21,7 +21,7 @@ class UnsoldProductsEmailCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:unsold-products-email-command';
+    protected $signature = 'app:unsold-products-report-command';
 
     /**
      * The console command description.
@@ -35,8 +35,6 @@ class UnsoldProductsEmailCommand extends Command
      */
     public function handle()
     {
-
         SendUnsoldProductEmail::dispatch();
     }
 }
-

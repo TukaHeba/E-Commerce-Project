@@ -17,6 +17,7 @@ class CountriesWithHighestOrdersCommand extends Command
         parent::__construct();
         $this->ExportService = $ExportService;
     }
+
     /**
      * The name and signature of the console command.
      *
