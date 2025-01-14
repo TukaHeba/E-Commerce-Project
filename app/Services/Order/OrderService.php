@@ -4,11 +4,10 @@ namespace App\Services\Order;
 
 use App\Models\User\User;
 use App\Models\Order\Order;
-use App\Jobs\SendNotification;
 use App\Traits\CacheManagerTrait;
+use App\Jobs\SendOrderTrackingEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrderService
 {
@@ -23,7 +22,7 @@ class OrderService
      */
     public function getOrdersUser($request)
     {
-        $cache_key = $this->generateCacheKey('user-orders',$request->all());
+        $cache_key = $this->generateCacheKey('user-orders', $request->all());
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         $orders = Cache::remember($cache_key . Auth::id(), 1200, function () use ($request) {
@@ -40,7 +39,7 @@ class OrderService
      */
     public function getOrdersAdmin($request)
     {
-        $cache_key = $this->generateCacheKey('user-orders',$request->all());
+        $cache_key = $this->generateCacheKey('user-orders', $request->all());
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         $orders = Cache::remember($cache_key, 1200, function () use ($request) {
@@ -61,7 +60,7 @@ class OrderService
         $order->update(array_filter($data));
 
         $user = User::where('id', $order->user_id)->first();
-        SendNotification::dispatch($user->email, $user->first_name, $order->id, $order->status);
+        SendOrderTrackingEmail::dispatch($user->email, $user->first_name, $order->id, $order->status);
         $this->clearCacheGroup($this->groupe_key_cache);
         return $order;
     }

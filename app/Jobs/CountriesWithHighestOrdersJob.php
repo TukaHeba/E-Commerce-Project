@@ -20,6 +20,7 @@ class CountriesWithHighestOrdersJob implements ShouldQueue
 
     /**
      * Execute the job.
+     * 
      * Send report for sales managers and store managers
      * The report includes the top five countries with the most orders during the past four months.
      */
@@ -30,6 +31,5 @@ class CountriesWithHighestOrdersJob implements ShouldQueue
             ->countriesWithHighestOrdersExportStorage(['start_date' => Carbon::now()->subMonths(4)->format('Y-m-d')]);
 
         Notification::send($users, new CountriesWithHighestOrdersNotification($file_path));
-
     }
 }
