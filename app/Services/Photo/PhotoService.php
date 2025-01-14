@@ -78,7 +78,7 @@ class PhotoService
         $fileName = Str::random(32) . '.' . $extension;
         $filePath = "$path/{$fileName}";
 
-        if (!Storage::disk('local')->put($filePath, file_get_contents($photofile))) {
+        if (!Storage::disk('public')->put($filePath, file_get_contents($photofile))) {
             throw new Exception(trans('general.failedToStoreFile'), 500);
         }
 
