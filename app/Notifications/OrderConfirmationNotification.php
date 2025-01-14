@@ -39,9 +39,13 @@ class OrderConfirmationNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Order Confirmation')
-            ->greeting('Hello dear customer!')
-            ->line('Your order ID is: ' . $this->order->id)
-            ->line('Your order total price is: $' . number_format($this->order->total_price, 2))
+            ->greeting('Hello dear ' . $notifiable->first_name  . '!')
+            ->line('Your order has been confirmed!')
+            ->line('Here is your order details to follow it up:')
+            ->line('Order Number: ' . $this->order->order_number)
+            ->line('Total Price: $' . number_format($this->order->total_price, 2))
+            ->line('Order Status: ' . $this->order->status)
+            ->line('We will keep you updated on any changes to your order status.')
             ->line('Thank you for shopping with us!');
     }
 
@@ -53,9 +57,10 @@ class OrderConfirmationNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'order_id' => $this->order->id,
+            'order_number' => $this->order->order_number,
             'total_price' => $this->order->total_price,
-            'message' => 'Your order has been confirmed. Order ID: ' . $this->order->id,
+            'status' => $this->order->status,
+            'message' => 'Your order has been confirmed!',
         ];
     }
 
@@ -65,7 +70,16 @@ class OrderConfirmationNotification extends Notification
     public function toTelegram($notifiable)
     {
         $telegramMessage = TelegramMessage::create()
-            ->content("*Order Confirmation*\nYour order has been confirmed!\n\n*Order ID:* {$this->order->id}\n*Total Price:* \$" . number_format($this->order->total_price, 2))
+            ->content(
+                "*Hello dear {$notifiable->first_name}!*" . "\n\n" .
+                    "Your order has been confirmed!\n\n" .
+                    "Here is your order details to follow it up:\n" .
+                    "*Order Number:* {$this->order->order_number}\n" .
+                    "*Total Price:* \$" . number_format($this->order->total_price, 2) . "\n" .
+                    "*Order Status:* {$this->order->status}\n\n" .
+                    "We will keep you updated on any changes to your order status.\n" .
+                    "Thank you for shopping with us!"
+            )
             ->options(['parse_mode' => 'Markdown']);
         return $telegramMessage;
     }

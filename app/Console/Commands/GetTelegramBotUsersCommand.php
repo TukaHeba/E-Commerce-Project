@@ -27,8 +27,8 @@ class GetTelegramBotUsersCommand extends Command
      */
     public function handle(TelegramService $telegramService)
     {
-        Log::info('Start command');
+        Log::info('Start GetTelegramBotUsersCommand command');
         $telegramService->fetchAndProcessTelegramUpdates();
-        Log::info('End command');
+        Log::info('End GetTelegramBotUsersCommand command');
     }
 }

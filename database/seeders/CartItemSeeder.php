@@ -19,12 +19,13 @@ class CartItemSeeder extends Seeder
             $product = Product::inRandomOrder()->first();
             $cart = Cart::inRandomOrder()->first();
             if ($cart) {
+                $date = fake()->dateTimeBetween('-3 months', '-2 months');
                 CartItem::create([
                     'cart_id' => $cart->id,
                     'product_id' => $product->id,
                     'quantity' => rand(1, 5),
-                    'created_at' => fake()->dateTimeBetween(now()->subMonths(2), now()),
-                    'updated_at' => fake()->dateTimeBetween(now()->subMonths(2), now()),
+                    'created_at' => $date,
+                    'updated_at' => $date,
                 ]);
             }
         }
