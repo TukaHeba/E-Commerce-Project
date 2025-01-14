@@ -17,13 +17,13 @@ class OrderService
 
     /**
      * List of orders related to user
-     * 
+     *
      * @param mixed $request
      * @return mixed
      */
     public function getOrdersUser($request)
     {
-        $cache_key = 'user-orders';
+        $cache_key = $this->generateCacheKey('user-orders',$request->all());
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         $orders = Cache::remember($cache_key . Auth::id(), 1200, function () use ($request) {
@@ -34,13 +34,13 @@ class OrderService
 
     /**
      * List of orders related to admin
-     * 
+     *
      * @param mixed $request
      * @return mixed
      */
     public function getOrdersAdmin($request)
     {
-        $cache_key = 'all-orders';
+        $cache_key = $this->generateCacheKey('user-orders',$request->all());
         $this->addCacheKey($this->groupe_key_cache, $cache_key);
 
         $orders = Cache::remember($cache_key, 1200, function () use ($request) {
@@ -51,7 +51,7 @@ class OrderService
 
     /**
      * Update order status
-     * 
+     *
      * @param \App\Models\Order\Order $order
      * @param array $data
      * @return Order
