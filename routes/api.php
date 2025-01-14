@@ -119,8 +119,11 @@ Route::middleware('throttle:api')->group(function () {
         Route::apiResource('carts', CartController::class)->only(['index', 'show']);
     });
 
+
     // ---------------------------------- Cart Items Routes ---------------------------------- //
-    Route::middleware('auth:api')->apiResource('/cart-items', CartItemController::class)->only(['store', 'update', 'destroy']);
+    Route::apiResource('/cart-items', CartItemController::class)
+        ->only(['store', 'update', 'destroy'])->middleware(['auth:api', 'role:customer']);
+
 
     // ------------------------------------- Order Routes ------------------------------------- //
     Route::controller(OrderController::class)->middleware('auth:api')->group(function () {
@@ -135,7 +138,6 @@ Route::middleware('throttle:api')->group(function () {
     });
 
 
-    #FIXME Re-check authenticated operations
     // ------------------------------------- Photo Routes ------------------------------------- //
     Route::controller(PhotoController::class)->middleware('auth:api')->group(function () {
         Route::delete('photos/{photo}', 'destroy');
@@ -148,6 +150,14 @@ Route::middleware('throttle:api')->group(function () {
 
     // ------------------------------------- Product Routes ------------------------------------- //
     Route::controller(ProductController::class)->group(function () {
+        Route::get('products', 'index');
+        Route::get('products/{product}', 'show');
+        Route::get('products/top-rated', 'topRatedProducts');
+        Route::get('products/category', 'getProductsByCategory');
+        Route::get('products/latest-arrivals', 'getLatestProducts');
+        Route::get('products/season-products', 'getSeasonProducts');
+        Route::get('products/hot-selling', 'getBestSellingProducts');
+
         Route::middleware('auth:api')->group(function () {
             Route::get('products/you-may-like', 'getProductsUserMayLike');
             Route::get('products/{product}/show-deleted', 'showDeleted');
@@ -158,15 +168,6 @@ Route::middleware('throttle:api')->group(function () {
             Route::get('products/{name}/largest-quantity-sold', 'showLargestQuantitySold');
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
-
-        Route::get('products/season-products', 'getSeasonProducts');
-        Route::get('products/category', 'getProductsByCategory');
-
-        Route::get('products/hot-selling', 'getBestSellingProducts');
-        Route::get('products/top-rated', 'topRatedProducts');
-        Route::get('products/latest-arrivals', 'getLatestProducts');
-        Route::get('products', 'index');
-        Route::get('products/{product}', 'show');
     });
 
 
