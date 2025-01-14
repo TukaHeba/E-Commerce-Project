@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\User\User;
 use Illuminate\Bus\Queueable;
+use App\Events\ChangeStatusEvent;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -17,20 +18,19 @@ class SendNotification implements ShouldQueue
 
     protected $user_email;
     protected $user_first_name;
-    protected $order_id;
-    protected $order_status;
+    protected $order;
 
-    public function __construct($user_email, $user_first_name, $order_id, $order_status)
+    public function __construct($user_email, $user_first_name, $order)
     {
         $this->user_email = $user_email;
         $this->user_first_name = $user_first_name;
-        $this->order_id = $order_id;
-        $this->order_status = $order_status;
+        $this->order = $order;
     }
 
     public function handle(): void
     {
         $user = User::where('email', $this->user_email)->first();
-        $user->notify(new OrderTrackingNotification($this->user_email, $this->user_first_name, $this->order_id, $this->order_status));
+        $user->notify(new OrderTrackingNotification($this->user_email, $this->user_first_name, $this->order->id, $this->order->status));
+        event(new ChangeStatusEvent($this->order, $user));
     }
 }

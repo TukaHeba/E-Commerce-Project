@@ -34,7 +34,7 @@ class OrderService
 
     /**
      * List of orders related to admin
-     * 
+     *
      * @param mixed $request
      * @return mixed
      */
@@ -51,7 +51,7 @@ class OrderService
 
     /**
      * Update order status
-     * 
+     *
      * @param \App\Models\Order\Order $order
      * @param array $data
      * @return Order
@@ -61,7 +61,7 @@ class OrderService
         $order->update(array_filter($data));
 
         $user = User::where('id', $order->user_id)->first();
-        SendNotification::dispatch($user->email, $user->first_name, $order->id, $order->status);
+        SendNotification::dispatch($user->email, $user->first_name, $order);
         $this->clearCacheGroup($this->groupe_key_cache);
         return $order;
     }
