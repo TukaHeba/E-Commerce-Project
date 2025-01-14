@@ -24,6 +24,7 @@ class LateProductsReportJob implements ShouldQueue
      */
     public function __construct()
     {
+        //
     }
 
     /**

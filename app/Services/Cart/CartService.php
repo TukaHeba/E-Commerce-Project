@@ -102,7 +102,6 @@ class CartService
 
         // Step 2
         if (!$cart) {
-            // throw new ModelNotFoundException('The cart does not exist.', 500);
             throw new \Exception('The cart does not exist.', 500);
         }
 
