@@ -60,7 +60,7 @@ class OrderService
         $order->update(array_filter($data));
 
         $user = User::where('id', $order->user_id)->first();
-        SendOrderTrackingEmail::dispatch($user->email, $user->first_name, $order->id, $order->status);
+        SendOrderTrackingEmail::dispatch($user->email, $user->first_name, $order);
         $this->clearCacheGroup($this->groupe_key_cache);
         return $order;
     }
