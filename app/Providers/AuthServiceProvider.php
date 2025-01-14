@@ -35,7 +35,7 @@ class AuthServiceProvider extends ServiceProvider
         SubCategory::class => SubCategoryPolicy::class,
         Product::class => ProductPolicy::class,
         Rate::class => RatePolicy::class,
-        
+
     ];
 
     /**

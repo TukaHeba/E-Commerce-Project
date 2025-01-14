@@ -9,6 +9,8 @@ use App\Models\Product\Product;
 use App\Traits\CacheManagerTrait;
 use Illuminate\Database\Eloquent\Collection;
 
+use function PHPUnit\Framework\isEmpty;
+
 class FavoriteService
 {
     use CacheManagerTrait;

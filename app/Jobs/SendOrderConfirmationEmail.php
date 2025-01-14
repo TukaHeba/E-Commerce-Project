@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Notifications\OrderConfirmationNotification;
+use Illuminate\Support\Facades\Log;
 
 class SendOrderConfirmationEmail implements ShouldQueue
 {
@@ -34,6 +35,8 @@ class SendOrderConfirmationEmail implements ShouldQueue
      */
     public function handle(): void
     {
+        Log::info('Start SendOrderConfirmationEmail job');
         $this->user->notify(new OrderConfirmationNotification($this->order));
+        Log::info('End SendOrderConfirmationEmail job');
     }
 }
