@@ -16,7 +16,8 @@ use Tests\TestCase;
 class CartCheckoutTest extends TestCase
 {
     /**
-     * A basic unit test example.
+     * Helper method to create a product with a random name.
+     * @return Product|\Illuminate\Database\Eloquent\Model
      */
     private function createProduct1(){
         return Product::create([
@@ -29,6 +30,10 @@ class CartCheckoutTest extends TestCase
             'updated_at' => now(),
         ]);
     }
+    /**
+     * Helper method to create a product with a random name.
+     * @return Product|\Illuminate\Database\Eloquent\Model
+     */
     private function createProduct2(){
         return Product::create([
             'name' => Str::random(10),
@@ -40,6 +45,10 @@ class CartCheckoutTest extends TestCase
             'updated_at' => now(),
         ]);
     }
+    /**
+     * Helper method to create a test user with dummy data.
+     * @return User|\Illuminate\Database\Eloquent\Model
+     */
     private function createTestUser(){
         return User::create([
             'first_name' => 'Test',
@@ -54,21 +63,23 @@ class CartCheckoutTest extends TestCase
         ]);
     }
     /**
-     * Validates the functionality of the checkout method.
+     * Test the checkout functionality to ensure that the correct calculation is performed.
      * This test ensures that the checkout process correctly calculates
      * @return void
      */
     public function test_checkout(){
         $customer = $this->createTestUser();
+
+        // Create a cart for the user
         $cart = Cart::create([
             'user_id'=>$customer->id
         ]);
 
-        // create products
+        // Create products to add to the cart
         $product1 = $this->createProduct1();
         $product2 = $this->createProduct2();
 
-        //
+        // Add items to the cart
         $cart->cartItems()->create([
             'cart_id'=>$cart->id,
             'product_id'=>$product1->id,
@@ -82,7 +93,7 @@ class CartCheckoutTest extends TestCase
         Auth::login($customer);
         $checkoutResult = (new CartService())->checkout();
 
-        //
+        //Validate the structure and contents of the checkout result
         $this->assertIsArray($checkoutResult);
         $this->assertArrayHasKey('cart_items', $checkoutResult);
         $this->assertArrayHasKey('total_price', $checkoutResult);
