@@ -138,13 +138,13 @@ Route::middleware('throttle:api')->group(function () {
 
 
     // ------------------------------------- Photo Routes ------------------------------------- //
-    Route::controller(PhotoController::class)->middleware('auth:api')->group(function () {
-        Route::delete('photos/{photo}', 'destroy');
-        Route::post('users/{user}/photos', 'storePhoto');
-        Route::post('products/{product}/photos', 'storePhoto');
-        Route::post('sub-category/{sub-category}/photos', 'storePhoto');
-        Route::post('main-category/{main-category}/photos', 'storePhoto');
-    });
+    // Route::controller(PhotoController::class)->middleware('auth:api')->group(function () {
+    //     Route::delete('photos/{photo}', 'destroy');
+    //     Route::post('users/{user}/photos', 'storePhoto');
+    //     Route::post('products/{product}/photos', 'storePhoto');
+    //     Route::post('sub-category/{sub-category}/photos', 'storePhoto');
+    //     Route::post('main-category/{main-category}/photos', 'storePhoto');
+    // });
 
 
     // ------------------------------------- Product Routes ------------------------------------- //
@@ -159,7 +159,7 @@ Route::middleware('throttle:api')->group(function () {
 
         Route::middleware('auth:api')->group(function () {
             Route::get('products/you-may-like', 'getProductsUserMayLike');
-            Route::get('products/{product}/show-deleted', 'showDeleted');
+            Route::get('products/show-deleted', 'showDeleted');
             Route::delete('products/{productId}/force-deleted', 'forceDeleted');
             Route::post('products/{productId}/restore-deleted', 'restoreDeleted');
             Route::delete('products/{productId}/force-deleted', 'forceDeleted');

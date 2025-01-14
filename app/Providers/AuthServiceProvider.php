@@ -8,14 +8,11 @@ use App\Models\Cart\Cart;
 use App\Models\Rate\Rate;
 use App\Models\User\User;
 use App\Models\Order\Order;
-use App\Models\Photo\Photo;
-use App\Policies\Order\OrderPolicy;
 use App\Models\Product\Product;
-use App\Models\Favorite\Favorite;
 use App\Policies\Cart\CartPolicy;
 use App\Policies\Rate\RatePolicy;
 use App\Policies\User\UserPolicy;
-use App\Policies\Photo\PhotoPolicy;
+use App\Policies\Order\OrderPolicy;
 use App\Models\Category\SubCategory;
 use App\Models\Category\MainCategory;
 use App\Policies\Product\ProductPolicy;
@@ -32,7 +29,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Order::class => OrderPolicy::class,
-        Photo::class => PhotoPolicy::class,
         User::class => UserPolicy::class,
         Cart::class => CartPolicy::class,
         MainCategory::class => MainCategoryPolicy::class,
