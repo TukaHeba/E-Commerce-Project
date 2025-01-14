@@ -17,19 +17,6 @@ class StorePhotoRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     * 
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -41,7 +28,7 @@ class StorePhotoRequest extends FormRequest
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      * 
      * @return array<string, string>
@@ -49,7 +36,8 @@ class StorePhotoRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            //
+            'photos' => 'Photos',
+            'photos.*' => 'Individual Photo',
         ];
     }
 
@@ -82,7 +70,7 @@ class StorePhotoRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

@@ -37,7 +37,7 @@ class ReportService
     {
         $products_remaining = Cart::withWhereHas('cartItems', function ($query) {
             $query->where('created_at', '<=', Carbon::now()->subMonths(2))
-                ->with('product:id,name');
+                ->with('product:id,name,description');
         })->select('id', 'user_id')->paginate(10);
 
         return $products_remaining;

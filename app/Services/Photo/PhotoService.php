@@ -38,9 +38,9 @@ class PhotoService
      * @return array Contains the created photo and a success message.
      * @throws Exception If the file is malicious or fails any validation.
      */
-    public function storePhoto($photofile, $photoable)
+    public function storePhoto($photofile, $photoable , $path = 'photos')
     {
-        set_time_limit(60);
+        set_time_limit(seconds: 120);
         $message = '';
 
         // Scan the file for viruses
@@ -76,7 +76,7 @@ class PhotoService
 
         // Generate a unique file name and save the file
         $fileName = Str::random(32) . '.' . $extension;
-        $filePath = "photos/{$fileName}";
+        $filePath = "$path/{$fileName}";
 
         if (!Storage::disk('local')->put($filePath, file_get_contents($photofile))) {
             throw new Exception(trans('general.failedToStoreFile'), 500);

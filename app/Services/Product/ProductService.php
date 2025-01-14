@@ -168,11 +168,13 @@ class ProductService
     public function updateProduct($product, $data, $photoForDelete = [])
     {
         $product->update($data);
-        foreach ($photoForDelete as $filePath) {
-            $photo = Photo::where('photo_path', $filePath)->first();
-            if ($photo) {
-                $this->photoService->deletePhoto($photo->photo_path);
-                $photo->delete();
+        if (!empty($photoForDelete)) {
+            foreach ($photoForDelete as $filePath) {
+                $photo = Photo::where('photo_path', $filePath)->first();
+                if ($photo) {
+                    $this->photoService->deletePhoto($photo->photo_path);
+                    $photo->delete();
+                }
             }
         }
         $this->clearCacheGroup($this->groupe_key_cache);

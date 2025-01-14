@@ -25,7 +25,7 @@ class StoreProductRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'name' => $this->name ? strtolower($this->name):null ,
+            'name' => $this->name ? ucwords(trim($this->name)) : null,
         ]);
     }
 
@@ -37,15 +37,15 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'required|string|min:4|max:100',
-            'description'=>'nullable|string',
-            'price'=>'required|numeric|min:0',
-            'product_quantity'=>'required|int|min:0',
-            'maincategory_subcategory_id'=>'required|exists:maincategory_subcategory,id'
+            'name' => 'required|string|min:4|max:100',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'product_quantity' => 'required|int|min:0',
+            'maincategory_subcategory_id' => 'required|exists:maincategory_subcategory,id'
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      *
      * @return array<string, string>
@@ -53,11 +53,11 @@ class StoreProductRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name'=>'Product Name',
-            'description'=>'Product description',
-            'price'=>'Product Price',
-            'product_quantity'=>'product quantity',
-            'category_id'=>'category_ID',
+            'name' => 'Product Name',
+            'description' => 'Product description',
+            'price' => 'Product Price',
+            'product_quantity' => 'product quantity',
+            'maincategory_subcategory_id' => 'The Main & Sub Category',
         ];
     }
 
@@ -76,7 +76,8 @@ class StoreProductRequest extends FormRequest
             'in' => 'The selected :attribute is invalid.',
             'date' => 'The :attribute must be a valid date.',
             'exists' => 'The selected :attribute is invalid.',
-            'numerice'=>'The :attribute must be a deciaml or integer value',
+            'numerice' => 'The :attribute must be a deciaml or integer value',
+            'string' => 'The :attribute must be a valid string.',
         ];
     }
 
@@ -94,7 +95,7 @@ class StoreProductRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

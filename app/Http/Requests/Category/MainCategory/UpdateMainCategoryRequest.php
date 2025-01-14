@@ -26,7 +26,7 @@ class UpdateMainCategoryRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            //
+            'main_category_name' => $this->main_category_name ? ucwords(trim($this->main_category_name)) : null,
         ]);
     }
 
@@ -37,16 +37,16 @@ class UpdateMainCategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route( 'main_category');
+        $id = $this->route('main_category');
 
         return [
-            'main_category_name' => ['nullable','string','min:4','max:50',Rule::unique('main_categories', 'main_category_name')->ignore($id)],
+            'main_category_name' => ['nullable', 'string', 'min:4', 'max:50', Rule::unique('main_categories', 'main_category_name')->ignore($id)],
             'sub_category_name' => 'nullable|array',
             'sub_category_name.*' => 'nullable|exists:sub_categories,id',
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      * 
      * @return array<string, string>
@@ -90,7 +90,7 @@ class UpdateMainCategoryRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

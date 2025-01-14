@@ -15,56 +15,19 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class CartService
 {
     /**
-     * Checks out the cart by retrieving the cart items and calculating the total price.
+     * Places an order by creating the order, saving order items, and clearing the cart.
      *
-     * 1- Retrieves the authenticated user's cart and its items.
-     * 2- Checks if the cart exists and if it contains items, throwing an exception if either condition is not met.
-     * 3- Check product quantities.
-     * 4- Uses the helper method to get and return the cart item details and the total price.
-     *
-     * @return array Contains the cart items data and the total price.
-     */
-    public function cartCheckout()
-    {
-        // Step 1
-        $user = Auth::user();
-        $cart = Cart::where('user_id', $user->id)->with('cartItems.product')->first();
-
-        // Step 2
-        if (!$cart) {
-            throw new ModelNotFoundException('The cart does not exist.', 500);
-        }
-
-        if ($cart->cartItems->isEmpty()) {
-            throw new \Exception('The cart is empty.', 500);
-        }
-
-        // Step 3
-        foreach ($cart->cartItems as $cartItem) {
-            $product = $cartItem->product;
-            if ($product->product_quantity < $cartItem->quantity) {
-                throw new \Exception('Insufficient stock for product: ' . $product->name);
-            }
-        }
-
-        // Step 4
-        return $this->getCartItemsDataAndTotalPrice($cart->cartItems);
-    }
-
-    /**
-     * Places an order by creating the order, saving order items, and clearing the cart items.
-     *
-     * 1- Begins a database transaction to ensure data integrity.
-     * 2- Fetch cart data using the cartCheckout method.
-     * 3- Validate the address and get the zone ID.
-     * 4- Creates an order with the total price and shipping address.
-     * 5- Saves the cart items as order items in the database.
-     * 6- Fetch product and reduce its quantity.
-     * 7- Clears the user's cart after the order is placed.
-     * 8- Commits the transaction if all steps are successful, or rolls back in case of an error.
-     * 9- Dispatch the email notification job
+     * 1- Begin a database transaction to ensure data integrity.
+     * 2- Fetch cart data using the checkout method.
+     * 3- Validate the address and retrieve the zone ID.
+     * 4- Create an order with the total price, postal code, and zone ID.
+     * 5- Save the cart items as order items in the database.
+     * 6- Fetch each product and reduce its quantity based on the order.
+     * 7- Clear the user's cart after the order is placed.
+     * 8- Commit the transaction if all steps are successful, or roll back in case of an error.
+     * 9- Dispatch an email notification job to confirm the order.
      * 
-     * @param string $shipping_address The address where the order will be shipped.
+     * @param array $data An array containing order details.
      * @return \App\Models\Order\Order The created order with its details.
      */
     public function placeOrder(array $data)
@@ -74,7 +37,7 @@ class CartService
 
         try {
             // Step 2
-            $cartData = $this->cartCheckout();
+            $cartData = $this->checkout();
 
             // Step 3
             $zoneId = $this->validateAddress($data['country_id'], $data['city_id'], $data['zone_id']);
@@ -122,15 +85,53 @@ class CartService
     }
 
     /**
+     * Checks out the cart by retrieving the cart items and calculating the total price.
+     *
+     * 1- Retrieves the authenticated user's cart and its items.
+     * 2- Checks if the cart exists and if it contains items, throwing an exception if either condition is not met.
+     * 3- Check product quantities.
+     * 4- Uses the helper method to get and return the cart item details and the total price.
+     *
+     * @return array Contains the cart items data and the total price.
+     */
+    public function checkout()
+    {
+        // Step 1
+        $user = Auth::user();
+        $cart = Cart::where('user_id', $user->id)->with('cartItems.product')->first();
+
+        // Step 2
+        if (!$cart) {
+            // throw new ModelNotFoundException('The cart does not exist.', 500);
+            throw new \Exception('The cart does not exist.', 500);
+        }
+
+        if ($cart->cartItems->isEmpty()) {
+            throw new \Exception('The cart is empty.', 500);
+        }
+
+        // Step 3
+        foreach ($cart->cartItems as $cartItem) {
+            $product = $cartItem->product;
+            if ($product->product_quantity < $cartItem->quantity) {
+                throw new \Exception('Insufficient stock for product: ' . $product->name);
+            }
+        }
+
+        // Step 4
+        return $this->getCartItemsDataAndTotalPrice($cart->cartItems);
+    }
+
+    /**
      * Calculates the total price of all cart items and prepares the item data.
      *
-     * 1- Loops through each cart item to calculate the item total price (quantity * price).
-     * 2- Adds item data (id, name, quantity, price, total) to an array.
-     * 3- Sums up the item totals to calculate the overall total price.
-     * 4- Returns the item data and the final total price.
+     * 1- Loop through each cart item to calculate the item's total price (quantity * price).
+     * 2- Add item data (ID, name, quantity, price, total) to an array.
+     * 3- Sum up the item totals to calculate the overall total price.
+     * 4- Return the item data and the final total price.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $cartItems Collection of cart items.
-     * @return array Contains 'cart_items' data and 'total_price'.
+     * @param \Illuminate\Database\Eloquent\Collection $cartItems A collection of cart items.
+     * @return array An array containing 'cart_items' data and 'total_price'.
      */
     private function getCartItemsDataAndTotalPrice($cartItems)
     {

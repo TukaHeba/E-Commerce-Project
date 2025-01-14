@@ -16,7 +16,6 @@ class StoreCartItemRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,12 +24,12 @@ class StoreCartItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id'=>['required','integer','exists:products,id'],
-            'quantity'=>['required','integer','min:1']
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'quantity' => ['required', 'integer', 'min:1']
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      *
      * @return array<string, string>
@@ -38,7 +37,8 @@ class StoreCartItemRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'product_id'=>'Product'
+            'product_id' => 'Product ID',
+            'quantity' => 'Product Quantity'
         ];
     }
 
@@ -51,7 +51,6 @@ class StoreCartItemRequest extends FormRequest
     {
         return [
             'required' => 'The :attribute field is required.',
-            'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
             'integer' => 'The :attribute must be a integer',
             'exists' => 'The selected :attribute is invalid.',
@@ -72,7 +71,7 @@ class StoreCartItemRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

@@ -17,19 +17,6 @@ class StoreRateRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     * This method is called before validation starts to clean or normalize inputs.
-     *
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            //
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -38,12 +25,12 @@ class StoreRateRequest extends FormRequest
     {
         return [
             'product_id' => 'required|integer|exists:products,id|unique:rates,product_id,NULL,id,user_id,' . auth()->id(),
-            'rating'     => 'required|integer|min:1|max:5',
-            'review'     => 'nullable|string|max:255',
+            'rating' => 'required|integer|min:1|max:5',
+            'review' => 'nullable|string|max:255',
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      *
      * @return array<string, string>
@@ -51,7 +38,9 @@ class StoreRateRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            //
+            'product_id' => 'Product ID',
+            'rating' => 'Rating',
+            'review' => 'Review',
         ];
     }
 
@@ -67,6 +56,7 @@ class StoreRateRequest extends FormRequest
             'max' => 'The :attribute may not be greater than :max characters.',
             'min' => 'The :attribute must be at least :min characters.',
             'exists' => 'The selected :attribute is invalid.',
+            'string' => 'The :attribute must be a valid string.',
         ];
     }
 
@@ -84,7 +74,7 @@ class StoreRateRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

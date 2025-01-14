@@ -37,23 +37,6 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by($request->ip());
         });
 
-        // Define dynamic route model bindings
-        Route::bind('user', function ($value) {
-            return User::findOrFail($value);
-        });
-
-        Route::bind('product', function ($value) {
-            return Product::findOrFail($value);
-        });
-
-        Route::bind('mainCategory', function ($value) {
-            return MainCategory::findOrFail($value);
-        });
-
-        Route::bind('subCategory', function ($value) {
-            return SubCategory::findOrFail($value);
-        });
-
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
@@ -62,5 +45,10 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+
+        Route::model('user', User::class);
+        Route::model('product', Product::class);
+        Route::model('subCategory', SubCategory::class);
+        Route::model('mainCategory', MainCategory::class);
     }
 }

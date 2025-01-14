@@ -13,9 +13,7 @@ use App\Http\Requests\Order\UpdateOrderRequest;
 
 class OrderController extends Controller
 {
-
     protected OrderService $OrderService;
-
     public function __construct(OrderService $OrderService)
     {
         $this->OrderService = $OrderService;
@@ -23,6 +21,7 @@ class OrderController extends Controller
 
     /**
      * Display a listing of the orders related to user.
+     * 
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -35,6 +34,7 @@ class OrderController extends Controller
 
     /**
      * Display a listing of the orders related to admin.
+     * 
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -47,6 +47,7 @@ class OrderController extends Controller
 
     /**
      * Display the specified order.
+     * 
      * @param \App\Models\Order\Order $order
      * @return \Illuminate\Http\JsonResponse
      */
@@ -58,57 +59,61 @@ class OrderController extends Controller
 
     /**
      * Update the specified order in storage.
+     * 
      * @param \App\Http\Requests\Order\UpdateOrderRequest $request
      * @param \App\Models\Order\Order $order
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(UpdateOrderRequest $request, Order $order): JsonResponse
     {
-        $this->authorize('update' , Order::class);
+        $this->authorize('update', Order::class);
         $updatedOrder = $this->OrderService->updateOrder($order, $request->validated());
         return self::success($updatedOrder, 'Order updated successfully');
     }
 
     /**
      * Remove the specified order from storage.
+     * 
      * @param \App\Models\Order\Order $order
      * @return JsonResponse
      */
     public function destroy(Order $order)
     {
-        $this->authorize('delete' , Order::class);
+        $this->authorize('delete', Order::class);
         $order->delete();
         return self::success(null, 'Order deleted successfully');
-
     }
 
     /**
      * Display soft-deleted records related to admin.
+     * 
      * @param \Illuminate\Support\Facades\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function showDeleted(Request $request): JsonResponse
     {
         $this->authorize('showDeleted', arguments: Order::class);
-        $deletedOrders = $this->OrderService->getDeletedOrdersAdmin($request);
+        $deletedOrders = $this->OrderService->getDeletedOrders($request);
         return self::paginated($deletedOrders, OrderResource::class, 'Orders retrieved successfully', 200);
     }
 
     /**
      * Restore a soft-deleted record.
+     * 
      * @param string $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function restoreDeleted(string $id): JsonResponse
     {
         $this->authorize('restoreDeleted', arguments: Order::class);
-        $order = Order::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        $order = Order::onlyTrashed()->findOrFail($id);
         $order->restore();
         return self::success($order, 'Order restored successfully');
     }
 
     /**
      * Permanently delete a soft-deleted record.
+     * 
      * @param string $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -128,31 +133,8 @@ class OrderController extends Controller
      */
     public function orderTracking(Order $order): JsonResponse
     {
-        $this->authorize('OrderTracking_oldest_lastest', Order::class);
+        $this->authorize('OrderTracking', Order::class);
         $order = $this->OrderService->getOrderTracking($order);
         return self::success(new OrderResource($order), 'Order tracking data retrieved successfully.');
     }
-
-    /**
-     * Display oldest order in storage.
-     * @return JsonResponse
-     */
-    public function showOldestOrder(): JsonResponse
-    {
-        $this->authorize('OrderTracking_oldest_lastest', Order::class);
-        $order = $this->OrderService->getOldestOrder();
-        return self::success(new OrderResource($order->load('orderItems')), 'Oldest order retrieved successfully');
-    }
-
-    /**
-     * Display latest order in storage.
-     * @return JsonResponse
-     */
-    public function showLatestOrder(): JsonResponse
-    {
-        $this->authorize('OrderTracking_oldest_lastest', Order::class);
-        $order = $this->OrderService->getLatestOrder();
-        return self::success(new OrderResource($order->load('orderItems')), 'Latest order retrieved successfully');
-    }
-
 }

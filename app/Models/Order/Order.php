@@ -26,7 +26,6 @@ class Order extends Model
         'postal_code',
         'status',
         'total_price',
-        'order_number',
     ];
 
     /**
@@ -35,7 +34,6 @@ class Order extends Model
      * @var array
      */
     protected $guarded = [
-        'total_price',
         'order_number',
     ];
 
@@ -126,7 +124,6 @@ class Order extends Model
         return $this->belongsTo(Zone::class);
     }
 
-    #FIXME re-check the scope
     /**
      * Scope to filter orders by shipping_address through LIKE, status & total_price within a range.
      *
@@ -137,9 +134,9 @@ class Order extends Model
     public function scopeByFilters($query, $request)
     {
         return $query
-            // ->when($request->shipping_address, function ($query) use ($request) {
-            //     $query->where('shipping_address', 'LIKE', "%{$request->shipping_address}%");
-            // })
+            ->when($request->order_number, function ($query) use ($request) {
+                $query->where('order_number', 'LIKE', "%{$request->order_number}%");
+            })
             ->when($request->status, function ($query) use ($request) {
                 $query->where('status', $request->status);
             })

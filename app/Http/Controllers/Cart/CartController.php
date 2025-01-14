@@ -58,20 +58,6 @@ class CartController extends Controller
     }
 
     /**
-     * Checkout the cart and get cart items data with total price.
-     *
-     * @return JsonResponse
-     */
-    public function checkout()
-    {
-        $cartData = $this->CartService->cartCheckout();
-        return self::success([
-            'cart_items' => $cartData['cart_items'],
-            'total_price' => $cartData['total_price'],
-        ]);
-    }
-
-    /**
      * Place an order by creating the order and order items.
      *
      * @param \App\Http\Requests\Order\StoreOrderRequest $request
