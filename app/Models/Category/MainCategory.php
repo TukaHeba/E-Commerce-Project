@@ -42,4 +42,14 @@ class MainCategory extends Model
   {
     return $this->belongsToMany(SubCategory::class, 'maincategory_subcategory')->withTimestamps();
   }
+
+  /**
+     * Get the photos associated with the  main category.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function photos()
+    {
+        return $this->morphMany(Photo::class, 'photoable');
+    }
 }
