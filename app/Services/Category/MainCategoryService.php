@@ -3,14 +3,26 @@
 namespace App\Services\Category;
 
 use App\Traits\CacheManagerTrait;
+use App\Services\Photo\PhotoService;
 use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+
+use Exception;
+
 
 class MainCategoryService
 {
     use CacheManagerTrait;
     private $groupe_key_cache = 'main_categories_cache_keys';
+
+    protected PhotoService $photoService;
+
+    public function __construct(PhotoService $photoService)
+    {
+        $this->photoService = $photoService;
+    }
 
     /**
      * View all main categories
@@ -29,41 +41,77 @@ class MainCategoryService
     /**
      * Create new main category
      * @param mixed $data
-     * @return MainCategory
+     * @return array
      */
-    public function storeMainCategory($data)
+    public function storeMainCategory($data, $photos)
     {
-        $mainCategory = new MainCategory();
-        $mainCategory->main_category_name = $data['main_category_name'];
-        $mainCategory->save();
+        try {
+            DB::beginTransaction();
+            $mainCategory = new MainCategory();
+            $mainCategory->main_category_name = $data['main_category_name'];
+            $mainCategory->save();
 
-        $mainCategory->subCategories()->attach($data['sub_category_name']);
-        $mainCategory->save();
+            if ($photos) {
+                $result = $this->photoService->storeMultiplePhotos($photos, $mainCategory, 'main_category_photos');
+            }
 
-        $this->clearCacheGroup($this->groupe_key_cache);
-        return $mainCategory->load('subCategories');
+            $mainCategory->subCategories()->attach($data['sub_category_name']);
+            $mainCategory->save();
+            DB::commit();
+            $this->clearCacheGroup($this->groupe_key_cache);
+            return ['mainCategory' => $mainCategory->load('subCategories'), 'photo' => $result];
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw new Exception('Failed to create main category: ' . $e->getMessage(), $e->getCode());
+        }
     }
 
     /**
-     * method to update main category alraedy exist
-     * @param   $data
-     * @param   $id
-     * @return /Illuminate\Http\JsonResponse if have an error
-     */
-    public function updateMainCategory($data, $id)
+     * update a main category and its associated sub-categories and photos
+     * @param  $id
+     * @return array
+    */
+    public function updateMainCategory(array $data, $id , $photos = null)
     {
-        $maincategory = MainCategory::findOrFail($id);
-        $maincategory->main_category_name = $data['main_category_name'] ?? $maincategory->main_category_name;
-        $maincategory->save();
+        try {
+            DB::beginTransaction();
 
-        if ($data['sub_category_name'] != null) {
-            $maincategory->subCategories()->sync($data['sub_category_name']);
-            $maincategory->save();
+            // Find the main category to update
+            $mainCategory = MainCategory::findOrFail($id);
+
+            // Update the main category details
+            $mainCategory->main_category_name = $data['main_category_name'] ?? $mainCategory->main_category_name;
+            $mainCategory->save();
+            
+            // Check if new photos are uploaded
+            if ($photos) {
+                // Delete old photos if there are new ones uploaded
+                foreach ($mainCategory->photos as $photo) {
+                    // Use the deletePhoto service method to delete the photo from storage and database
+                    $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+                }
+
+                // Store the new uploaded photos
+                $photos = $data['photos'];
+                $result = $this->photoService->storeMultiplePhotos($photos, $mainCategory, 'main_category_photos');
+            }
+
+            //Check for sub-categories and sync them
+            if (isset($data['sub_category_name'])) {
+                $mainCategory->subCategories()->sync($data['sub_category_name']);
+            }
+           
+            // Commit the transaction
+            DB::commit();
+
+            return ['mainCategory' => $mainCategory->load('subCategories'), 'photo' => $result];
+        } catch (Exception $e) {
+            // Rollback in case of failure
+            DB::rollBack();
+            throw new Exception('Failed to update main category: ' . $e->getMessage(), $e->getCode());
         }
-
-        $this->clearCacheGroup($this->groupe_key_cache);
-        return $maincategory->load('subCategories');
     }
+
 
     /**
      * method to soft delete main category alraedy exist
