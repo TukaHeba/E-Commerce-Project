@@ -52,4 +52,9 @@ class SubCategory extends Model
     return $this->belongsToMany(MainCategory::class, 'maincategory_subcategory')->withTimestamps();
   }
 
+  public function photos()
+  {
+      return $this->morphMany(Photo::class, 'photoable');
+  }
+
 }

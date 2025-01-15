@@ -40,6 +40,8 @@ class StoreMainCategoryRequest extends FormRequest
             'main_category_name' => 'required|string|unique:main_categories,main_category_name|min:4|max:50',
             'sub_category_name' => 'sometimes|nullable|array',
             'sub_category_name.*' => 'sometimes|nullable|exists:sub_categories,id',
+           'photos' => 'sometimes|nullable|array|min:1',
+            'photos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:8192',
         ];
     }
 
@@ -54,6 +56,8 @@ class StoreMainCategoryRequest extends FormRequest
             'main_category_name' => 'main category name',
             'sub_category_name' => 'sub category name',
             'sub_category_name.*' => 'sub category name',
+            'photos' => 'photos',
+            'photos.*' => 'photo',
         ];
     }
 
@@ -70,7 +74,9 @@ class StoreMainCategoryRequest extends FormRequest
             'min' => 'The :attribute must be at least :min characters.',
             'max' => 'The :attribute may not be greater than :max characters.',
             'exists' => 'The selected :attribute is invalid.',
-            'array' => 'The :attribute should be an array',
+            'array' => 'The :attribute should be an array.',
+            'image' => 'The :attribute must be an image.',
+            'mimes' => 'The :attribute must be a file of type: :values.',
         ];
     }
 
@@ -86,7 +92,7 @@ class StoreMainCategoryRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'status' => 'error',
-                'message' => 'A server error has occurred',
+                'message' => 'Validation failed. Please correct the errors and try again.',
                 'errors' => $errors,
             ], 422)
         );

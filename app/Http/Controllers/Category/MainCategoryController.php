@@ -39,8 +39,9 @@ class MainCategoryController extends Controller
     public function store(StoreMainCategoryRequest $request): JsonResponse
     {
         $this->authorize('store', MainCategory::class);
-        $mainCategory = $this->MainCategoryService->storeMainCategory($request->validated());
-        return self::success(new MainCategoryResource($mainCategory), 'MainCategory created successfully', 201);
+        $photos = $request->file('photos');
+        $mainCategory = $this->MainCategoryService->storeMainCategory($request->validated() , $photos);
+        return self::success([ new MainCategoryResource($mainCategory['mainCategory']) ,'photo'=> $mainCategory['photo'] ], 'MainCategory created successfully', 201);
     }
 
     /**
@@ -62,8 +63,10 @@ class MainCategoryController extends Controller
     public function update(UpdateMainCategoryRequest $request, $id): JsonResponse
     {
         $this->authorize('update', MainCategory::class);
-        $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $id);
-        return self::success(new MainCategoryResource($maincategory), 'MainCategory updated successfully');
+        $photos = $request->file('photos');
+        $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $id , $photos);
+
+        return self::success([ new MainCategoryResource($maincategory['mainCategory']) ,'photo'=> $maincategory['photo'] ], 'MainCategory updated successfully', 201);
     }
 
     /**
@@ -110,7 +113,7 @@ class MainCategoryController extends Controller
     public function forceDeleted(string $id): JsonResponse
     {
         $this->authorize('forceDeleted', MainCategory::class);
-        MainCategory::onlyTrashed()->findOrFail($id)->forceDelete();
-        return self::success(null, 'MainCategory force deleted successfully');
+        $MainCategory = $this->MainCategoryService->forceDeleted($id);
+        return self::success(null, $MainCategory );
     }
 }
