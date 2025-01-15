@@ -58,7 +58,7 @@ class UserService
      */
     public function updateUser(User $user, array $data)//: ?User
     {
-        DB::transaction(function () use ($user, $data) {
+        $update_user = DB::transaction(function () use ($user, $data) {
             $user->update(array_filter($data));
             if (isset($data['avatar'])) {
                 $avatar = $user->avatar;
@@ -71,8 +71,9 @@ class UserService
                 }
                 $result = $this->photoService->storePhoto($data['avatar'], $user, 'avatars');
             }
+            return $user;
         });
-        return $user;
+        return $update_user;
     }
 
     /**
