@@ -51,7 +51,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): JsonResponse
     {
-        return self::success(new ProductResource($product->load(['mainCategory','subCategory','photos'])), 'Product retrieved successfully');
+        return self::success(new ProductResource($product->load(['mainCategory', 'subCategory', 'photos'])), 'Product retrieved successfully');
     }
 
     /**
@@ -95,7 +95,7 @@ class ProductController extends Controller
     public function destroy(Product $product): JsonResponse
     {
         $this->authorize('delete', Product::class);
-        $this->ProductService->delete($product->id);
+        $product->delete();
         $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'Product deleted successfully');
     }
@@ -109,7 +109,7 @@ class ProductController extends Controller
     {
         $this->authorize('showDeleted', Product::class);
         $products = Product::onlyTrashed()->get();
-        return self::success($products,'Products retrieved successfully');
+        return self::success($products, 'Products retrieved successfully');
     }
 
     /**
@@ -124,7 +124,7 @@ class ProductController extends Controller
         $product = Product::onlyTrashed()->findOrFail($id);
         $product->restore();
         $this->clearCacheGroup($this->groupe_key_cache);
-        return self::success(new ProductResource($product),'Product restored successfully',200);
+        return self::success(new ProductResource($product), 'Product restored successfully', 200);
     }
 
     /**
@@ -136,7 +136,7 @@ class ProductController extends Controller
     public function forceDeleted(string $id): JsonResponse
     {
         $this->authorize('forceDeleted', Product::class);
-        Product::onlyTrashed()->findOrFail($id)->forceDelete();
+        $this->ProductService->forceDelete($id);
         $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'Product force deleted successfully');
     }
@@ -146,12 +146,13 @@ class ProductController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return JsonResponse
      */
-    public function getProductsByCategory(Request $request){
+    public function getProductsByCategory(Request $request)
+    {
         $products = $this->ProductService->getProductsByCategory($request);
         if ($products->total() === 0) {
             return self::error(null, 'No Products matched!', 404);
         }
-        return self::paginated($products, ProductResource::class,'Products retrieved successfully', 200);
+        return self::paginated($products, ProductResource::class, 'Products retrieved successfully', 200);
     }
 
     /**

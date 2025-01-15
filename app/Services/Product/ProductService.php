@@ -167,34 +167,48 @@ class ProductService
      * @param Product $product The product to update.
      * @param array $data The new product data.
      * @param array $photoForDelete The paths of photos to delete.
-     * @return Product The updated product.
+     *
      */
-    public function updateProduct($product, $data, $photoForDelete = [])
+    public function updateProduct($product, $data, $photos = null)
     {
         $product->update($data);
 
         // Check if there are any photos to delete
-        if (!empty($photoForDelete)) {
-            foreach ($photoForDelete as $filePath) {
-                $photo = Photo::where('photo_path', $filePath)->first();
+        if ($photos) {
+            // Delete old photos if there are new ones uploaded
+            foreach ($product->photos as $photo) {
                 if ($photo) {
-                    // Delete the photo from storage
-                    $this->photoService->deletePhoto($photo->photo_path,$photo->id);
-
-                    // Delete the photo record from the database
-                    $photo->delete();
+                // Use the deletePhoto service method to delete the photo from storage and database
+                $this->photoService->deletePhoto($photo->photo_path, $photo->id);
                 }
             }
+
+            // Store the new uploaded photos
+            $photos = $data['photos'];
+            $result = $this->photoService->storeMultiplePhotos($photos, $product, 'products');
         }
         $this->clearCacheGroup($this->groupe_key_cache);
         $product->save();
 
-        return $product;
+        return ['product' => $product->load(['mainCategory','subCategory','photos']), 'photo' => $result];
     }
-    public function delete(string $id){
-        $product = Product::find($id);
+    /**
+     * delete the photos related with product
+     * @param string $id
+     * @return void
+     */
+    public function forceDelete(string $id){
+        $product = Product::withTrashed()->findOrFail($id);
+
+        foreach ($product->photos as $photo) {
+            $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+        }
+        // delete the photos related with product
         $product->photos()->delete();
-        $product->delete();
+
+        // Force Delete the product
+        $product->forceDelete();
+
     }
 
     /**
