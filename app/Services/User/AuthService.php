@@ -4,6 +4,7 @@ namespace App\Services\User;
 
 use App\Http\Resources\UserResource;
 use App\Models\Cart\Cart;
+use App\Models\Photo\Photo;
 use App\Models\User\User;
 use App\Services\Photo\PhotoService;
 use GuzzleHttp\Exception\ClientException;
@@ -35,7 +36,9 @@ class AuthService
             $user->assignRole('customer');
             Cart::create(['user_id' => $user->id]);
             if (isset($data['avatar'])) {
-                $result = $this->photoService->storePhoto($data['avatar'], $user);
+                $result = $this->photoService->storePhoto($data['avatar'], $user, 'avatars');
+            } else {
+                $this->photoService->addDefaultAvatar($user);
             }
             return $user;
         });

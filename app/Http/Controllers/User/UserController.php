@@ -8,9 +8,12 @@ use App\Http\Requests\User\RoleRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Photo\Photo;
 use App\Models\User\User;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
 
@@ -40,7 +43,7 @@ class UserController extends Controller
      *
      * @param \App\Http\Requests\User\StoreUserRequest $request
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Exception
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
@@ -54,6 +57,7 @@ class UserController extends Controller
      *
      * @param \App\Models\User\User $user
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(User $user): JsonResponse
     {
@@ -67,9 +71,9 @@ class UserController extends Controller
      * @param \App\Http\Requests\User\UpdateUserRequest $request
      * @param \App\Models\User\User $user
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Exception
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    public function update(UpdateUserRequest $request, User $user)//: JsonResponse
     {
         $this->authorize('update', $user);
         $updatedUser = $this->UserService->updateUser($user, $request->validated());
@@ -124,7 +128,7 @@ class UserController extends Controller
     public function forceDeleted($userId): JsonResponse
     {
         $this->authorize('forceDeleted', User::class);
-        User::onlyTrashed()->findOrFail($userId)->forceDelete();
+        $this->UserService->forceDelete($userId);
         return self::success(null, 'User force deleted successfully');
     }
 
@@ -146,7 +150,7 @@ class UserController extends Controller
 
     /**
      * Assign a role to a user.
-     * 
+     *
      * @param \App\Models\User\User $user
      * @param \Spatie\Permission\Models\Role $role
      * @return JsonResponse

@@ -153,9 +153,9 @@ class MainCategoryService
 
     /**
      * Method to force delete a maincategory with its photos.
-     * 
+     *
      * @param  int  $id
-     * @return 
+     * @return
      */
     public function forceDeleted($id)
     {
