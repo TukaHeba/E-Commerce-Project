@@ -41,7 +41,7 @@ class MainCategoryController extends Controller
         $this->authorize('store', MainCategory::class);
         $photos = $request->file('photos');
         $mainCategory = $this->MainCategoryService->storeMainCategory($request->validated() , $photos);
-        return self::success([ new MainCategoryResource($mainCategory['mainCategory']) , $mainCategory['photo'] ], 'MainCategory created successfully', 201);
+        return self::success([ new MainCategoryResource($mainCategory['mainCategory']) ,'photo'=> $mainCategory['photo'] ], 'MainCategory created successfully', 201);
     }
 
     /**
@@ -66,7 +66,7 @@ class MainCategoryController extends Controller
         $photos = $request->file('photos');
         $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $id , $photos);
 
-        return self::success([ new MainCategoryResource($maincategory['mainCategory']) , $maincategory['photo'] ], 'MainCategory updated successfully', 201);
+        return self::success([ new MainCategoryResource($maincategory['mainCategory']) ,'photo'=> $maincategory['photo'] ], 'MainCategory updated successfully', 201);
     }
 
     /**
