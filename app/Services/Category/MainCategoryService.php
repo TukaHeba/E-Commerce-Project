@@ -2,14 +2,15 @@
 
 namespace App\Services\Category;
 
+use Exception;
 use App\Traits\CacheManagerTrait;
+use Illuminate\Support\Facades\DB;
 use App\Services\Photo\PhotoService;
 use App\Models\Category\MainCategory;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
 
-use Exception;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Models\Category\MainCategorySubCategory;
 
 
 class MainCategoryService
@@ -70,8 +71,8 @@ class MainCategoryService
      * update a main category and its associated sub-categories and photos
      * @param  $id
      * @return array
-    */
-    public function updateMainCategory(array $data, $id , $photos = null)
+     */
+    public function updateMainCategory(array $data, $id, $photos = null)
     {
         try {
             DB::beginTransaction();
@@ -82,13 +83,15 @@ class MainCategoryService
             // Update the main category details
             $mainCategory->main_category_name = $data['main_category_name'] ?? $mainCategory->main_category_name;
             $mainCategory->save();
-            
+
             // Check if new photos are uploaded
             if ($photos) {
                 // Delete old photos if there are new ones uploaded
                 foreach ($mainCategory->photos as $photo) {
-                    // Use the deletePhoto service method to delete the photo from storage and database
-                    $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+                    if ($photo) {
+                        // Use the deletePhoto service method to delete the photo from storage and database
+                        $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+                    }
                 }
 
                 // Store the new uploaded photos
@@ -100,10 +103,11 @@ class MainCategoryService
             if (isset($data['sub_category_name'])) {
                 $mainCategory->subCategories()->sync($data['sub_category_name']);
             }
-           
+
             // Commit the transaction
             DB::commit();
 
+            $this->clearCacheGroup($this->groupe_key_cache);
             return ['mainCategory' => $mainCategory->load('subCategories'), 'photo' => $result];
         } catch (Exception $e) {
             // Rollback in case of failure
@@ -141,4 +145,44 @@ class MainCategoryService
         $this->clearCacheGroup($this->groupe_key_cache);
         return true;
     }
+
+
+    /**
+     * Method to force delete a maincategory with its photos.
+     * 
+     * @param  int  $id
+     * @return 
+     */
+    public function forceDeleted($id)
+    {
+        try {
+            $mainCategory = MainCategory::withTrashed()->findOrFail($id);
+    
+            // Delete photos associated with the main category
+            foreach ($mainCategory->photos as $photo) {
+                $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+            }
+    
+            // Directly delete all photo records for the main category
+            $mainCategory->photos()->delete();
+    
+            // Detach all subcategories from the pivot table
+            $mainCategory->subCategories()->detach();
+    
+            // Force delete the main category
+            $mainCategory->forceDelete();
+    
+            // Clear related cache if applicable
+            $this->clearCacheGroup($this->groupe_key_cache);
+    
+            return 'MainCategory force deleted successfully';
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while force deleting the main category.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
 }

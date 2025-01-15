@@ -40,7 +40,7 @@ class StoreMainCategoryRequest extends FormRequest
             'main_category_name' => 'required|string|unique:main_categories,main_category_name|min:4|max:50',
             'sub_category_name' => 'sometimes|nullable|array',
             'sub_category_name.*' => 'sometimes|nullable|exists:sub_categories,id',
-            'photos' => 'array|min:1',
+           'photos' => 'sometimes|nullable|array|min:1',
             'photos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:8192',
         ];
     }
