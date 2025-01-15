@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Category\MainCategorySubCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Events\LowProductQuantityEvent;
+
 
 class Product extends Model
 {
@@ -448,5 +450,22 @@ class Product extends Model
             ->whereHas('product', function ($query) use ($name) {
                 $query->where('name', 'like', '%' . $name . '%');
             });
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updated(function ($product) {
+            if ($product->product_quantity <= 10) {
+                // Fetch users with the 'admin' role using Spatie
+                $admins = \Spatie\Permission\Models\Role::findByName('admin')->users;
+
+                // Trigger event for each admin
+                foreach ($admins as $admin) {
+                    LowProductQuantityEvent::dispatch($product, $admin);
+                }
+            }
+        });
     }
 }

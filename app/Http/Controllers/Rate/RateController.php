@@ -20,20 +20,7 @@ class RateController extends Controller
     {
         $this->RateService = $RateService;
     }
-
-    /**
-     * Display a paginated list of rates.
-     * @param Request $request The HTTP request object containing query parameters.
-     * @return JsonResponse A JSON response with paginated rate data.
-     * @throws \Exception
-     */
-    public function index(Request $request): JsonResponse
-    {
-        $rates = $this->RateService->getRates($request);
-        return self::paginated($rates, RateResource::class, 'Rates retrieved successfully', 200);
-    }
-
-    #FIXME check $data['user_id] = auth()->id() to join it inside form request
+    
     /**
      * Store a newly created rate in the database.
      * @param StoreRateRequest $request The HTTP request object containing validated rate data.

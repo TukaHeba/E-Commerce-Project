@@ -67,7 +67,7 @@ class ProductController extends Controller
         $this->authorize('store', Product::class);
         $photos = $storeMultiplePhotosRequest->file('photos');
         $product = $this->ProductService->storeProduct($request->validated(), $photos);
-        return self::success(new ProductResource($product), 'Product created successfully', 201);
+        return self::success([new ProductResource($product['product']) , 'photos'=>$product['photo']],'Product created successfully', 201);
     }
 
     /**
@@ -83,7 +83,7 @@ class ProductController extends Controller
         $this->authorize('update', Product::class);
         $deletedPhotos = $request->input('photosDeleted');
         $updatedProduct = $this->ProductService->updateProduct($product, $request->validated(), $deletedPhotos);
-        return self::success([new ProductResource($updatedProduct['product']),'photo'=>$updatedProduct['photo']], 'Product updated successfully', 200);
+        return self::success([new ProductResource($updatedProduct['product']) , 'photos'=>$updatedProduct['photo']],'Product updated successfully', 200);
     }
 
     /**

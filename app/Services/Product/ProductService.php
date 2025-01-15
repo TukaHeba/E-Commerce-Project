@@ -148,15 +148,17 @@ class ProductService
      *
      * @param array $data The product data.
      * @param array $photos The photos to associate with the product.
-     * @return Product The created product.
+     * @return array The created product and photos associated
      */
     public function storeProduct($data, $photos)
     {
         // Create a new product in the database with the provided data
         $product = Product::create($data);
-        $this->photoService->storeMultiplePhotos($photos, $product,'products');  // Store product photos.
+        if($photos){
+            $result = $this->photoService->storeMultiplePhotos($photos, $product,'products');  // Store product photos.
+        }
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $product;
+        return ['product' => $product, 'photo' => $result];
     }
 
     /**
