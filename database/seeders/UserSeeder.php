@@ -3,12 +3,20 @@
 namespace Database\Seeders;
 
 use App\Models\User\User;
+use App\Services\Photo\PhotoService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 
 class UserSeeder extends Seeder
 {
+    protected PhotoService $photoService;
+
+    public function __construct(PhotoService $photoService)
+    {
+        $this->photoService = $photoService;
+    }
+
     /**
      * Run the database seeds.
      */
@@ -27,6 +35,7 @@ class UserSeeder extends Seeder
             'telegram_user_id' => null,
         ]);
         $admin->assignRole('admin');
+        $this->photoService->addDefaultAvatar($admin);
 
         $salesmanager = User::create([
             'first_name' => 'SalesManager',
@@ -41,6 +50,8 @@ class UserSeeder extends Seeder
             'telegram_user_id' => null,
         ]);
         $salesmanager->assignRole('sales manager');
+        $this->photoService->addDefaultAvatar($salesmanager);
+
 
         $storemanager = User::create([
             'first_name' => 'StoreManager',
@@ -55,6 +66,8 @@ class UserSeeder extends Seeder
             'telegram_user_id' => null,
         ]);
         $storemanager->assignRole('store manager');
+        $this->photoService->addDefaultAvatar($storemanager);
+
 
         $customer = User::create([
             'first_name' => 'customer1',
@@ -69,6 +82,7 @@ class UserSeeder extends Seeder
             'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
+        $this->photoService->addDefaultAvatar($customer);
         $customer->cart()->create();
 
         $customer = User::create([
@@ -84,6 +98,7 @@ class UserSeeder extends Seeder
             'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
+        $this->photoService->addDefaultAvatar($customer);
         $customer->cart()->create();
 
 
@@ -100,6 +115,7 @@ class UserSeeder extends Seeder
             'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
+        $this->photoService->addDefaultAvatar($customer);
         $customer->cart()->create();
 
 
@@ -116,6 +132,7 @@ class UserSeeder extends Seeder
             'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
+        $this->photoService->addDefaultAvatar($customer);
         $customer->cart()->create();
 
         $customer = User::create([
@@ -131,11 +148,13 @@ class UserSeeder extends Seeder
             'telegram_user_id' => null,
         ]);
         $customer->assignRole('customer');
+        $this->photoService->addDefaultAvatar($customer);
         $customer->cart()->create();
 
         // Create 50 customer users using the factory and assign the customer role
         User::factory()->count(50)->create()->each(function ($user) {
             $user->assignRole('customer');
+            $this->photoService->addDefaultAvatar($user);
             $user->cart()->create();
         });
     }

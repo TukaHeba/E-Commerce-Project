@@ -23,7 +23,7 @@ class UserResource extends JsonResource
             'gender' => $this->is_male  === 1 ? 'Male' : 'Female',
             'birthdate' => $this->birthdate,
             'telegram_user_id' => $this->telegram_user_id,
-            'avatar' => $this->avatar ? $this->avatar->photo_path : null,
+            'avatar' => (new PhotoResource($this->avatar))->photo_path ?? null
 
         ];
     }
