@@ -43,7 +43,7 @@ class SubCategoryController extends Controller
         $this->authorize('store', SubCategory::class);
         $photos = $request->file('photos');
         $subCategory = $this->SubCategoryService->storeSubCategory($request->validated() , $photos);
-        return self::success([new SubCategoryResource($subCategory['subCategory']) , $subCategory['photo'] ], 'SubCategory created successfully', 201);
+        return self::success([new SubCategoryResource($subCategory['subCategory']) , 'photo' => $subCategory['photo'] ], 'SubCategory created successfully', 201);
     }
 
     /**
@@ -69,7 +69,7 @@ class SubCategoryController extends Controller
         $this->authorize('update', SubCategory::class);
         $photos = $request->file('photos');
         $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(), $id , $photos);
-        return self::success([new SubCategoryResource($updatedSubCategory['subCategory']) , $updatedSubCategory['photo']], 'SubCategory updated successfully');
+        return self::success([new SubCategoryResource($updatedSubCategory['subCategory']) , 'photo' => $updatedSubCategory['photo']], 'SubCategory updated successfully');
     }
 
     /**
