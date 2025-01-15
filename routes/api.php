@@ -162,8 +162,6 @@ Route::middleware('throttle:api')->group(function () {
             Route::get('products/show-deleted', 'showDeleted');
             Route::delete('products/{productId}/force-deleted', 'forceDeleted');
             Route::post('products/{productId}/restore-deleted', 'restoreDeleted');
-            Route::delete('products/{productId}/force-deleted', 'forceDeleted');
-            Route::post('products/{productId}/restore-deleted', 'restoreDeleted');
             Route::get('products/{name}/largest-quantity-sold', 'showLargestQuantitySold');
             Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         });
