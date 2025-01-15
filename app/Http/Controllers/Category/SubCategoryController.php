@@ -41,8 +41,9 @@ class SubCategoryController extends Controller
     public function store(StoreSubCategoryRequest $request): JsonResponse
     {
         $this->authorize('store', SubCategory::class);
-        $subCategory = $this->SubCategoryService->storeSubCategory($request->validated());
-        return self::success(new SubCategoryResource($subCategory), 'SubCategory created successfully', 201);
+        $photos = $request->file('photos');
+        $subCategory = $this->SubCategoryService->storeSubCategory($request->validated() , $photos);
+        return self::success([new SubCategoryResource($subCategory['subCategory']) , $subCategory['photo'] ], 'SubCategory created successfully', 201);
     }
 
     /**
@@ -66,8 +67,9 @@ class SubCategoryController extends Controller
     public function update(UpdateSubCategoryRequest $request, $id): JsonResponse
     {
         $this->authorize('update', SubCategory::class);
-        $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(), $id);
-        return self::success(new SubCategoryResource($updatedSubCategory), 'SubCategory updated successfully');
+        $photos = $request->file('photos');
+        $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(), $id , $photos);
+        return self::success([new SubCategoryResource($updatedSubCategory['subCategory']) , $updatedSubCategory['photo']], 'SubCategory updated successfully');
     }
 
     /**
@@ -117,7 +119,7 @@ class SubCategoryController extends Controller
     public function forceDeleted($id): JsonResponse
     {
         $this->authorize('forceDeleted', SubCategory::class);
-        SubCategory::onlyTrashed()->findOrFail($id)->forceDelete();
-        return self::success(null, 'SubCategory force deleted successfully');
+        $SubCategory = $this->SubCategoryService->forceDeleted($id);
+        return self::success(null, $SubCategory);
     }
 }

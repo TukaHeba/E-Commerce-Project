@@ -43,7 +43,7 @@ class UpdateMainCategoryRequest extends FormRequest
             'main_category_name' => ['nullable', 'string', 'min:4', 'max:50', Rule::unique('main_categories', 'main_category_name')->ignore($id)],
             'sub_category_name' => 'nullable|array',
             'sub_category_name.*' => 'nullable|exists:sub_categories,id',
-            'photos' => 'array|min:1',
+            'photos' => 'sometimes|nullable|array|min:1',
             'photos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:8192',
         ];
     }

@@ -43,6 +43,8 @@ class UpdateSubCategoryRequest extends FormRequest
             'sub_category_name' => ['sometimes','nullable','string','min:4','max:50',Rule::unique('sub_categories', 'sub_category_name')->ignore($id)],
             'main_category_name' => 'sometimes|nullable|array',
             'main_category_name.*' => 'sometimes|nullable|exists:main_categories,id',
+            'photos' => 'sometimes|nullable|array|min:1',
+            'photos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:8192',
         ];
     }
 
@@ -57,6 +59,8 @@ class UpdateSubCategoryRequest extends FormRequest
             'sub_category_name' => 'sub category name',
             'main_category_name' => 'main category name',
             'main_category_name.*' => 'main category name',
+            'photos' => 'photos',
+            'photos.*' => 'photo',
         ];
     }
 
@@ -73,6 +77,8 @@ class UpdateSubCategoryRequest extends FormRequest
             'max' => 'The :attribute may not be greater than :max characters.',
             'exists' => 'The selected :attribute is invalid.',
             'array' => 'The :attribute should be an array',
+            'image' => 'The :attribute must be an image.',
+            'mimes' => 'The :attribute must be a file of type: :values.',
         ];
     }
 
