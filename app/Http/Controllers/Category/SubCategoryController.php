@@ -23,7 +23,7 @@ class SubCategoryController extends Controller
 
     /**
      * Index sub categories
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): JsonResponse
@@ -34,7 +34,7 @@ class SubCategoryController extends Controller
 
     /**
      * Store a newly sub category in storage.
-     * 
+     *
      * @param \App\Http\Requests\Category\SubCategory\StoreSubCategoryRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -43,12 +43,12 @@ class SubCategoryController extends Controller
         $this->authorize('store', SubCategory::class);
         $photos = $request->file('photos');
         $subCategory = $this->SubCategoryService->storeSubCategory($request->validated() , $photos);
-        return self::success([new SubCategoryResource($subCategory['subCategory']) , $subCategory['photo'] ], 'SubCategory created successfully', 201);
+        return self::success([new SubCategoryResource($subCategory['subCategory']) , 'photo' => $subCategory['photo'] ], 'SubCategory created successfully', 201);
     }
 
     /**
      * Display the specified sub category.
-     * 
+     *
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -59,7 +59,7 @@ class SubCategoryController extends Controller
 
     /**
      * Update the specified sub category in storage.
-     * 
+     *
      * @param \App\Http\Requests\Category\SubCategory\UpdateSubCategoryRequest $request
      * @param \App\Models\Category\SubCategory $subCategory
      * @return \Illuminate\Http\JsonResponse
@@ -69,12 +69,12 @@ class SubCategoryController extends Controller
         $this->authorize('update', SubCategory::class);
         $photos = $request->file('photos');
         $updatedSubCategory = $this->SubCategoryService->updateSubCategory($request->validated(), $id , $photos);
-        return self::success([new SubCategoryResource($updatedSubCategory['subCategory']) , $updatedSubCategory['photo']], 'SubCategory updated successfully');
+        return self::success([new SubCategoryResource($updatedSubCategory['subCategory']) , 'photo' => $updatedSubCategory['photo']], 'SubCategory updated successfully');
     }
 
     /**
      * Remove the specified sub category from storage.
-     * 
+     *
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -87,7 +87,7 @@ class SubCategoryController extends Controller
 
     /**
      * Display soft-deleted records.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function showDeleted(): JsonResponse
@@ -99,7 +99,7 @@ class SubCategoryController extends Controller
 
     /**
      * Restore a soft-deleted record.
-     * 
+     *
      * @param string $id
      * @return JsonResponse
      */
@@ -112,7 +112,7 @@ class SubCategoryController extends Controller
 
     /**
      * Permanently delete a soft-deleted record.
-     * 
+     *
      * @param string $id
      * @return JsonResponse
      */

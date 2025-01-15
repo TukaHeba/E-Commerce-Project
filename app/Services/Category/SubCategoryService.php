@@ -9,6 +9,7 @@ use App\Models\Category\SubCategory;
 use App\Services\Photo\PhotoService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class SubCategoryService
 {
@@ -48,6 +49,7 @@ class SubCategoryService
             $subcategory->sub_category_name = $data['sub_category_name'];
             $subcategory->save();
 
+            $result = null;
             if ($photos) {
                 $result = $this->photoService->storeMultiplePhotos($photos, $subcategory, 'sub_category_photos');
             }
@@ -74,30 +76,28 @@ class SubCategoryService
     {
         try {
             DB::beginTransaction();
-            //find the subcategory to update 
+            //find the subcategory to update
             $subCategory = SubCategory::findOrFail($id);
-
             //update the subcategory details
             $subCategory->sub_category_name = $data['sub_category_name'] ?? $subCategory->sub_category_name;
             $subCategory->save();
 
+            $result = null;  // return null if no photos was uploaded
             // Check if new photos are uploaded
             if ($photos) {
                 // Delete old photos if there are new ones uploaded
                 foreach ($subCategory->photos as $photo) {
                     if ($photo) {
-        
                         // Use the deletePhoto service method to delete the photo from storage and database
                         $this->photoService->deletePhoto($photo->photo_path, $photo->id);
                     }
                 }
-
                 // Store the new uploaded photos
                 $result = $this->photoService->storeMultiplePhotos($photos, $subCategory, 'sub_category_photos');
             }
 
-             //Check for sub-categories and sync them
-             if (isset($data['main_category_name'])) {
+            //Check for sub-categories and sync them
+            if (isset($data['main_category_name'])) {
                 $subCategory->mainCategories()->sync($data['main_category_name']);
             }
 
@@ -106,13 +106,14 @@ class SubCategoryService
 
             $this->clearCacheGroup($this->groupe_key_cache);
             return ['subCategory' => $subCategory->load('mainCategories'), 'photo' => $result];
+        } catch (ModelNotFoundException $e) {
+            throw $e;
         } catch (Exception $e) {
             // Rollback in case of failure
             DB::rollBack();
             throw new Exception('Failed to update sub category: ' . $e->getMessage(), $e->getCode());
         }
     }
-
     /**
      * method to soft delete sub category alraedy exist
      * @param  $id
@@ -144,44 +145,36 @@ class SubCategoryService
 
     /**
      * Method to force delete a subcategory and its associated main category photos (with try-catch for error handling).
-     * 
+     *
      * @param  int  $id
      * @return string
      */
     public function forceDeleted($id)
     {
-        try {
-            $subCategory = SubCategory::withTrashed()->findOrFail($id);
+        $subCategory = SubCategory::withTrashed()->findOrFail($id);
 
-            // Get all photos associated with the subcategory
-            $subCategoryPhotos = $subCategory->photos;
+        // Get all photos associated with the subcategory
+        $subCategoryPhotos = $subCategory->photos;
 
-            // Delete subcategory photo files from storage
-            foreach ($subCategoryPhotos as $photo) {
-                if ($photo) {
-                    $this->photoService->deletePhoto($photo->photo_path, $photo->id);
-                }
+        // Delete subcategory photo files from storage
+        foreach ($subCategoryPhotos as $photo) {
+            if ($photo) {
+                $this->photoService->deletePhoto($photo->photo_path, $photo->id);
             }
-
-            // delete subcategory photos in the database
-            $subCategory->photos()->delete();
-
-            // Remove pivot table records
-            $subCategory->mainCategories()->detach();
-
-            // Force delete the subcategory
-            $subCategory->forceDelete();
-
-            // Clear related cache if applicable
-            $this->clearCacheGroup($this->groupe_key_cache);
-
-            return 'MainCategory force deleted successfully';
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred while force deleting the subcategory.',
-                'error' => $e->getMessage(),
-            ], 500);
         }
+
+        // delete subcategory photos in the database
+        $subCategory->photos()->delete();
+
+        // Remove pivot table records
+        $subCategory->mainCategories()->detach();
+
+        // Force delete the subcategory
+        $subCategory->forceDelete();
+
+        // Clear related cache if applicable
+        $this->clearCacheGroup($this->groupe_key_cache);
+
+        return 'MainCategory force deleted successfully';
     }
 }

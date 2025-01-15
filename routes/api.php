@@ -136,17 +136,6 @@ Route::middleware('throttle:api')->group(function () {
         Route::apiResource('orders', OrderController::class)->except(['index', 'store']);
     });
 
-
-    // ------------------------------------- Photo Routes ------------------------------------- //
-    // Route::controller(PhotoController::class)->middleware('auth:api')->group(function () {
-    //     Route::delete('photos/{photo}', 'destroy');
-    //     Route::post('users/{user}/photos', 'storePhoto');
-    //     Route::post('products/{product}/photos', 'storePhoto');
-    //     Route::post('sub-category/{sub-category}/photos', 'storePhoto');
-    //     Route::post('main-category/{main-category}/photos', 'storePhoto');
-    // });
-
-
     // ------------------------------------- Product Routes ------------------------------------- //
     Route::controller(ProductController::class)->group(function () {
         Route::get('products', 'index');

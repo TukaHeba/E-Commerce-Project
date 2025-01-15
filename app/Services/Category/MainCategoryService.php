@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Category\MainCategorySubCategory;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 
 class MainCategoryService
@@ -51,7 +52,7 @@ class MainCategoryService
             $mainCategory = new MainCategory();
             $mainCategory->main_category_name = $data['main_category_name'];
             $mainCategory->save();
-
+            $result = null; // returns null if no photos been uploaded
             if ($photos) {
                 $result = $this->photoService->storeMultiplePhotos($photos, $mainCategory, 'main_category_photos');
             }
@@ -83,6 +84,7 @@ class MainCategoryService
             // Update the main category details
             $mainCategory->main_category_name = $data['main_category_name'] ?? $mainCategory->main_category_name;
             $mainCategory->save();
+            $result = null; // returns null if no photos been uploaded
 
             // Check if new photos are uploaded
             if ($photos) {
@@ -109,6 +111,8 @@ class MainCategoryService
 
             $this->clearCacheGroup($this->groupe_key_cache);
             return ['mainCategory' => $mainCategory->load('subCategories'), 'photo' => $result];
+        } catch (ModelNotFoundException $e) {
+            throw $e;
         } catch (Exception $e) {
             // Rollback in case of failure
             DB::rollBack();
@@ -149,40 +153,31 @@ class MainCategoryService
 
     /**
      * Method to force delete a maincategory with its photos.
-     * 
+     *
      * @param  int  $id
-     * @return 
+     * @return
      */
     public function forceDeleted($id)
     {
-        try {
-            $mainCategory = MainCategory::withTrashed()->findOrFail($id);
-    
-            // Delete photos associated with the main category
-            foreach ($mainCategory->photos as $photo) {
-                $this->photoService->deletePhoto($photo->photo_path, $photo->id);
-            }
-    
-            // Directly delete all photo records for the main category
-            $mainCategory->photos()->delete();
-    
-            // Detach all subcategories from the pivot table
-            $mainCategory->subCategories()->detach();
-    
-            // Force delete the main category
-            $mainCategory->forceDelete();
-    
-            // Clear related cache if applicable
-            $this->clearCacheGroup($this->groupe_key_cache);
-    
-            return 'MainCategory force deleted successfully';
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred while force deleting the main category.',
-                'error' => $e->getMessage(),
-            ], 500);
+        $mainCategory = MainCategory::withTrashed()->findOrFail($id);
+
+        // Delete photos associated with the main category
+        foreach ($mainCategory->photos as $photo) {
+            $this->photoService->deletePhoto($photo->photo_path, $photo->id);
         }
+
+        // Directly delete all photo records for the main category
+        $mainCategory->photos()->delete();
+
+        // Detach all subcategories from the pivot table
+        $mainCategory->subCategories()->detach();
+
+        // Force delete the main category
+        $mainCategory->forceDelete();
+
+        // Clear related cache if applicable
+        $this->clearCacheGroup($this->groupe_key_cache);
+
+        return 'MainCategory force deleted successfully';
     }
-    
 }
