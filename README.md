@@ -88,10 +88,10 @@ Built for scalability and ease of use, this system supports role-specific workfl
 
 Below is a list of Composer packages used in the application, along with their purpose:
 
-1. `guzzlehttp/guzzle`
+1. `pusher/pusher-php-server`
 
     - **Version**: `^7.2`
-    - **Purpose**: Handles HTTP requests and responses. Used for integrating third-party APIs, such as sending requests to the Telegram Bot API.
+    - **Purpose**: Handles Real-time notification.
 
 2. `laravel-notification-channels/telegram`
 
@@ -202,7 +202,7 @@ The platform supports notifications through both email and Telegram:
 -   **Email Notification**: Reports and updates sent to specified recipients
 -   **Telegram Notifications**: Order confirmations and alerts via the Telegram Bot API.
     Telegram Bot:
-    [OrderConfirmBot](https://t.me/X1_Team_Bot).
+    [E-Commerce-Project](https://t.me/X1_Team_Bot).
 
 ### Postman Collection:
 
