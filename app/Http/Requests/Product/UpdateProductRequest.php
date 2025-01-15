@@ -24,10 +24,13 @@ class UpdateProductRequest extends FormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge([
-            'name' => $this->name ? ucwords(trim($this->name)) : null,
-        ]);
+        if ($this->has('name')) {
+            $this->merge([
+                'name' => ucwords(trim($this->name)),
+            ]);
+        }
     }
+
 
     /**
      * Get the validation rules that apply to the request.
@@ -37,7 +40,7 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'nullable|string|min:4|max:100',
+            'name' => 'nullable|string|min:4|max:100|unique:products,name',
             'description' => 'nullable|string',
             'price' => 'nullable|numeric|min:0',
             'product_quantity' => 'nullable|int|min:0',

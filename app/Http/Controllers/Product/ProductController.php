@@ -51,7 +51,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): JsonResponse
     {
-        return self::success($product, 'Product retrieved successfully');
+        return self::success(new ProductResource($product->load(['mainCategory','subCategory','photos'])), 'Product retrieved successfully');
     }
 
     /**
@@ -67,7 +67,7 @@ class ProductController extends Controller
         $this->authorize('store', Product::class);
         $photos = $storeMultiplePhotosRequest->file('photos');
         $product = $this->ProductService->storeProduct($request->validated(), $photos);
-        return self::success($product, 'Product created successfully', 201);
+        return self::success(new ProductResource($product),'Product created successfully', 201);
     }
 
     /**
@@ -83,7 +83,7 @@ class ProductController extends Controller
         $this->authorize('update', Product::class);
         $deletedPhotos = $request->input('photosDeleted');
         $updatedProduct = $this->ProductService->updateProduct($product, $request->validated(), $deletedPhotos);
-        return self::success($updatedProduct, 'Product updated successfully');
+        return self::success(new ProductResource($updatedProduct), 'Product updated successfully',200);
     }
 
     /**
@@ -109,7 +109,7 @@ class ProductController extends Controller
     {
         $this->authorize('showDeleted', Product::class);
         $products = Product::onlyTrashed()->get();
-        return self::success($products, 'Products retrieved successfully');
+        return self::success($products,'Products retrieved successfully');
     }
 
     /**
@@ -124,7 +124,7 @@ class ProductController extends Controller
         $product = Product::onlyTrashed()->findOrFail($id);
         $product->restore();
         $this->clearCacheGroup($this->groupe_key_cache);
-        return self::success($product, 'Product restored successfully');
+        return self::success(new ProductResource($product),'Product restored successfully',200);
     }
 
     /**
