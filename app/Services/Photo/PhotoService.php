@@ -4,6 +4,7 @@ namespace App\Services\Photo;
 
 use App\Models\Photo\Photo;
 
+use App\Models\User\User;
 use Exception;
 use Illuminate\Support\Str;
 use App\Traits\CacheManagerTrait;
@@ -196,5 +197,22 @@ class PhotoService
             }
         }
         throw new Exception('Scan timeout or failed to complete after polling.');
+    }
+
+    /**
+     * Add Default avatar for user
+     * The image already store in storage
+     *
+     * @param User $user
+     * @return void
+     */
+    public function addDefaultAvatar(User $user){
+        $photo = Photo::create([
+            'photo_name' => 'default_avatar.png',
+            'photo_path' => 'avatars/default_avatar.png',
+            'mime_type' => 'image/png',
+            'photoable_id' => $user->id,
+            'photoable_type' => get_class($user),
+        ]);
     }
 }
