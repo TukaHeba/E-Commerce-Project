@@ -23,7 +23,7 @@ class SubCategoryController extends Controller
 
     /**
      * Index sub categories
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): JsonResponse
@@ -34,7 +34,7 @@ class SubCategoryController extends Controller
 
     /**
      * Store a newly sub category in storage.
-     * 
+     *
      * @param \App\Http\Requests\Category\SubCategory\StoreSubCategoryRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -48,7 +48,7 @@ class SubCategoryController extends Controller
 
     /**
      * Display the specified sub category.
-     * 
+     *
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -59,7 +59,7 @@ class SubCategoryController extends Controller
 
     /**
      * Update the specified sub category in storage.
-     * 
+     *
      * @param \App\Http\Requests\Category\SubCategory\UpdateSubCategoryRequest $request
      * @param \App\Models\Category\SubCategory $subCategory
      * @return \Illuminate\Http\JsonResponse
@@ -74,7 +74,7 @@ class SubCategoryController extends Controller
 
     /**
      * Remove the specified sub category from storage.
-     * 
+     *
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -87,7 +87,7 @@ class SubCategoryController extends Controller
 
     /**
      * Display soft-deleted records.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function showDeleted(): JsonResponse
@@ -99,7 +99,7 @@ class SubCategoryController extends Controller
 
     /**
      * Restore a soft-deleted record.
-     * 
+     *
      * @param string $id
      * @return JsonResponse
      */
@@ -112,7 +112,7 @@ class SubCategoryController extends Controller
 
     /**
      * Permanently delete a soft-deleted record.
-     * 
+     *
      * @param string $id
      * @return JsonResponse
      */

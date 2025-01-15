@@ -76,13 +76,13 @@ class SubCategoryService
     {
         try {
             DB::beginTransaction();
-            //find the subcategory to update 
+            //find the subcategory to update
             $subCategory = SubCategory::findOrFail($id);
             //update the subcategory details
             $subCategory->sub_category_name = $data['sub_category_name'] ?? $subCategory->sub_category_name;
             $subCategory->save();
 
-            $result = null;  // return null if no photos was uploaded 
+            $result = null;  // return null if no photos was uploaded
             // Check if new photos are uploaded
             if ($photos) {
                 // Delete old photos if there are new ones uploaded
@@ -145,7 +145,7 @@ class SubCategoryService
 
     /**
      * Method to force delete a subcategory and its associated main category photos (with try-catch for error handling).
-     * 
+     *
      * @param  int  $id
      * @return string
      */

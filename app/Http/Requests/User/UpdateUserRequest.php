@@ -52,6 +52,7 @@ class UpdateUserRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:255'],
             'is_male' => ['nullable', 'boolean'],
             'birthdate' => ['nullable', 'date', 'before:today'],
+            'avatar' => ['image', 'mimes:jpeg,png,jpg,webp', 'mimetypes:image/jpeg,image/png,image/jpg,image/webp', 'max:8192']
         ];
     }
 
