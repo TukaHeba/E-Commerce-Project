@@ -67,10 +67,13 @@ Built for scalability and ease of use, this system supports role-specific workfl
 -   **Product Rating**: Customers can update, delete their product ratings, and leave reviews.
 -   **Account Management**: Customers can update their account information or delete their account entirely.
 
-### Additional Features
+## Additional Features
 
--   **Email and Telegram Notifications**: Real-time updates and confirmations sent via email and Telegram messages, enhancing user engagement
--   **Postman Collection**:A ready-to-user Postman collection for API testing
+-   **Real-Time Notifications**: The platform supports real-time notifications via email and Telegram, ensuring users are promptly informed about updates, order confirmations, and other critical events. This feature enhances engagement and reliability across all user roles.
+-   **Postman Collection**:A ready-to-user Postman collection for API testing.
+-   **Optimized Caching**: Advanced caching techniques are implemented to significantly reduce database load and improve application performance. Frequently accessed data is temporarily stored in cache memory, ensuring faster response times and optimal resource utilization.
+-   **Enhanced Security**: A custom middleware framework has been designed to bolster application security. Key enhancements include the removal of fingerprint headers and the reinforcement of HTTP headers, offering robust protection against potential vulnerabilities.
+-   **Request Rate Limiting**: To safeguard sensitive endpoints, such as authentication routes, a rate-limiting mechanism has been implemented. This system restricts excessive requests, allowing up to 10 requests per minute. It ensures stability, prevents abuse, and maintains the integrity of the application under high-load scenarios.
 
 ## Technologies Used:
 
@@ -85,10 +88,10 @@ Built for scalability and ease of use, this system supports role-specific workfl
 
 Below is a list of Composer packages used in the application, along with their purpose:
 
-1.`guzzlehttp/guzzle`
+1. `guzzlehttp/guzzle`
 
-    -   **Version**: `^7.2`
-    -   **Purpose**: Handles HTTP requests and responses. Used for integrating third-party APIs, such as sending requests to the Telegram Bot API.
+    - **Version**: `^7.2`
+    - **Purpose**: Handles HTTP requests and responses. Used for integrating third-party APIs, such as sending requests to the Telegram Bot API.
 
 2. `laravel-notification-channels/telegram`
 
@@ -199,7 +202,7 @@ The platform supports notifications through both email and Telegram:
 -   **Email Notification**: Reports and updates sent to specified recipients
 -   **Telegram Notifications**: Order confirmations and alerts via the Telegram Bot API.
     Telegram Bot:
-    [OrderConfirmBot](https://t.me/OrderConfirmBot).
+    [OrderConfirmBot](https://t.me/X1_Team_Bot).
 
 ### Postman Collection:
 

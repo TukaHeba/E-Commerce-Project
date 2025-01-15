@@ -11,7 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Notifications\OrderTrackingNotification;
 
-class SendNotification implements ShouldQueue
+class SendOrderTrackingEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -20,6 +20,9 @@ class SendNotification implements ShouldQueue
     protected $order_id;
     protected $order_status;
 
+    /**
+     * Create a new job instance.
+     */
     public function __construct($user_email, $user_first_name, $order_id, $order_status)
     {
         $this->user_email = $user_email;
@@ -28,6 +31,9 @@ class SendNotification implements ShouldQueue
         $this->order_status = $order_status;
     }
 
+    /**
+     * Execute the job.
+     */
     public function handle(): void
     {
         $user = User::where('email', $this->user_email)->first();
