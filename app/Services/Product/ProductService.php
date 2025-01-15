@@ -172,7 +172,7 @@ class ProductService
     public function updateProduct($product, $data, $photos = null)
     {
         $product->update($data);
-
+        $result = null;
         // Check if there are any photos to delete
         if ($photos) {
             // Delete old photos if there are new ones uploaded
@@ -201,7 +201,9 @@ class ProductService
         $product = Product::withTrashed()->findOrFail($id);
 
         foreach ($product->photos as $photo) {
-            $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+            if($photo){
+                $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+            }
         }
         // delete the photos related with product
         $product->photos()->delete();
