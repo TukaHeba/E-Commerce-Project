@@ -117,22 +117,6 @@ class PhotoService
         return $results;
     }
 
-    // /**
-    //  * Delete a photo from storage.
-    //  *
-    //  * @param string $filePath The path to the file in storage.
-    //  * @throws Exception If the file does not exist.
-    //  */
-    // public function deletePhoto($filePath)
-    // {
-    //     if (Storage::exists($filePath)) {
-    //         Storage::delete($filePath);
-    //         $this->clearCacheGroup($this->groupe_key_cache);
-    //     } else {
-    //         throw new Exception('File not found in storage', 404);
-    //     }
-    // }
-
     /**
      * Delete a photo from storage and the database.
      *
