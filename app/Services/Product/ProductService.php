@@ -9,6 +9,7 @@ use App\Traits\CacheManagerTrait;
 use App\Services\Photo\PhotoService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
@@ -151,8 +152,9 @@ class ProductService
      */
     public function storeProduct($data, $photos)
     {
+        // Create a new product in the database with the provided data
         $product = Product::create($data);
-        $this->photoService->storeMultiplePhotos($photos, $product);  // Store product photos.
+        $this->photoService->storeMultiplePhotos($photos, $product,'products');  // Store product photos.
         $this->clearCacheGroup($this->groupe_key_cache);
         return $product;
     }
@@ -168,11 +170,16 @@ class ProductService
     public function updateProduct($product, $data, $photoForDelete = [])
     {
         $product->update($data);
+
+        // Check if there are any photos to delete
         if (!empty($photoForDelete)) {
             foreach ($photoForDelete as $filePath) {
                 $photo = Photo::where('photo_path', $filePath)->first();
                 if ($photo) {
-                    $this->photoService->deletePhoto($photo->photo_path);
+                    // Delete the photo from storage
+                    $this->photoService->deletePhoto($photo->photo_path,$photo->id);
+
+                    // Delete the photo record from the database
                     $photo->delete();
                 }
             }
@@ -181,6 +188,11 @@ class ProductService
         $product->save();
 
         return $product;
+    }
+    public function delete(string $id){
+        $product = Product::find($id);
+        $product->photos()->delete();
+        $product->delete();
     }
 
     /**
