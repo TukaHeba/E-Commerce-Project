@@ -81,8 +81,8 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
         $this->authorize('update', Product::class);
-        $deletedPhotos = $request->input('photosDeleted');
-        $updatedProduct = $this->ProductService->updateProduct($product, $request->validated(), $deletedPhotos);
+        $photos = $request->file('photos');
+        $updatedProduct = $this->ProductService->updateProduct($product, $request->validated(), $photos);
         return self::success([new ProductResource($updatedProduct['product']) , 'photos'=>$updatedProduct['photo']],'Product updated successfully', 200);
     }
 
