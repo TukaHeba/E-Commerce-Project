@@ -189,6 +189,11 @@ class ProductService
 
         return $product;
     }
+    public function delete(string $id){
+        $product = Product::find($id);
+        $product->photos()->delete();
+        $product->delete();
+    }
 
     /**
      * Show the largest quantity of a product sold by name.

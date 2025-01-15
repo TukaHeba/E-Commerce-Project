@@ -40,7 +40,7 @@ class ProductController extends Controller
         if ($products->isEmpty()) {
             return self::error(null, 'No Products matched!', 404);
         }
-        return self::paginated($products, null, 'Products retrieved successfully', 200);
+        return self::paginated($products, ProductResource::class, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -95,7 +95,7 @@ class ProductController extends Controller
     public function destroy(Product $product): JsonResponse
     {
         $this->authorize('delete', Product::class);
-        $product->delete();
+        $this->ProductService->delete($product->id);
         $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'Product deleted successfully');
     }
