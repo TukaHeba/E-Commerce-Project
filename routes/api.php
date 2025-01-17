@@ -17,6 +17,7 @@ use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\PasswordResetController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Payment\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::post('/create-payment-method', [PaymentController::class, 'createPaymentMethod']);
 
 // 1- Apply throttling (10 requests per minute) for authentication-related routes.
 Route::middleware('throttle:auth')->group(function () {

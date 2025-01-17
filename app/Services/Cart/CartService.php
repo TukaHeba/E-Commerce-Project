@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem\OrderItem;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\SendOrderConfirmationEmail;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Services\Payment\PaymentService;
 
 class CartService
 {
