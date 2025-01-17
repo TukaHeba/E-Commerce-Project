@@ -55,22 +55,6 @@ class RateService
     }
 
     /**
-     * Retrieve a paginated list of rates based on the given filter criteria.
-     *
-     * @param \Illuminate\Http\Request $request The request containing filter parameters.
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator Paginated rates.
-     */
-    public function getRates($request)
-    {
-        $cache_key = $this->generateCacheKey('rates_filter', $request->all());
-        $this->addCasheKey($cache_key);
-
-        return Cache::remember($cache_key, now()->addHour(), function () use ($request) {
-            return Rate::rateFilter($request)->with(['user', 'product'])->paginate(10);
-        });
-    }
-
-    /**
      * Store a new rate in the database.
      *
      * @param array $data The data to create a new rate.

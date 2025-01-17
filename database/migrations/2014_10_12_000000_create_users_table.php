@@ -27,9 +27,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // Indexing columns to optimize performance
-            $table->unique('phone', 'index_users_phone');
-            $table->fullText('address', 'index_users_address');
+            // Indexing column to optimize performance
+            $table->index('is_male', 'index_users_gender');
         });
     }
 

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Cart;
 
+use App\Models\Cart\Cart;
+use Illuminate\Http\JsonResponse;
+use App\Services\Cart\CartService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Resources\CartResource;
 use App\Http\Resources\OrderResource;
-use App\Models\Cart\Cart;
-use App\Services\Cart\CartService;
-use Illuminate\Http\JsonResponse;
+use App\Http\Requests\Order\StoreOrderRequest;
 
 class CartController extends Controller
 {
@@ -20,23 +20,25 @@ class CartController extends Controller
     }
 
     /**
-     * View all user carts for ((Admin))
+     * Retrieve all carts (Admin only).
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
 
     public function index()
     {
         $this->authorize('index', Cart::class);
-        $carts = Cart::paginate(10);
+        $carts = Cart::with('user')->paginate(10);
         return self::paginated($carts, CartResource::class, 'Carts retrieved successfully', 200);
     }
 
     /**
-     * Display the specified cart for ((Admin))
+     * Retrieve a specific cart (Admin only).
      *
-     * @param Cart $cartItem
-     * @return \Illuminate\Http\JsonResponse
+     * @param Cart $cart
+     * @return JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(Cart $cart)
     {
@@ -45,28 +47,14 @@ class CartController extends Controller
     }
 
     /**
-     * View the cart of the auth user.
-     * 
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function userCart()
-    {
-        $cart = Cart::where('user_id', auth()->user()->id)->with('cartItems.product')->first();
-        return self::success(new CartResource($cart));
-    }
-
-    /**
-     * Checkout the cart and get cart items data with total price.
+     * Retrieve the authenticated user's cart.
      *
      * @return JsonResponse
      */
-    public function checkout()
+    public function userCart()
     {
-        $cartData = $this->CartService->cartCheckout();
-        return self::success([
-            'cart_items' => $cartData['cart_items'],
-            'total_price' => $cartData['total_price'],
-        ]);
+        $cart = Cart::where('user_id', auth()->user()->id)->with('cartItems.product')->firstOrFail();
+        return self::success(new CartResource($cart));
     }
 
     /**

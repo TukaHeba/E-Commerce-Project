@@ -22,7 +22,6 @@ class CartItem extends Model
         'quantity'
     ];
 
-
     /**
      * The attributes that should be cast.
      *

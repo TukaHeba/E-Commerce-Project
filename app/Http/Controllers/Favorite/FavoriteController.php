@@ -6,7 +6,7 @@ use App\Models\Product\Product;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
-use App\Http\Resources\UserResource;
+
 use App\Services\Favorite\FavoriteService;
 
 class FavoriteController extends Controller
@@ -27,6 +27,7 @@ class FavoriteController extends Controller
     {
         $this->FavoriteService->storeFavorite($product);
         return self::success(null, 'Product added to Favorite successfully', 201);
+
     }
 
     /*
@@ -43,7 +44,6 @@ class FavoriteController extends Controller
      */
     public function destroy(Product $product): JsonResponse
     {
-        $this->authorize('destroy', $product);
         $this->FavoriteService->destroyFavorite($product);
         return self::success(null, 'Product Removed from Favorite successfully');
     }

@@ -17,7 +17,6 @@ class LoginRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,11 +26,26 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'exists:users,email'],
-            'password' => ['required', 'max:30',
-                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
+            'password' => [
+                'required',
+                'max:30',
+                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()
+            ],
         ];
     }
 
+    /**
+     * Define human-readable attribute names for validation errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'email' => 'Email Address',
+            'password' => 'Password',
+        ];
+    }
 
     /**
      * Define custom error messages for validation failures.
@@ -63,7 +77,7 @@ class LoginRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

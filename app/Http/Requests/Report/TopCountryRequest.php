@@ -16,7 +16,6 @@ class TopCountryRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -30,6 +29,18 @@ class TopCountryRequest extends FormRequest
         ];
     }
 
+    /**
+     * Define human-readable attribute names for validation errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'start_date' => 'Start Date',
+            'end_date' => 'End Date'
+        ];
+    }
 
     /**
      * Define custom error messages for validation failures.
@@ -57,7 +68,7 @@ class TopCountryRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

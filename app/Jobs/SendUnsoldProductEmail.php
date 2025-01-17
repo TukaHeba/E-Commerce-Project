@@ -18,16 +18,14 @@ class SendUnsoldProductEmail implements ShouldQueue
 
     /**
      * Execute the job.
-     */public function handle(): void
+     */
+    public function handle(): void
     {
         $users = User::role('store manager')->get();
         $file = (new ExportService(new ReportService()))
-        ->productsNeverBeenSoldExportStorage();
-         foreach ($users as $user) {
-        $user->notify(new UnsoldProductNotification($file));
-       }
-
+            ->productsNeverBeenSoldExportStorage();
+        foreach ($users as $user) {
+            $user->notify(new UnsoldProductNotification($file));
+        }
     }
-
 }
-

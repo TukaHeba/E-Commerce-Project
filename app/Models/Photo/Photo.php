@@ -30,16 +30,9 @@ class Photo extends Model
     protected $guarded = [];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        //
-    ];
-
-    /**
      * Get the owning photoable model (user, product, or category).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function photoable()
     {

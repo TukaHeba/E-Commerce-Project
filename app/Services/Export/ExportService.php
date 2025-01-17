@@ -32,11 +32,14 @@ class ExportService
 
         $sheet->setCellValue('A1', 'Sub Category Name');
         $sheet->setCellValue('B1', 'Main Category Name');
+        $sheet->setCellValue('C1', 'Total Sold');
+
 
         $row = 2;
         foreach ($BestCategories as $BestCategory) {
             $sheet->setCellValue('A' . $row, $BestCategory->sub_category_name);
             $sheet->setCellValue('B' . $row, $BestCategory->main_category_name);
+            $sheet->setCellValue('C' . $row, $BestCategory->total_sold);
             $row++;
         }
 
@@ -68,7 +71,7 @@ class ExportService
         $sheet->setCellValue('C1', 'Description');
         $sheet->setCellValue('D1', 'Price');
         $sheet->setCellValue('E1', 'Sub Category Name');
-        $sheet->setCellValue('F1', 'MAin Category Name');
+        $sheet->setCellValue('F1', 'Main Category Name');
         $sheet->setCellValue('G1', 'Total Sold');
 
         $row = 2;
@@ -110,9 +113,7 @@ class ExportService
         $sheet->setCellValue('C1', 'Description');
         $sheet->setCellValue('D1', 'Price');
         $sheet->setCellValue('E1', 'Quantity');
-        $sheet->setCellValue('F1', 'Sub Category Name');
-        $sheet->setCellValue('G1', 'MAin Category Name');
-        $sheet->setCellValue('H1', 'average rating');
+        $sheet->setCellValue('F1', 'average rating');
 
         $row = 2;
         foreach ($LowOnStockproducts as $LowOnStockproduct) {
@@ -121,9 +122,7 @@ class ExportService
             $sheet->setCellValue('C' . $row, $LowOnStockproduct->description);
             $sheet->setCellValue('D' . $row, $LowOnStockproduct->price);
             $sheet->setCellValue('E' . $row, $LowOnStockproduct->product_quantity);
-            $sheet->setCellValue('F' . $row, $LowOnStockproduct->subCategory->sub_category_name);
-            $sheet->setCellValue('G' . $row, $LowOnStockproduct->mainCategory->main_category_name);
-            $sheet->setCellValue('H' . $row, $LowOnStockproduct->averageRating() ?? 0);
+            $sheet->setCellValue('F' . $row, $LowOnStockproduct->averageRating() ?? 0);
             $row++;
         }
 
@@ -150,18 +149,28 @@ class ExportService
         $sheet = $spreadsheet->getActiveSheet();
 
         $sheet->setCellValue('A1', 'ID');
-        $sheet->setCellValue('B1', 'Shipped Address');
-        $sheet->setCellValue('C1', 'Status');
-        $sheet->setCellValue('D1', 'Total Price');
-        $sheet->setCellValue('E1', 'Created At');
+        $sheet->setCellValue('B1', 'Customer Name');
+        $sheet->setCellValue('C1', 'Customer Email');
+        $sheet->setCellValue('D1', 'Customer Phone');
+        $sheet->setCellValue('E1', 'Zone');
+        $sheet->setCellValue('F1', 'City');
+        $sheet->setCellValue('G1', 'Postal Code');
+        $sheet->setCellValue('H1', 'Status');
+        $sheet->setCellValue('I1', 'Total Price');
+        $sheet->setCellValue('J1', 'Order Number');
 
         $row = 2;
         foreach ($lating_orders as $lating_order) {
             $sheet->setCellValue('A' . $row, $lating_order->id);
-            $sheet->setCellValue('B' . $row, $lating_order->shipped_address);
-            $sheet->setCellValue('C' . $row, $lating_order->status);
-            $sheet->setCellValue('D' . $row, $lating_order->total_price);
-            $sheet->setCellValue('E' . $row, Carbon::parse($lating_order->created_at)->format('Y M d, H:i:s'));
+            $sheet->setCellValue('B' . $row, $lating_order->user->full_name);
+            $sheet->setCellValue('C' . $row, $lating_order->user->email);
+            $sheet->setCellValue('D' . $row, $lating_order->user->phone);
+            $sheet->setCellValue('E' . $row, $lating_order->zone->name);
+            $sheet->setCellValue('F' . $row, $lating_order->zone->city->name);
+            $sheet->setCellValue('G' . $row, $lating_order->postal_code);
+            $sheet->setCellValue('H' . $row, $lating_order->status);
+            $sheet->setCellValue('I' . $row, $lating_order->total_price);
+            $sheet->setCellValue('J' . $row, $lating_order->order_number);
             $row++;
         }
 
@@ -192,9 +201,7 @@ class ExportService
         $sheet->setCellValue('C1', 'Description');
         $sheet->setCellValue('D1', 'Price');
         $sheet->setCellValue('E1', 'Quantity');
-        $sheet->setCellValue('F1', 'Sub Category Name');
-        $sheet->setCellValue('G1', 'MAin Category Name');
-        $sheet->setCellValue('H1', 'average rating');
+        $sheet->setCellValue('F1', 'average rating');
 
         $row = 2;
         foreach ($unsoldProducts as $unsoldProduct) {
@@ -203,9 +210,7 @@ class ExportService
             $sheet->setCellValue('C' . $row, $unsoldProduct->description);
             $sheet->setCellValue('D' . $row, $unsoldProduct->price);
             $sheet->setCellValue('E' . $row, $unsoldProduct->product_quantity);
-            $sheet->setCellValue('F' . $row, $unsoldProduct->subCategory->sub_category_name);
-            $sheet->setCellValue('G' . $row, $unsoldProduct->mainCategory->main_category_name);
-            $sheet->setCellValue('H' . $row, $unsoldProduct->averageRating() ?? 0);
+            $sheet->setCellValue('F' . $row, $unsoldProduct->averageRating() ?? 0);
             $row++;
         }
 
@@ -236,29 +241,31 @@ class ExportService
         $sheet->setCellValue('B1', 'User ID');
         $sheet->setCellValue('C1', 'Product ID');
         $sheet->setCellValue('D1', 'Product Name');
-        $sheet->setCellValue('E1', 'Created At');
+        $sheet->setCellValue('E1', 'Product Description');
+        $sheet->setCellValue('F1', 'Quantity');
 
         $row = 2;
         foreach ($products_remaining as $product_remaining) {
-            foreach ($product_remaining['cart_items'] as $cart_item) {
-                $sheet->setCellValue('A' . $row, $cart_item['cart_id']);
-                $sheet->setCellValue('B' . $row, $product_remaining['user_id']);
+            foreach ($product_remaining->toArray()['cart_items'] as $cart_item) {
+                $sheet->setCellValue('A' . $row, $product_remaining->id);
+                $sheet->setCellValue('B' . $row, $product_remaining->user_id);
                 $sheet->setCellValue('C' . $row, $cart_item['product_id']);
                 $sheet->setCellValue('D' . $row, $cart_item['product']['name']);
-                $sheet->setCellValue('E' . $row, $cart_item['created_at']);
+                $sheet->setCellValue('E' . $row, $cart_item['product']['description']);
+                $sheet->setCellValue('F' . $row, $cart_item['quantity']);
                 $row++;
             }
         }
 
-        $fileName = 'products_remaining_' . now()->format('Y-m-d') . '.xlsx';
-        $filePath = 'reports/' . $fileName;
-        if (!Storage::exists('public/reports')) {
-            Storage::makeDirectory('public/reports');
-        }
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
 
-        $writer = new Xlsx($spreadsheet);
-        $writer->save(Storage::disk('public')->path($filePath));
-        return $filePath;
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment; filename="products-remaining-in-carts.xlsx"');
+
+        return $response;
     }
 
     /*
@@ -309,15 +316,18 @@ class ExportService
 
         $sheet->setCellValue('A1', 'Sub Category Name');
         $sheet->setCellValue('B1', 'Main Category Name');
+        $sheet->setCellValue('C1', 'Total Sold');
+
 
         $row = 2;
         foreach ($BestCategories as $BestCategory) {
             $sheet->setCellValue('A' . $row, $BestCategory->sub_category_name);
             $sheet->setCellValue('B' . $row, $BestCategory->main_category_name);
+            $sheet->setCellValue('C' . $row, $BestCategory->total_sold);
             $row++;
         }
 
-        $fileName = 'Best_Categories.xlsx';
+        $fileName = 'Best_Categories.xlsx'. now()->format('Y-m-d') . '.xlsx';
         $filePath = 'reports/' . $fileName;
         $writer = new Xlsx($spreadsheet);
         $writer->save(Storage::disk('public')->path($filePath));
@@ -342,7 +352,7 @@ class ExportService
         $sheet->setCellValue('C1', 'Description');
         $sheet->setCellValue('D1', 'Price');
         $sheet->setCellValue('E1', 'Sub Category Name');
-        $sheet->setCellValue('F1', 'MAin Category Name');
+        $sheet->setCellValue('F1', 'Main Category Name');
         $sheet->setCellValue('G1', 'Total Sold');
 
         $row = 2;
@@ -382,9 +392,7 @@ class ExportService
         $sheet->setCellValue('C1', 'Description');
         $sheet->setCellValue('D1', 'Price');
         $sheet->setCellValue('E1', 'Quantity');
-        $sheet->setCellValue('F1', 'Sub Category Name');
-        $sheet->setCellValue('G1', 'MAin Category Name');
-        $sheet->setCellValue('H1', 'average rating');
+        $sheet->setCellValue('F1', 'average rating');
 
         $row = 2;
         foreach ($LowOnStockproducts as $LowOnStockproduct) {
@@ -393,9 +401,7 @@ class ExportService
             $sheet->setCellValue('C' . $row, $LowOnStockproduct->description);
             $sheet->setCellValue('D' . $row, $LowOnStockproduct->price);
             $sheet->setCellValue('E' . $row, $LowOnStockproduct->product_quantity);
-            $sheet->setCellValue('F' . $row, $LowOnStockproduct->subCategory->sub_category_name);
-            $sheet->setCellValue('G' . $row, $LowOnStockproduct->mainCategory->main_category_name);
-            $sheet->setCellValue('H' . $row, $LowOnStockproduct->averageRating() ?? 0);
+            $sheet->setCellValue('F' . $row, $LowOnStockproduct->averageRating() ?? 0);
             $row++;
         }
 
@@ -418,19 +424,30 @@ class ExportService
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
+
         $sheet->setCellValue('A1', 'ID');
-        $sheet->setCellValue('B1', 'Shipped Address');
-        $sheet->setCellValue('C1', 'Status');
-        $sheet->setCellValue('D1', 'Total Price');
-        $sheet->setCellValue('E1', 'Created At');
+        $sheet->setCellValue('B1', 'Customer Name');
+        $sheet->setCellValue('C1', 'Customer Email');
+        $sheet->setCellValue('D1', 'Customer Phone');
+        $sheet->setCellValue('E1', 'Zone');
+        $sheet->setCellValue('F1', 'City');
+        $sheet->setCellValue('G1', 'Postal Code');
+        $sheet->setCellValue('H1', 'Status');
+        $sheet->setCellValue('I1', 'Total Price');
+        $sheet->setCellValue('J1', 'Order Number');
 
         $row = 2;
         foreach ($lating_orders as $lating_order) {
             $sheet->setCellValue('A' . $row, $lating_order->id);
-            $sheet->setCellValue('B' . $row, $lating_order->shipped_address);
-            $sheet->setCellValue('C' . $row, $lating_order->status);
-            $sheet->setCellValue('D' . $row, $lating_order->total_price);
-            $sheet->setCellValue('E' . $row, Carbon::parse($lating_order->created_at)->format('Y M d, H:i:s'));
+            $sheet->setCellValue('B' . $row, $lating_order->user->full_name);
+            $sheet->setCellValue('C' . $row, $lating_order->user->email);
+            $sheet->setCellValue('D' . $row, $lating_order->user->phone);
+            $sheet->setCellValue('E' . $row, $lating_order->zone->name);
+            $sheet->setCellValue('F' . $row, $lating_order->zone->city->name);
+            $sheet->setCellValue('G' . $row, $lating_order->postal_code);
+            $sheet->setCellValue('H' . $row, $lating_order->status);
+            $sheet->setCellValue('I' . $row, $lating_order->total_price);
+            $sheet->setCellValue('J' . $row, $lating_order->order_number);
             $row++;
         }
 
@@ -458,9 +475,7 @@ class ExportService
         $sheet->setCellValue('C1', 'Description');
         $sheet->setCellValue('D1', 'Price');
         $sheet->setCellValue('E1', 'Quantity');
-        $sheet->setCellValue('F1', 'Sub Category Name');
-        $sheet->setCellValue('G1', 'MAin Category Name');
-        $sheet->setCellValue('H1', 'average rating');
+        $sheet->setCellValue('F1', 'average rating');
 
         $row = 2;
         foreach ($unsoldProducts as $unsoldProduct) {
@@ -469,9 +484,7 @@ class ExportService
             $sheet->setCellValue('C' . $row, $unsoldProduct->description);
             $sheet->setCellValue('D' . $row, $unsoldProduct->price);
             $sheet->setCellValue('E' . $row, $unsoldProduct->product_quantity);
-            $sheet->setCellValue('F' . $row, $unsoldProduct->subCategory->sub_category_name);
-            $sheet->setCellValue('G' . $row, $unsoldProduct->mainCategory->main_category_name);
-            $sheet->setCellValue('H' . $row, $unsoldProduct->averageRating() ?? 0);
+            $sheet->setCellValue('F' . $row, $unsoldProduct->averageRating() ?? 0);
             $row++;
         }
 
@@ -504,16 +517,20 @@ class ExportService
         $sheet->setCellValue('B1', 'User ID');
         $sheet->setCellValue('C1', 'Product ID');
         $sheet->setCellValue('D1', 'Product Name');
-        $sheet->setCellValue('E1', 'Created At');
+        $sheet->setCellValue('E1', 'Product Description');
+        $sheet->setCellValue('F1', 'Quantity');
 
         $row = 2;
         foreach ($products_remaining as $product_remaining) {
-            $sheet->setCellValue('A' . $row, $product_remaining->cart_id);
-            $sheet->setCellValue('B' . $row, $product_remaining->user_id);
-            $sheet->setCellValue('C' . $row, $product_remaining->product_id);
-            $sheet->setCellValue('D' . $row, $product_remaining->product->name);
-            $sheet->setCellValue('E' . $row, $product_remaining->created_at);
-            $row++;
+            foreach ($product_remaining->toArray()['cart_items'] as $cart_item) {
+                $sheet->setCellValue('A' . $row, $product_remaining->id);
+                $sheet->setCellValue('B' . $row, $product_remaining->user_id);
+                $sheet->setCellValue('C' . $row, $cart_item['product_id']);
+                $sheet->setCellValue('D' . $row, $cart_item['product']['name']);
+                $sheet->setCellValue('E' . $row, $cart_item['product']['description']);
+                $sheet->setCellValue('F' . $row, $cart_item['quantity']);
+                $row++;
+            }
         }
 
         $fileName = 'products_remaining.xlsx';

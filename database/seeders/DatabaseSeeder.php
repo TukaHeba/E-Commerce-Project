@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            //  PermissionSeeder::class,
+            PermissionSeeder::class,
             RoleSeeder::class,
             AddressSeeder::class,
             UserSeeder::class,
@@ -21,13 +21,12 @@ class DatabaseSeeder extends Seeder
             SubCategorySeeder::class,
             MainCategorySubCategorySeeder::class,
             ProductSeeder::class,
+            CartItemSeeder::class,
             OrderSeeder::class,
             OrderTrackingSeeder::class,
             RateSeeder::class,
             FavoriteSeeder::class,
             // PhotoSeeder::class,
-
-
         ]);
     }
 }

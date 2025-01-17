@@ -12,7 +12,6 @@ use App\Http\Requests\Category\MainCategory\UpdateMainCategoryRequest;
 
 class MainCategoryController extends Controller
 {
-
     protected MainCategoryService $MainCategoryService;
 
     public function __construct(MainCategoryService $MainCategoryService)
@@ -22,6 +21,7 @@ class MainCategoryController extends Controller
 
     /**
      * Index main categories
+     * 
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): JsonResponse
@@ -32,48 +32,56 @@ class MainCategoryController extends Controller
 
     /**
      * Store a newly main category in storage.
+     * 
      * @param \App\Http\Requests\Category\MainCategory\StoreMainCategoryRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreMainCategoryRequest $request): JsonResponse
     {
-        $this->authorize( 'store', MainCategory::class);
-        $mainCategory = $this->MainCategoryService->storeMainCategory($request->validated());
-        return self::success(new MainCategoryResource($mainCategory), 'MainCategory created successfully', 201);
+        $this->authorize('store', MainCategory::class);
+        $photos = $request->file('photos');
+        $mainCategory = $this->MainCategoryService->storeMainCategory($request->validated() , $photos);
+        return self::success([ new MainCategoryResource($mainCategory['mainCategory']) ,'photo'=> $mainCategory['photo'] ], 'MainCategory created successfully', 201);
     }
 
     /**
      * Display the specified main category.
+     * 
      * @param \App\Models\Category\MainCategory $mainCategory
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(MainCategory $mainCategory): JsonResponse
     {
-        return self::success(new MainCategoryResource($mainCategory), 'MainCategory retrieved successfully');
+        return self::success(new MainCategoryResource($mainCategory->load('subCategories')), 'MainCategory retrieved successfully');
     }
 
     /**
      * Update the specified main category in storage.
+     * 
      * @throws \Exception
      */
-    public function update(UpdateMainCategoryRequest $request, MainCategory $mainCategory): JsonResponse
+    public function update(UpdateMainCategoryRequest $request, $id): JsonResponse
     {
-        $mainCategory = $this->MainCategoryService->updateMainCategory($request->validated(), $mainCategory);
-        return self::success(new MainCategoryResource($mainCategory), 'MainCategory updated successfully');
+        $this->authorize('update', MainCategory::class);
+        $photos = $request->file('photos');
+        $maincategory = $this->MainCategoryService->updateMainCategory($request->validated(), $id , $photos);
+
+        return self::success([ new MainCategoryResource($maincategory['mainCategory']) ,'photo'=> $maincategory['photo'] ], 'MainCategory updated successfully', 201);
     }
 
     /**
      * Remove the specified main category from storage.
      */
-    public function destroy(MainCategory $mainCategory): JsonResponse
+    public function destroy($id): JsonResponse
     {
         $this->authorize('delete', MainCategory::class);
-        $this->MainCategoryService->destroyMainCategory($mainCategory);
+        $this->MainCategoryService->destroyMainCategory($id);
         return self::success(null, 'MainCategory deleted successfully');
     }
 
     /**
      * Display soft-deleted records.
+     * 
      * @return \Illuminate\Http\JsonResponse
      */
     public function showDeleted(): JsonResponse
@@ -85,25 +93,27 @@ class MainCategoryController extends Controller
 
     /**
      * Restore a soft-deleted record.
+     * 
      * @param string $id
      * @return JsonResponse
      */
     public function restoreDeleted($id): JsonResponse
     {
-        $this->authorize('restoreDeleted',MainCategory::class);
+        $this->authorize('restoreDeleted', MainCategory::class);
         $restoredMainCategory = $this->MainCategoryService->restorMainCategory($id);
-        return self::success(new MainCategoryResource($restoredMainCategory), 'MainCategory restored successfully');
+        return self::success(null, 'MainCategory restored successfully');
     }
 
     /**
      * Permanently delete a soft-deleted record.
+     * 
      * @param string $id
      * @return JsonResponse
      */
     public function forceDeleted(string $id): JsonResponse
     {
-        $this->authorize('forceDeleted',MainCategory::class);
-        MainCategory::onlyTrashed()->findOrFail($id)->forceDelete();
-        return self::success(null, 'MainCategory force deleted successfully');
+        $this->authorize('forceDeleted', MainCategory::class);
+        $MainCategory = $this->MainCategoryService->forceDeleted($id);
+        return self::success(null, $MainCategory );
     }
 }

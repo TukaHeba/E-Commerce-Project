@@ -2,29 +2,33 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Models\User\User;
-use App\Traits\CacheManagerTrait;
-use Illuminate\Http\JsonResponse;
-use App\Services\User\UserService;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
+use App\Http\Requests\User\RemoveRoleRequest;
+use App\Http\Requests\User\RoleRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Models\Photo\Photo;
+use App\Models\User\User;
+use App\Services\User\UserService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 
 class UserController extends Controller
 {
-    use CacheManagerTrait;
-    private $groupe_key_cache = 'users_cache_keys';
     protected UserService $UserService;
 
     public function __construct(UserService $UserService)
     {
         $this->UserService = $UserService;
     }
+
     /**
      * Display a listing of users.
-     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(): JsonResponse
@@ -32,7 +36,6 @@ class UserController extends Controller
         $this->authorize('index', User::class);
         $users = $this->UserService->getUsers();
         return self::paginated($users, UserResource::class, 'Users retrieved successfully', 200);
-
     }
 
     /**
@@ -40,7 +43,7 @@ class UserController extends Controller
      *
      * @param \App\Http\Requests\User\StoreUserRequest $request
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Exception
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
@@ -54,6 +57,7 @@ class UserController extends Controller
      *
      * @param \App\Models\User\User $user
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function show(User $user): JsonResponse
     {
@@ -67,9 +71,9 @@ class UserController extends Controller
      * @param \App\Http\Requests\User\UpdateUserRequest $request
      * @param \App\Models\User\User $user
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Exception
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    public function update(UpdateUserRequest $request, User $user)//: JsonResponse
     {
         $this->authorize('update', $user);
         $updatedUser = $this->UserService->updateUser($user, $request->validated());
@@ -86,7 +90,6 @@ class UserController extends Controller
     {
         $this->authorize('delete', $user);
         $user->delete();
-        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User deleted successfully');
     }
 
@@ -101,45 +104,72 @@ class UserController extends Controller
         $users = $this->UserService->showDeletedUsers();
         return self::paginated($users, UserResource::class, 'Users retrieved successfully', 200);
     }
+
     /**
      * Restore a soft-deleted user.
      *
-     * @param string $id The ID of the user to restore.
+     * @param User $user the user to restore.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function restoreDeleted($id): JsonResponse
+    public function restoreDeleted(User $user): JsonResponse
     {
         $this->authorize('restoreDeleted', User::class);
-        $user = User::onlyTrashed()->findOrFail($id);
+        $user = User::onlyTrashed()->findOrFail($user->id);
         $user->restore();
-        $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'User restored successfully');
     }
+
     /**
      * Permanently delete a soft-deleted user.
      *
-     * @param  string $id The ID of the user the user to permanently delete.
+     * @param User $user the user to permanently delete.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function forceDeleted($id): JsonResponse
+    public function forceDeleted($userId): JsonResponse
     {
         $this->authorize('forceDeleted', User::class);
-        User::onlyTrashed()->findOrFail($id)->forceDelete();
-        $this->clearCacheGroup($this->groupe_key_cache);
+        $this->UserService->forceDelete($userId);
         return self::success(null, 'User force deleted successfully');
     }
 
     /**
-     * Calculate the average total price of all delivered orders for the user.
+     * Get the average total price of delivered orders for a specific user.
      *
-     * @param string $id The ID of the user.
-     * @return \Illuminate\Http\JsonResponse
+     * @param User $user
+     * @return JsonResponse
      */
-
-    public function userPurchasesAverage($user)
+    public function getAveragePurchases(User $user): JsonResponse
     {
-        $userPurchasesAverage = $this->UserService->userPurchasesAverage($user);
-        return self::success($userPurchasesAverage, 'the average total price of all delivered orders for the user');
+        $average = $this->UserService->calculateAverage($user);
+
+        if (is_null($average)) {
+            return self::error(null, 'No delivered orders found for this user', 404);
+        }
+        return self::success($average, 'The average of all this user\'s completed orders is:');
     }
 
+    /**
+     * Assign a role to a user.
+     *
+     * @param \App\Models\User\User $user
+     * @param \Spatie\Permission\Models\Role $role
+     * @return JsonResponse
+     */
+    public function assignRole(User $user,Role $role)
+    {
+        $user->assignRole($role);
+        return self::success(null, 'The role has been added to the user successfully.');
+    }
+
+    /**
+     * Remove a role from a user.
+     *
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function removeRole(User $user,Role $role)
+    {
+        $user->removeRole($role);
+        return self::success(null, 'The role for the user has been successfully deleted.');
+    }
 }

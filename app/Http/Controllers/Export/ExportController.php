@@ -61,7 +61,7 @@ class ExportController extends Controller
      */
     public function countriesWithHighestOrdersExport(TopCountryRequest $request, int $country = 5)
     {
-        return $this->ExportService->countriesWithHighestOrdersExport($request, $country);
+        return $this->ExportService->countriesWithHighestOrdersExport($request->validated(), $country);
     }
 
 }

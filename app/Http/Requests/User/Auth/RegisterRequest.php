@@ -17,6 +17,20 @@ class RegisterRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Prepare the data for validation.
+     * This method is called before validation starts to clean or normalize inputs.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'first_name' => $this->first_name ? ucwords(trim($this->first_name)) : null,
+            'last_name' => $this->last_name ? ucwords(trim($this->last_name)) : null,
+            'email' => $this->email ? strtolower(trim($this->email)) : null,
+        ]);
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -29,13 +43,36 @@ class RegisterRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'max:30', 'confirmed',
-                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
+            'password' => [
+                'required',
+                'max:30',
+                'confirmed',
+                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()
+            ],
             'phone' => ['string', 'max:255', 'nullable'],
             'address' => ['required', 'string', 'max:255'],
             'is_male' => ['required', 'boolean'],
             'birthdate' => ['required', 'date'],
-            'avatar'=>['image', 'mimes:jpeg,png,jpg,webp','mimetypes:image/jpeg,image/png,image/jpg,image/webp', 'max:8192']
+            'avatar' => ['image', 'mimes:jpeg,png,jpg,webp', 'mimetypes:image/jpeg,image/png,image/jpg,image/webp', 'max:8192']
+        ];
+    }
+
+    /**
+     * Define human-readable attribute names for validation errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'first_name' => 'First Name',
+            'last_name' => 'Last Name',
+            'email' => 'Email Address',
+            'password' => 'Password',
+            'phone' => 'Phone Number',
+            'address' => 'Address',
+            'is_male' => 'Gender',
+            'birthdate' => 'Birthday',
         ];
     }
 
@@ -73,7 +110,7 @@ class RegisterRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

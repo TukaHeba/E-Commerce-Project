@@ -2,8 +2,10 @@
 
 namespace App\Services\Photo;
 
-use Exception;
 use App\Models\Photo\Photo;
+
+use App\Models\User\User;
+use Exception;
 use Illuminate\Support\Str;
 use App\Traits\CacheManagerTrait;
 use Illuminate\Support\Facades\Log;
@@ -37,8 +39,9 @@ class PhotoService
      * @return array Contains the created photo and a success message.
      * @throws Exception If the file is malicious or fails any validation.
      */
-    public function storePhoto($photofile, $photoable)
+    public function storePhoto($photofile, $photoable, $path = 'photos')
     {
+        set_time_limit(seconds: 120);
         $message = '';
 
         // Scan the file for viruses
@@ -74,9 +77,9 @@ class PhotoService
 
         // Generate a unique file name and save the file
         $fileName = Str::random(32) . '.' . $extension;
-        $filePath = "photos/{$fileName}";
+        $filePath = "{$path}/{$fileName}";
 
-        if (!Storage::disk('local')->put($filePath, file_get_contents($photofile))) {
+        if (!Storage::disk('public')->put($filePath, file_get_contents($photofile))) {
             throw new Exception(trans('general.failedToStoreFile'), 500);
         }
 
@@ -99,13 +102,14 @@ class PhotoService
      * @param mixed $photoable The related model (e.g., a user or post).
      * @return array Results of each photo upload, including errors if any.
      */
-    public function storeMultiplePhotos(array $photoFiles, $photoable)
+    public function storeMultiplePhotos(array $photoFiles, $photoable, $path = 'photos')
     {
+
         set_time_limit(120);
         $results = [];
         foreach ($photoFiles as $photofile) {
             try {
-                $results[] = $this->storePhoto($photofile, $photoable);
+                $results[] = $this->storePhoto($photofile, $photoable, $path);
             } catch (Exception $e) {
                 $results[] = ['photo' => null, 'message' => $e->getMessage(), 'status' => 'error'];
             }
@@ -115,15 +119,28 @@ class PhotoService
     }
 
     /**
-     * Delete a photo from storage.
+     * Delete a photo from storage and the database.
      *
      * @param string $filePath The path to the file in storage.
-     * @throws Exception If the file does not exist.
+     * @param int $photoId The ID of the photo to delete from the database.
+     * @throws Exception If the file does not exist or deletion fails.
      */
-    public function deletePhoto($filePath)
+    public function deletePhoto($filePath, $photoId)
     {
-        if (Storage::exists($filePath)) {
-            Storage::delete($filePath);
+        // Check if the file exists in storage
+        if (Storage::disk('public')->exists($filePath)) {
+            // Delete the file from storage
+            Storage::disk('public')->delete($filePath);
+
+            // Now delete the photo record from the database
+            $photo = Photo::find($photoId);
+            if ($photo) {
+                $photo->delete();
+            } else {
+                throw new Exception('Photo record not found in database', 404);
+            }
+
+            // Clear the cache group after deleting the photo
             $this->clearCacheGroup($this->groupe_key_cache);
         } else {
             throw new Exception('File not found in storage', 404);
@@ -180,5 +197,22 @@ class PhotoService
             }
         }
         throw new Exception('Scan timeout or failed to complete after polling.');
+    }
+
+    /**
+     * Add Default avatar for user
+     * The image already store in storage
+     *
+     * @param User $user
+     * @return void
+     */
+    public function addDefaultAvatar(User $user){
+        $photo = Photo::create([
+            'photo_name' => 'default_avatar.png',
+            'photo_path' => 'avatars/default_avatar.png',
+            'mime_type' => 'image/png',
+            'photoable_id' => $user->id,
+            'photoable_type' => get_class($user),
+        ]);
     }
 }

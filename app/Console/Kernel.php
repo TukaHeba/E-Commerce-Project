@@ -13,18 +13,28 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        // Sends an email with remaining products report every two months on the first day at midnight.
         $schedule->command('report:products-remaining-command')->cron('0 0 1 */2 *');
 
-        $schedule->command('app:low-on-stock-report-command')->daily();
+        // Sends an email with unsold products report once a month.
+        $schedule->command('app:unsold-products-report-command')->monthly();
 
-        $schedule->command('app:unsold-products-email-command')->monthly();
+        // Sends an email with update seasonal product report monthly, defaults to running on the 1st at midnight.
+        $schedule->command('app:update-season-products-command')->monthlyOn();
 
-        $schedule->command('app:best_category_report_command')->everyFiveSeconds();
+        // Sends an email with late-products report of products that are overdue.
+        $schedule->command('app:late-products-report-command')->daily();
 
+        // Sends an email with best-performing product categories report monthly, defaults to the 1st at midnight.
+        $schedule->command('app:best_category_report_command')->monthlyOn();
+
+        // Sends an email with best-performing products report quarterly on the 1st day of the quarter at 8:00 AM.
         $schedule->command('app:best-products-report-command')->quarterlyOn(1, '08:00');
 
-        $schedule->command('app:countries-with-highest-orders-command')->cron('0 10 1 1,5,9,13 *');
+        // Sends an email with highest orders report on January, May, and September 1st at 10:00 AM.
+        $schedule->command('app:countries-with-highest-orders-command')->cron('0 10 1 1,5,9 *');
 
+        // Fetches the latest Telegram bot users every ten minutes.
         $schedule->command('app:get-telegram-bot-users-command')->everyTenMinutes();
     }
 

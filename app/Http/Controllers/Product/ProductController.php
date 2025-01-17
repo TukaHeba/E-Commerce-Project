@@ -40,7 +40,7 @@ class ProductController extends Controller
         if ($products->isEmpty()) {
             return self::error(null, 'No Products matched!', 404);
         }
-        return self::paginated($products, null, 'Products retrieved successfully', 200);
+        return self::paginated($products, ProductResource::class, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -51,7 +51,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): JsonResponse
     {
-        return self::success($product, 'Product retrieved successfully');
+        return self::success(new ProductResource($product->load(['mainCategory', 'subCategory', 'photos'])), 'Product retrieved successfully');
     }
 
     /**
@@ -67,7 +67,7 @@ class ProductController extends Controller
         $this->authorize('store', Product::class);
         $photos = $storeMultiplePhotosRequest->file('photos');
         $product = $this->ProductService->storeProduct($request->validated(), $photos);
-        return self::success($product, 'Product created successfully', 201);
+        return self::success([new ProductResource($product['product']) , 'photos'=>$product['photo']],'Product created successfully', 201);
     }
 
     /**
@@ -81,9 +81,9 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
         $this->authorize('update', Product::class);
-        $deletedPhotos = $request->input('photosDeleted');
-        $updatedProduct = $this->ProductService->updateProduct($product, $request->validated(), $deletedPhotos);
-        return self::success($updatedProduct, 'Product updated successfully');
+        $photos = $request->file('photos');
+        $updatedProduct = $this->ProductService->updateProduct($product, $request->validated(), $photos);
+        return self::success([new ProductResource($updatedProduct['product']) , 'photos'=>$updatedProduct['photo']],'Product updated successfully', 200);
     }
 
     /**
@@ -124,7 +124,7 @@ class ProductController extends Controller
         $product = Product::onlyTrashed()->findOrFail($id);
         $product->restore();
         $this->clearCacheGroup($this->groupe_key_cache);
-        return self::success($product, 'Product restored successfully');
+        return self::success(new ProductResource($product), 'Product restored successfully', 200);
     }
 
     /**
@@ -136,7 +136,7 @@ class ProductController extends Controller
     public function forceDeleted(string $id): JsonResponse
     {
         $this->authorize('forceDeleted', Product::class);
-        Product::onlyTrashed()->findOrFail($id)->forceDelete();
+        $this->ProductService->forceDelete($id);
         $this->clearCacheGroup($this->groupe_key_cache);
         return self::success(null, 'Product force deleted successfully');
     }
@@ -146,12 +146,13 @@ class ProductController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return JsonResponse
      */
-    public function getProductsByCategory(Request $request){
+    public function getProductsByCategory(Request $request)
+    {
         $products = $this->ProductService->getProductsByCategory($request);
         if ($products->total() === 0) {
             return self::error(null, 'No Products matched!', 404);
         }
-        return self::paginated($products, ProductResource::class,'Products retrieved successfully', 200);
+        return self::paginated($products, ProductResource::class, 'Products retrieved successfully', 200);
     }
 
     /**
@@ -175,6 +176,18 @@ class ProductController extends Controller
         $products = $this->ProductService->getBestSellingProducts();
         if ($products->isEmpty()) {
             return self::error(null, 'No Products matched!', 404);
+        }
+        return self::paginated($products, null, 'Products retrieved successfully', 200);
+    }
+    /**
+     * Retrieve season products with caching and pagination .
+     * @return JsonResponse
+     */
+    public function getSeasonProducts()
+    {
+        $products = $this->ProductService->getSeasonProducts();
+        if ($products->isEmpty()) {
+            return self::error(null, 'No season products Found!', 404);
         }
         return self::paginated($products, null, 'Products retrieved successfully', 200);
     }

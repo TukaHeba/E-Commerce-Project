@@ -2,16 +2,19 @@
 
 namespace App\Services\Favorite;
 
-use auth;
+use Exception;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use App\Models\Product\Product;
+use App\Traits\CacheManagerTrait;
 use Illuminate\Database\Eloquent\Collection;
 
+use function PHPUnit\Framework\isEmpty;
 
 class FavoriteService
 {
-
+    use CacheManagerTrait;
+    private $groupe_key_cache = 'products_cache_keys';
     /**
      * Add a new product to user favorite
      *
@@ -22,7 +25,11 @@ class FavoriteService
     public function storeFavorite(Product $product)
     {
         $user = User::findOrFail(auth()->user()->id);
-        $user->favoriteProducts()->attach($product->id);
+        $result = $user->favoriteProducts()->syncWithoutDetaching($product->id);
+        if (empty($result['attached'])) {
+            throw new Exception("Product is already in favorites");
+        }
+        $this->clearCacheGroup($this->groupe_key_cache);
     }
 
     /**
@@ -34,10 +41,14 @@ class FavoriteService
     public function showFavorites()
     {
         $user = User::findOrFail(auth()->id());
-        return  $user->favoriteProducts()->get();
+        $user_favorite_products = $user->favoriteProducts()->get();
+        if ($user_favorite_products->isEmpty()) {
+            throw new Exception("You do not have favorite products. Add some products to favorites.", 404);
+        }
+        return $user_favorite_products;
     }
 
-      /**
+    /**
      * remove product from user's favorite products
      *
      * @param Request $request
@@ -47,6 +58,10 @@ class FavoriteService
     public function destroyFavorite($product)
     {
         $user = User::findOrFail(auth()->user()->id);
+        if ($user->favoriteProducts()->where('product_id', $product->id)->doesntExist()) {
+            throw new Exception("You do not have permission to access this resource.");
+        }
         $user->favoriteProducts()->detach($product->id);
+        $this->clearCacheGroup($this->groupe_key_cache);
     }
 }

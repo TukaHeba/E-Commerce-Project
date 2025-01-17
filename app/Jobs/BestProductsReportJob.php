@@ -19,13 +19,16 @@ class BestProductsReportJob implements ShouldQueue
 
     /**
      * Execute the job.
+     * 
      * Send report for sales managers and store managers
      * The report includes the best sold products.
      */
     public function handle(): void
     {
         $file = (new ExportService(new ReportService()))->bestSellingProductsExportStorage();
-        $users = User::role(['sales manager','store manager'])->get();
-        Notification::send($users,new BestProductsNotification($file));
+        $users = User::role(['sales manager', 'store manager'])->get();
+        foreach ($users as $user) {
+            Notification::send($user, new BestProductsNotification($file));
+        }
     }
 }

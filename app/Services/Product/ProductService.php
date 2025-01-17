@@ -9,6 +9,7 @@ use App\Traits\CacheManagerTrait;
 use App\Services\Photo\PhotoService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
@@ -94,6 +95,22 @@ class ProductService
                 ->paginate(10);
         });
     }
+    /**
+     * Retrieve season products with caching and pagination.
+     *
+     * @param mixed $request The HTTP request for fetching best-selling products same month from last year.
+     * @return mixed A paginated list of products.
+     */
+    public function getSeasonProducts()
+    {
+        $cache_key = 'season_products';
+        $this->addCacheKey($this->groupe_key_cache, $cache_key);
+        return Cache::remember($cache_key, now()->addMonth(), function () {
+            return Product::bestSelling('season')
+                ->available()
+                ->paginate(10);
+        });
+    }
 
     /**
      * Retrieve products the user may like based on their preferences.
@@ -131,14 +148,17 @@ class ProductService
      *
      * @param array $data The product data.
      * @param array $photos The photos to associate with the product.
-     * @return Product The created product.
+     * @return array The created product and photos associated
      */
     public function storeProduct($data, $photos)
     {
+        // Create a new product in the database with the provided data
         $product = Product::create($data);
-        $this->photoService->storeMultiplePhotos($photos, $product);  // Store product photos.
+        if($photos){
+            $result = $this->photoService->storeMultiplePhotos($photos, $product,'products');  // Store product photos.
+        }
         $this->clearCacheGroup($this->groupe_key_cache);
-        return $product;
+        return ['product' => $product, 'photo' => $result];
     }
 
     /**
@@ -147,22 +167,50 @@ class ProductService
      * @param Product $product The product to update.
      * @param array $data The new product data.
      * @param array $photoForDelete The paths of photos to delete.
-     * @return Product The updated product.
+     *
      */
-    public function updateProduct($product, $data, $photoForDelete = [])
+    public function updateProduct($product, $data, $photos = null)
     {
         $product->update($data);
-        foreach ($photoForDelete as $filePath) {
-            $photo = Photo::where('photo_path', $filePath)->first();
-            if ($photo) {
-                $this->photoService->deletePhoto($photo->photo_path);
-                $photo->delete();
+        $result = null;
+        // Check if there are any photos to delete
+        if ($photos) {
+            // Delete old photos if there are new ones uploaded
+            foreach ($product->photos as $photo) {
+                if ($photo) {
+                // Use the deletePhoto service method to delete the photo from storage and database
+                $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+                }
             }
+
+            // Store the new uploaded photos
+            $photos = $data['photos'];
+            $result = $this->photoService->storeMultiplePhotos($photos, $product, 'products');
         }
         $this->clearCacheGroup($this->groupe_key_cache);
         $product->save();
 
-        return $product;
+        return ['product' => $product->load(['mainCategory','subCategory','photos']), 'photo' => $result];
+    }
+    /**
+     * delete the photos related with product
+     * @param string $id
+     * @return void
+     */
+    public function forceDelete(string $id){
+        $product = Product::withTrashed()->findOrFail($id);
+
+        foreach ($product->photos as $photo) {
+            if($photo){
+                $this->photoService->deletePhoto($photo->photo_path, $photo->id);
+            }
+        }
+        // delete the photos related with product
+        $product->photos()->delete();
+
+        // Force Delete the product
+        $product->forceDelete();
+
     }
 
     /**

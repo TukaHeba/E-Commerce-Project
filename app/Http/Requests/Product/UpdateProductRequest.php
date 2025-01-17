@@ -24,10 +24,13 @@ class UpdateProductRequest extends FormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge([
-            'name'=>$this->name ? strtolower($this->name):null,
-        ]);
+        if ($this->has('name')) {
+            $this->merge([
+                'name' => ucwords(trim($this->name)),
+            ]);
+        }
     }
+
 
     /**
      * Get the validation rules that apply to the request.
@@ -37,17 +40,17 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>'nullable|string|min:4|max:100',
-            'description'=>'nullable|string',
-            'price'=>'nullable|numeric|min:0',
-            'product_quantity'=>'nullable|int|min:0',
-            'maincategory_subcategory_id'=>'nullable|exists:maincategory_subcategory,id',
-            'photosDeleted' => ['nullable', 'array', 'min:1'], // Ensure it's an array and at least one photo is provided.
-            'photosDeleted.*' => ['string'],
+            'name' => 'nullable|string|min:4|max:100|unique:products,name',
+            'description' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
+            'product_quantity' => 'nullable|int|min:0',
+            'maincategory_subcategory_id' => 'nullable|exists:maincategory_subcategory,id',
+            'photos' => 'sometimes|nullable|array|min:1',
+            'photos.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:8192',
         ];
     }
 
-     /**
+    /**
      * Define human-readable attribute names for validation errors.
      *
      * @return array<string, string>
@@ -55,11 +58,11 @@ class UpdateProductRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name'=>'Product Name',
-            'description'=>'Product description',
-            'price'=>'Product Price',
-            'product_quantity'=>'product quantity',
-            'category_id'=>'category_ID',
+            'name' => 'Product Name',
+            'description' => 'Product description',
+            'price' => 'Product Price',
+            'product_quantity' => 'product quantity',
+            'maincategory_subcategory_id' => 'The Main & Sub Category',
         ];
     }
 
@@ -78,7 +81,8 @@ class UpdateProductRequest extends FormRequest
             'in' => 'The selected :attribute is invalid.',
             'date' => 'The :attribute must be a valid date.',
             'exists' => 'The selected :attribute is invalid.',
-            'numeric'=>'The :attribute must be a deciaml or integer value',
+            'numeric' => 'The :attribute must be a deciaml or integer value',
+            'string' => 'The :attribute must be a valid string.',
         ];
     }
 
@@ -96,7 +100,7 @@ class UpdateProductRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'A server error has occurred',
                 'errors' => $errors,
-            ], 403)
+            ], 422)
         );
     }
 }

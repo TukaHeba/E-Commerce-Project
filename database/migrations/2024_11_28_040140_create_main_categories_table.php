@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('main_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('main_category_name')->unique();
+            $table->string('main_category_name');
             $table->timestamps();
             $table->softDeletes();
+
+            // Indexing column to optimize performance
+            $table->index('main_category_name', 'index_main_category_name');
         });
     }
 
