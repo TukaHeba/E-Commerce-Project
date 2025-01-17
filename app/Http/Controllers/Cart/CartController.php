@@ -61,11 +61,11 @@ class CartController extends Controller
      * Place an order by creating the order and order items.
      *
      * @param \App\Http\Requests\Order\StoreOrderRequest $request
-     * @return 
+     * @return JsonResponse
      */
     public function placeOrder(StoreOrderRequest $request)
     {
-        $orderPayment = $this->CartService->placeOrder($request->validated());
-        return self::success($orderPayment, 'Order placed successfully!', 201);
+        $order = $this->CartService->placeOrder($request->validated());
+        return self::success(new OrderResource($order), 'Order placed successfully!', 201);
     }
 }
